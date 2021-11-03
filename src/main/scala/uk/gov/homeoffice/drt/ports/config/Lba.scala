@@ -21,7 +21,7 @@ object Lba extends AirportConfigLike {
       Queues.EeaDesk -> 25,
       Queues.NonEeaDesk -> 45
     ),
-    defaultWalkTimeMillis = Map(T1 -> 60000L),
+    defaultWalkTimeMillis = Map(T1 -> 600000L),
     terminalPaxSplits = List(T1).map(t => (t, defaultPaxSplits)).toMap,
     terminalProcessingTimes = Map(T1 -> defaultProcessingTimes),
     minMaxDesksByTerminalQueue24Hrs = Map(T1 -> Map(
