@@ -24,7 +24,7 @@ object Inv extends AirportConfigLike {
       Queues.EeaDesk -> 25,
       Queues.NonEeaDesk -> 45
     ),
-    defaultWalkTimeMillis = Map(T1 -> 5.minutes.toMillis),
+    defaultWalkTimeMillis = Map(T1 -> 1.minutes.toMillis),
     terminalPaxSplits = Map(T1 -> SplitRatios(
       SplitSources.TerminalAverage,
       SplitRatio(eeaMachineReadableToDesk, 0.99 * 0.2),
