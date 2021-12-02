@@ -3,6 +3,7 @@ package uk.gov.homeoffice.drt.ports.config
 import uk.gov.homeoffice.drt.auth.Roles.{BOH, SOU}
 import uk.gov.homeoffice.drt.ports.PaxTypes._
 import uk.gov.homeoffice.drt.ports.PaxTypesAndQueues._
+import uk.gov.homeoffice.drt.ports.Queues.{EeaDesk, NonEeaDesk}
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{SplitRatio, SplitRatios, SplitSources}
 import uk.gov.homeoffice.drt.ports.Terminals._
 import uk.gov.homeoffice.drt.ports._
@@ -51,7 +52,7 @@ object Boh extends AirportConfigLike {
         B5JPlusNationalBelowEGateAge -> List(Queues.QueueDesk -> 1.0)
       ))),
     feedSources = Seq(ApiFeedSource, LiveBaseFeedSource, AclFeedSource),
-    flexedQueues = Set(),
+    flexedQueues = Set(EeaDesk, NonEeaDesk),
     desksByTerminal = Map(T1 -> 4)
   )
 
