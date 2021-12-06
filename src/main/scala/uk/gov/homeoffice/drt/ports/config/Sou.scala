@@ -52,7 +52,7 @@ object Sou extends AirportConfigLike {
         B5JPlusNationalBelowEGateAge -> List(Queues.QueueDesk -> 1.0)
       ))),
     feedSources = Seq(ApiFeedSource, LiveBaseFeedSource, AclFeedSource),
-    flexedQueues = Set(),
+    flexedQueues = Set(EeaDesk, NonEeaDesk),
     desksByTerminal = Map(T1 -> 4)
   )
 
