@@ -55,7 +55,7 @@ object Nqy extends AirportConfigLike {
         B5JPlusNational -> List(Queues.QueueDesk -> 1.0),
         B5JPlusNationalBelowEGateAge -> List(Queues.QueueDesk -> 1.0)
       )),
-    flexedQueues = Set(EeaDesk, NonEeaDesk),
+    flexedQueues = Set(),
     desksByTerminal = Map(T1 -> 2),
     feedSources = Seq(ApiFeedSource, LiveFeedSource)
   )
