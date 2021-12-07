@@ -57,7 +57,7 @@ object Ema extends AirportConfigLike {
         EeaDesk -> (1.0 - 0.6993)
       )))
     ),
-    flexedQueues = Set(EeaDesk, NonEeaDesk),
+    flexedQueues = Set(),
     desksByTerminal = Map(T1 -> 5),
     feedSources = Seq(ApiFeedSource, LiveBaseFeedSource, LiveFeedSource, AclFeedSource)
   )
