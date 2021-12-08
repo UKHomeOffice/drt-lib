@@ -13,13 +13,13 @@ import scala.collection.immutable.SortedMap
 object Lhr extends AirportConfigLike {
 
   val standardProcessingTimes: Map[PaxTypeAndQueue, Double] = Map(
-    eeaMachineReadableToDesk -> 25d / 60,
-    eeaMachineReadableToEGate -> 25d / 60,
-    eeaNonMachineReadableToDesk -> 55d / 60,
-    visaNationalToDesk -> 96d / 60,
-    nonVisaNationalToDesk -> 78d / 60,
-    nonVisaNationalToFastTrack -> 78d / 60,
-    visaNationalToFastTrack -> 78d / 60,
+    eeaMachineReadableToDesk -> 25d,
+    eeaMachineReadableToEGate -> 25d,
+    eeaNonMachineReadableToDesk -> 55d,
+    visaNationalToDesk -> 96d,
+    nonVisaNationalToDesk -> 78d,
+    nonVisaNationalToFastTrack -> 78d,
+    visaNationalToFastTrack -> 78d,
     transitToTransfer -> 0d
   )
 
