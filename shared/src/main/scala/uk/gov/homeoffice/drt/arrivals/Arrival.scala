@@ -1,7 +1,9 @@
 package uk.gov.homeoffice.drt.arrivals
 
+import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSource
+import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.Historical
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import uk.gov.homeoffice.drt.ports.{FeedSource, LiveFeedSource, PortCode}
+import uk.gov.homeoffice.drt.ports.{ApiFeedSource, FeedSource, LiveFeedSource, PortCode}
 import uk.gov.homeoffice.drt.time.{MilliTimes, SDateLike}
 import uk.gov.homeoffice.drt.time.MilliTimes.oneMinuteMillis
 import upickle.default.{ReadWriter, macroRW}
@@ -21,6 +23,8 @@ object Prediction {
   implicit val predictionLong: ReadWriter[Prediction[Long]] = macroRW
   implicit val predictionInt: ReadWriter[Prediction[Int]] = macroRW
 }
+
+case class TotalPaxSource(pax:Int, feedSource: FeedSource, splitSource: Option[SplitSource])
 
 case class Arrival(Operator: Option[Operator],
                    CarrierCode: CarrierCode,
@@ -49,6 +53,7 @@ case class Arrival(Operator: Option[Operator],
                    ApiPax: Option[Int],
                    ScheduledDeparture: Option[Long],
                    RedListPax: Option[Int],
+                   TotalPax: List[TotalPaxSource]
                   ) extends WithUnique[UniqueArrival] {
   lazy val differenceFromScheduled: Option[FiniteDuration] = Actual.map(a => (a - Scheduled).milliseconds)
 
@@ -110,11 +115,12 @@ case class Arrival(Operator: Option[Operator],
     (minutesToDisembark * oneMinuteInMillis).toLong
   }
 
-  val bestPcpPaxEstimate: Int = (ApiPax, ActPax, TranPax, MaxPax) match {
-    case (Some(apiPax), _, _, _) if !FeedSources.contains(LiveFeedSource) => apiPax
-    case (_, Some(actPax), Some(tranPax), _) if (actPax - tranPax) >= 0 => actPax - tranPax
-    case (_, Some(actPax), None, _) => actPax
-    case (Some(apiPax), _, _, _) => apiPax
+  val bestPcpPaxEstimate: Int = (ApiPax, ActPax, TranPax, MaxPax, TotalPax) match {
+    case (Some(apiPax), _, _, _, _) if !FeedSources.contains(LiveFeedSource) => apiPax
+    case (_, Some(actPax), Some(tranPax), _, _) if (actPax - tranPax) >= 0 => actPax - tranPax
+    case (_, Some(actPax), None, _, _) => actPax
+    case (Some(apiPax), _, _, _, _) => apiPax
+//    case (_, _, _, _, Some(totalPax)) if totalPax.feedSource == ApiFeedSource && totalPax.splitSource.contains(Historical) => totalPax.pax
     case _ => 0
   }
 
@@ -199,6 +205,7 @@ object Arrival {
   implicit val operatorRw: ReadWriter[Operator] = macroRW
   implicit val portCodeRw: ReadWriter[PortCode] = macroRW
   implicit val arrivalRw: ReadWriter[Arrival] = macroRW
+  implicit val totalPaxSourceRw: ReadWriter[TotalPaxSource] = macroRW
 
   def apply(Operator: Option[Operator],
             Status: ArrivalStatus,
@@ -226,6 +233,7 @@ object Arrival {
             ApiPax: Option[Int] = None,
             ScheduledDeparture: Option[Long] = None,
             RedListPax: Option[Int] = None,
+            TotalPax: List[TotalPaxSource] = List.empty
            ): Arrival = {
     val (carrierCode: CarrierCode, voyageNumber: VoyageNumber, maybeSuffix: Option[FlightCodeSuffix]) = {
       val bestCode = (rawIATA, rawICAO) match {
@@ -265,6 +273,7 @@ object Arrival {
       ApiPax = ApiPax,
       ScheduledDeparture = ScheduledDeparture,
       RedListPax = RedListPax,
+      TotalPax = TotalPax
     )
   }
 }
