@@ -82,6 +82,8 @@ object FeedSource {
 
   def apply(feedSource: String): Option[FeedSource] = feedSources.find(fs => fs.toString == feedSource)
 
+  def findByName(feedSource: String): Option[FeedSource] = feedSources.find(fs => fs.name == feedSource)
+
   implicit val feedSourceReadWriter: ReadWriter[FeedSource] =
     readwriter[Value].bimap[FeedSource](
       feedSource => feedSource.toString,
