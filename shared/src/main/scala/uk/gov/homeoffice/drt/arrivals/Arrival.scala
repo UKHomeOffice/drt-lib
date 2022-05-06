@@ -53,7 +53,7 @@ case class Arrival(Operator: Option[Operator],
                    ApiPax: Option[Int],
                    ScheduledDeparture: Option[Long],
                    RedListPax: Option[Int],
-                   TotalPax: List[TotalPaxSource]
+                   TotalPax: Set[TotalPaxSource]
                   ) extends WithUnique[UniqueArrival] {
   lazy val differenceFromScheduled: Option[FiniteDuration] = Actual.map(a => (a - Scheduled).milliseconds)
 
@@ -233,7 +233,7 @@ object Arrival {
             ApiPax: Option[Int] = None,
             ScheduledDeparture: Option[Long] = None,
             RedListPax: Option[Int] = None,
-            TotalPax: List[TotalPaxSource] = List.empty
+            TotalPax: Set[TotalPaxSource] = Set.empty
            ): Arrival = {
     val (carrierCode: CarrierCode, voyageNumber: VoyageNumber, maybeSuffix: Option[FlightCodeSuffix]) = {
       val bestCode = (rawIATA, rawICAO) match {
