@@ -27,7 +27,8 @@ object ArrivalGenerator {
                baggageReclaimId: Option[String] = None,
                airportId: PortCode = PortCode(""),
                feedSources: Set[FeedSource] = Set(),
-               pcpTime: Option[Long] = None
+               pcpTime: Option[Long] = None,
+               totalPax: Set[TotalPaxSource] = Set.empty[TotalPaxSource]
              ): Arrival =
     Arrival(
       Operator = operator,
@@ -51,7 +52,8 @@ object ArrivalGenerator {
       Origin = origin,
       PcpTime = if (pcpTime.isDefined) Option(pcpTime.get) else if (sch != 0L) Some(sch) else None,
       Scheduled = sch,
-      FeedSources = feedSources
+      FeedSources = feedSources,
+      TotalPax = totalPax
     )
 
   def flightWithSplitsForDayAndTerminal(date: SDateLike, terminal: Terminal = T1): ApiFlightWithSplits = ApiFlightWithSplits(

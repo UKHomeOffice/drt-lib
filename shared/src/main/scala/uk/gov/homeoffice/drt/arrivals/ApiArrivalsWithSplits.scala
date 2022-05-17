@@ -2,7 +2,7 @@ package uk.gov.homeoffice.drt.arrivals
 
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages
-import uk.gov.homeoffice.drt.ports.{LiveFeedSource, ScenarioSimulationSource}
+import uk.gov.homeoffice.drt.ports.{AclFeedSource, ApiFeedSource, LiveFeedSource, ScenarioSimulationSource}
 import uk.gov.homeoffice.drt.time.SDateLike
 import upickle.default.{ReadWriter, macroRW}
 
@@ -21,25 +21,25 @@ case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpda
   extends WithUnique[UniqueArrival]
     with WithLastUpdated {
 
-  def totalPaxFromApi: Option[Int] = splits.collectFirst {
+  def totalPaxFromApi: Option[TotalPaxSource] = splits.collectFirst {
     case splits if splits.source == ApiSplitsWithHistoricalEGateAndFTPercentages =>
-      Math.round(splits.totalPax).toInt
+      TotalPaxSource(Math.round(splits.totalPax).toInt, ApiFeedSource, Option(ApiSplitsWithHistoricalEGateAndFTPercentages))
   }
 
-  def totalPaxFromApiExcludingTransfer: Option[Int] =
+  def totalPaxFromApiExcludingTransfer: Option[TotalPaxSource] =
     splits.collectFirst { case splits if splits.source == ApiSplitsWithHistoricalEGateAndFTPercentages =>
-      Math.round(splits.totalExcludingTransferPax).toInt
+      TotalPaxSource(Math.round(splits.totalExcludingTransferPax).toInt, ApiFeedSource, Option(ApiSplitsWithHistoricalEGateAndFTPercentages))
     }
 
-  def pcpPaxEstimate: Int =
-    totalPaxFromApiExcludingTransfer match {
-      case Some(apiTotal) if hasValidApi => apiTotal
+  def pcpPaxEstimate: TotalPaxSource =
+    totalPaxFromApi match {
+      case Some(totalPaxSource) if hasValidApi => totalPaxSource
       case _ => apiFlight.bestPcpPaxEstimate
     }
 
-  def totalPax: Option[Int] =
+  def totalPax: Option[TotalPaxSource] =
     if (hasValidApi) totalPaxFromApi
-    else apiFlight.ActPax
+    else apiFlight.ActPax.map(TotalPaxSource(_, AclFeedSource, None))
 
   def equals(candidate: ApiFlightWithSplits): Boolean =
     this.copy(lastUpdated = None) == candidate.copy(lastUpdated = None)
