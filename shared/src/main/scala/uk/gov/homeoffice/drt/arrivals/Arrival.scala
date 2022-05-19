@@ -5,7 +5,9 @@ import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.{ApiSplitsWithHist
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 import uk.gov.homeoffice.drt.ports.{AclFeedSource, ApiFeedSource, FeedSource, LiveFeedSource, PortCode, ScenarioSimulationSource, UnknownFeedSource}
 import uk.gov.homeoffice.drt.time.{MilliTimes, SDateLike}
+import uk.gov.homeoffice.drt.ports.{FeedSource, LiveFeedSource, PortCode}
 import uk.gov.homeoffice.drt.time.MilliTimes.oneMinuteMillis
+import uk.gov.homeoffice.drt.time.{MilliTimes, SDateLike}
 import upickle.default.{ReadWriter, macroRW}
 
 import scala.collection.immutable.{List, NumericRange}
@@ -15,6 +17,10 @@ import scala.util.matching.Regex
 
 trait WithUnique[I] {
   def unique: I
+}
+
+trait Updatable[I] {
+  def update(incoming: I): I
 }
 
 case class Prediction[A](updatedAt: Long, value: A)
@@ -54,7 +60,8 @@ case class Arrival(Operator: Option[Operator],
                    ScheduledDeparture: Option[Long],
                    RedListPax: Option[Int],
                    TotalPax: Set[TotalPaxSource]
-                  ) extends WithUnique[UniqueArrival] {
+                  )
+  extends WithUnique[UniqueArrival] with Updatable[Arrival] {
   lazy val differenceFromScheduled: Option[FiniteDuration] = Actual.map(a => (a - Scheduled).milliseconds)
 
   val paxOffPerMinute = 20
@@ -182,6 +189,14 @@ case class Arrival(Operator: Option[Operator],
     case st if st.toLowerCase.contains("deleted") => true
     case _ => false
   }
+
+  override def update(incoming: Arrival): Arrival =
+    incoming.copy(
+      BaggageReclaimId = if (incoming.BaggageReclaimId.exists(_.nonEmpty)) incoming.BaggageReclaimId else this.BaggageReclaimId,
+      Stand = if (incoming.Stand.exists(_.nonEmpty)) incoming.Stand else this.Stand,
+      Gate = if (incoming.Gate.exists(_.nonEmpty)) incoming.Gate else this.Gate,
+      RedListPax = if (incoming.RedListPax.nonEmpty) incoming.RedListPax else this.RedListPax,
+    )
 }
 
 object Arrival {
