@@ -10,6 +10,7 @@ import uk.gov.homeoffice.drt.time.MilliTimes.oneMinuteMillis
 import uk.gov.homeoffice.drt.time.{MilliTimes, SDateLike}
 import upickle.default.{ReadWriter, macroRW}
 
+import scala.collection.SortedSet
 import scala.collection.immutable.{List, NumericRange}
 import scala.concurrent.duration.{DurationLong, FiniteDuration}
 import scala.util.matching.Regex
@@ -30,7 +31,19 @@ object Prediction {
   implicit val predictionInt: ReadWriter[Prediction[Int]] = macroRW
 }
 
-case class TotalPaxSource(pax: Int, feedSource: FeedSource, splitSource: Option[SplitSource])
+case class TotalPaxSource(pax: Int, feedSource: FeedSource, splitSource: Option[SplitSource]) extends Ordered[TotalPaxSource] {
+  override def compareTo(that: TotalPaxSource): Int =
+    compare(that)
+
+  override def compare(that: TotalPaxSource): Int =
+    if (this.pax < that.pax) {
+      1
+    } else if (this.pax > that.pax) {
+      -1
+    } else {
+      0
+    }
+}
 
 case class Arrival(Operator: Option[Operator],
                    CarrierCode: CarrierCode,
@@ -59,7 +72,7 @@ case class Arrival(Operator: Option[Operator],
                    ApiPax: Option[Int],
                    ScheduledDeparture: Option[Long],
                    RedListPax: Option[Int],
-                   TotalPax: Set[TotalPaxSource]
+                   TotalPax: SortedSet[TotalPaxSource]
                   )
   extends WithUnique[UniqueArrival] with Updatable[Arrival] {
   lazy val differenceFromScheduled: Option[FiniteDuration] = Actual.map(a => (a - Scheduled).milliseconds)
@@ -196,7 +209,9 @@ case class Arrival(Operator: Option[Operator],
       Stand = if (incoming.Stand.exists(_.nonEmpty)) incoming.Stand else this.Stand,
       Gate = if (incoming.Gate.exists(_.nonEmpty)) incoming.Gate else this.Gate,
       RedListPax = if (incoming.RedListPax.nonEmpty) incoming.RedListPax else this.RedListPax,
+      TotalPax = if (incoming.TotalPax.nonEmpty) this.TotalPax ++ incoming.TotalPax else this.TotalPax,
     )
+
 }
 
 object Arrival {
@@ -263,7 +278,7 @@ object Arrival {
             ApiPax: Option[Int] = None,
             ScheduledDeparture: Option[Long] = None,
             RedListPax: Option[Int] = None,
-            TotalPax: Set[TotalPaxSource] = Set.empty
+            TotalPax: SortedSet[TotalPaxSource] = SortedSet.empty
            ): Arrival = {
     val (carrierCode: CarrierCode, voyageNumber: VoyageNumber, maybeSuffix: Option[FlightCodeSuffix]) = {
       val bestCode = (rawIATA, rawICAO) match {
