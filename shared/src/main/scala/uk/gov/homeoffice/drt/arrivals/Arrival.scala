@@ -136,6 +136,9 @@ case class Arrival(Operator: Option[Operator],
   }
 
   val bestPcpPaxEstimate: TotalPaxSource = (ApiPax, ActPax, TranPax, MaxPax, TotalPax) match {
+    case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == ScenarioSimulationSource && tp.pax > 0) =>
+      totalPax.find(tp => tp.feedSource == ScenarioSimulationSource)
+        .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
     case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == LiveFeedSource && tp.pax > 0) =>
       totalPax.find(tp => tp.feedSource == LiveFeedSource && tp.pax > 0)
         .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
@@ -151,10 +154,9 @@ case class Arrival(Operator: Option[Operator],
     case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == AclFeedSource && tp.pax > 0) =>
       totalPax.find(tp => tp.feedSource == AclFeedSource)
         .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
-    case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == ScenarioSimulationSource && tp.pax > 0) =>
-      totalPax.find(tp => tp.feedSource == ScenarioSimulationSource)
+    case (_, _, _, _, totalPax) =>
+      totalPax.find(tp => tp.feedSource == UnknownFeedSource)
         .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
-    case _ => TotalPaxSource(0, UnknownFeedSource, None)
   }
 
   def bestArrivalTime(timeToChox: Long, considerPredictions: Boolean): Long =
