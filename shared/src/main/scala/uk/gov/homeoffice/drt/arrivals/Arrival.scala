@@ -3,9 +3,7 @@ package uk.gov.homeoffice.drt.arrivals
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSource
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.{ApiSplitsWithHistoricalEGateAndFTPercentages, Historical}
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import uk.gov.homeoffice.drt.ports.{AclFeedSource, ApiFeedSource, FeedSource, LiveFeedSource, PortCode, ScenarioSimulationSource, UnknownFeedSource}
-import uk.gov.homeoffice.drt.time.{MilliTimes, SDateLike}
-import uk.gov.homeoffice.drt.ports.{FeedSource, LiveFeedSource, PortCode}
+import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.time.MilliTimes.oneMinuteMillis
 import uk.gov.homeoffice.drt.time.{MilliTimes, SDateLike}
 import upickle.default.{ReadWriter, macroRW}
@@ -36,13 +34,16 @@ case class TotalPaxSource(pax: Int, feedSource: FeedSource, splitSource: Option[
     compare(that)
 
   override def compare(that: TotalPaxSource): Int =
-    if (this.pax < that.pax) {
+    if (this.feedSource == that.feedSource && this.splitSource == that.splitSource && this.pax < that.pax) {
       1
-    } else if (this.pax > that.pax) {
+    } else if (this.feedSource == that.feedSource && this.splitSource == that.splitSource && this.pax > that.pax) {
       -1
-    } else {
+    } else if(this.feedSource == that.feedSource && this.splitSource == that.splitSource && this.pax == that.pax ) {
       0
+    } else {
+       that.hashCode - this.hashCode
     }
+
 }
 
 case class Arrival(Operator: Option[Operator],
@@ -144,6 +145,9 @@ case class Arrival(Operator: Option[Operator],
         .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
     case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == ApiFeedSource && tp.splitSource.contains(ApiSplitsWithHistoricalEGateAndFTPercentages) && tp.pax > 0) =>
       totalPax.find(tp => tp.feedSource == ApiFeedSource && tp.splitSource.contains(ApiSplitsWithHistoricalEGateAndFTPercentages))
+        .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
+    case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == ForecastFeedSource && tp.pax > 0) =>
+      totalPax.find(tp => tp.feedSource == ForecastFeedSource && tp.pax > 0)
         .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
     case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == ApiFeedSource && tp.splitSource.contains(Historical) && tp.pax > 0) =>
       totalPax.find(tp => tp.feedSource == ApiFeedSource && tp.splitSource.contains(Historical) && tp.pax > 0)

@@ -12,6 +12,7 @@ class TotalPaxSourceSpec extends Specification {
       TotalPaxSource(13, LiveFeedSource, None),
       TotalPaxSource(23, AclFeedSource, None))
 
-    set.head === TotalPaxSource(23, AclFeedSource, None)
+    set.head === TotalPaxSource(13,LiveFeedSource,None)
   }
+
 }
