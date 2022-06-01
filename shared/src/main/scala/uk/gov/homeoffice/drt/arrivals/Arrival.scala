@@ -29,22 +29,7 @@ object Prediction {
   implicit val predictionInt: ReadWriter[Prediction[Int]] = macroRW
 }
 
-case class TotalPaxSource(pax: Int, feedSource: FeedSource, splitSource: Option[SplitSource]) extends Ordered[TotalPaxSource] {
-  override def compareTo(that: TotalPaxSource): Int =
-    compare(that)
-
-  override def compare(that: TotalPaxSource): Int =
-    if (this.feedSource == that.feedSource && this.splitSource == that.splitSource && this.pax < that.pax) {
-      1
-    } else if (this.feedSource == that.feedSource && this.splitSource == that.splitSource && this.pax > that.pax) {
-      -1
-    } else if (this.feedSource == that.feedSource && this.splitSource == that.splitSource && this.pax == that.pax) {
-      0
-    } else {
-      that.hashCode - this.hashCode
-    }
-
-}
+case class TotalPaxSource(pax: Int, feedSource: FeedSource, splitSource: Option[SplitSource])
 
 case class Arrival(Operator: Option[Operator],
                    CarrierCode: CarrierCode,
@@ -73,7 +58,7 @@ case class Arrival(Operator: Option[Operator],
                    ApiPax: Option[Int],
                    ScheduledDeparture: Option[Long],
                    RedListPax: Option[Int],
-                   TotalPax: SortedSet[TotalPaxSource]
+                   TotalPax: Set[TotalPaxSource]
                   )
   extends WithUnique[UniqueArrival] with Updatable[Arrival] {
   lazy val differenceFromScheduled: Option[FiniteDuration] = Actual.map(a => (a - Scheduled).milliseconds)
@@ -282,7 +267,7 @@ object Arrival {
             ApiPax: Option[Int] = None,
             ScheduledDeparture: Option[Long] = None,
             RedListPax: Option[Int] = None,
-            TotalPax: SortedSet[TotalPaxSource] = SortedSet.empty
+            TotalPax: Set[TotalPaxSource] = Set.empty
            ): Arrival = {
     val (carrierCode: CarrierCode, voyageNumber: VoyageNumber, maybeSuffix: Option[FlightCodeSuffix]) = {
       val bestCode = (rawIATA, rawICAO) match {

@@ -30,7 +30,7 @@ object ArrivalGenerator {
                airportId: PortCode = PortCode(""),
                feedSources: Set[FeedSource] = Set(),
                pcpTime: Option[Long] = None,
-               totalPax: SortedSet[TotalPaxSource] = SortedSet.empty[TotalPaxSource]
+               totalPax: Set[TotalPaxSource] = Set.empty[TotalPaxSource]
              ): Arrival =
     Arrival(
       Operator = operator,
