@@ -38,10 +38,10 @@ case class TotalPaxSource(pax: Int, feedSource: FeedSource, splitSource: Option[
       1
     } else if (this.feedSource == that.feedSource && this.splitSource == that.splitSource && this.pax > that.pax) {
       -1
-    } else if(this.feedSource == that.feedSource && this.splitSource == that.splitSource && this.pax == that.pax ) {
+    } else if (this.feedSource == that.feedSource && this.splitSource == that.splitSource && this.pax == that.pax) {
       0
     } else {
-       that.hashCode - this.hashCode
+      that.hashCode - this.hashCode
     }
 
 }
@@ -214,10 +214,8 @@ case class Arrival(Operator: Option[Operator],
       BaggageReclaimId = if (incoming.BaggageReclaimId.exists(_.nonEmpty)) incoming.BaggageReclaimId else this.BaggageReclaimId,
       Stand = if (incoming.Stand.exists(_.nonEmpty)) incoming.Stand else this.Stand,
       Gate = if (incoming.Gate.exists(_.nonEmpty)) incoming.Gate else this.Gate,
-      RedListPax = if (incoming.RedListPax.nonEmpty) incoming.RedListPax else this.RedListPax,
-      TotalPax = if (incoming.TotalPax.nonEmpty) this.TotalPax ++ incoming.TotalPax else this.TotalPax,
+      RedListPax = if (incoming.RedListPax.nonEmpty) incoming.RedListPax else this.RedListPax
     )
-
 }
 
 object Arrival {

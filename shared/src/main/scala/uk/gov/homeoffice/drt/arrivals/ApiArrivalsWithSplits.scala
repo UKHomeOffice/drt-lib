@@ -2,7 +2,7 @@ package uk.gov.homeoffice.drt.arrivals
 
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages
-import uk.gov.homeoffice.drt.ports.{AclFeedSource, ApiFeedSource, LiveFeedSource, ScenarioSimulationSource}
+import uk.gov.homeoffice.drt.ports.{AclFeedSource, ApiFeedSource, ForecastFeedSource, LiveFeedSource, ScenarioSimulationSource, UnknownFeedSource}
 import uk.gov.homeoffice.drt.time.SDateLike
 import upickle.default.{ReadWriter, macroRW}
 
@@ -33,17 +33,30 @@ case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpda
     }
 
   def pcpPaxEstimate: TotalPaxSource =
-    totalPaxFromApi match {
+    totalPaxFromApiExcludingTransfer match {
       case Some(totalPaxSource) if hasValidApi => totalPaxSource
       case _ => apiFlight.bestPcpPaxEstimate
     }
 
   def totalPax: Option[TotalPaxSource] =
     if (hasValidApi) totalPaxFromApi
-    else apiFlight.ActPax.map(TotalPaxSource(_, AclFeedSource, None))
+    else bestSource(apiFlight.ActPax)
 
   def equals(candidate: ApiFlightWithSplits): Boolean =
     this.copy(lastUpdated = None) == candidate.copy(lastUpdated = None)
+
+  def bestSource(actPax: Option[Int]): Option[TotalPaxSource] = {
+    this.apiFlight.FeedSources match {
+      case feedSource if feedSource.contains(LiveFeedSource) =>
+        Some(TotalPaxSource(actPax.getOrElse(0), LiveFeedSource, None))
+      case feedSource if feedSource.contains(ForecastFeedSource) =>
+        Some(TotalPaxSource(actPax.getOrElse(0), ForecastFeedSource, None))
+      case feedSource if feedSource.contains(AclFeedSource) =>
+        Some(TotalPaxSource(actPax.getOrElse(0), AclFeedSource, None))
+      case _ =>
+        None
+    }
+  }
 
   def bestSplits: Option[Splits] = {
     val apiSplitsDc = splits.find(s => s.source == SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages)
