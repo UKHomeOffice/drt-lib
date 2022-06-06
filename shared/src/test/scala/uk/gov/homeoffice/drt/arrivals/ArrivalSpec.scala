@@ -4,8 +4,6 @@ import org.specs2.mutable.Specification
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.{ApiSplitsWithHistoricalEGateAndFTPercentages, Historical}
 import uk.gov.homeoffice.drt.ports.{AclFeedSource, ApiFeedSource, ForecastFeedSource, LiveFeedSource}
 
-import scala.collection.SortedSet
-
 class ArrivalSpec extends Specification {
   "Arrival bestPcpPaxEstimate" should {
     val arrivalBase = ArrivalGenerator.arrival()

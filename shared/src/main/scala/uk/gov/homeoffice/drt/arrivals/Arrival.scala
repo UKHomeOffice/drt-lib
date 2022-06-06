@@ -8,7 +8,6 @@ import uk.gov.homeoffice.drt.time.MilliTimes.oneMinuteMillis
 import uk.gov.homeoffice.drt.time.{MilliTimes, SDateLike}
 import upickle.default.{ReadWriter, macroRW}
 
-import scala.collection.SortedSet
 import scala.collection.immutable.{List, NumericRange}
 import scala.concurrent.duration.{DurationLong, FiniteDuration}
 import scala.util.matching.Regex
@@ -121,31 +120,26 @@ case class Arrival(Operator: Option[Operator],
     (minutesToDisembark * oneMinuteInMillis).toLong
   }
 
-  val bestPcpPaxEstimate: TotalPaxSource = (ApiPax, ActPax, TranPax, MaxPax, TotalPax) match {
-    case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == ScenarioSimulationSource && tp.pax > 0) =>
-      totalPax.find(tp => tp.feedSource == ScenarioSimulationSource)
-        .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
-    case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == LiveFeedSource && tp.pax > 0) =>
-      totalPax.find(tp => tp.feedSource == LiveFeedSource && tp.pax > 0)
-        .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
-    case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == ApiFeedSource && tp.splitSource.contains(ApiSplitsWithHistoricalEGateAndFTPercentages) && tp.pax > 0) =>
-      totalPax.find(tp => tp.feedSource == ApiFeedSource && tp.splitSource.contains(ApiSplitsWithHistoricalEGateAndFTPercentages))
-        .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
-    case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == ForecastFeedSource && tp.pax > 0) =>
-      totalPax.find(tp => tp.feedSource == ForecastFeedSource && tp.pax > 0)
-        .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
-    case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == ApiFeedSource && tp.splitSource.contains(Historical) && tp.pax > 0) =>
-      totalPax.find(tp => tp.feedSource == ApiFeedSource && tp.splitSource.contains(Historical) && tp.pax > 0)
-        .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
-    case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == ApiFeedSource && tp.pax > 0) =>
-      totalPax.find(tp => tp.feedSource == ApiFeedSource && tp.pax > 0)
-        .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
-    case (_, _, _, _, totalPax) if totalPax.exists(tp => tp.feedSource == AclFeedSource && tp.pax > 0) =>
-      totalPax.find(tp => tp.feedSource == AclFeedSource)
-        .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
-    case (_, _, _, _, totalPax) =>
-      totalPax.find(tp => tp.feedSource == UnknownFeedSource)
-        .getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
+  val bestPcpPaxEstimate: TotalPaxSource = {
+    val matchedTotalPax = TotalPax match {
+      case totalPax if totalPax.exists(tp => tp.feedSource == ScenarioSimulationSource && tp.pax > 0) =>
+        totalPax.find(tp => tp.feedSource == ScenarioSimulationSource)
+      case totalPax if totalPax.exists(tp => tp.feedSource == LiveFeedSource && tp.pax > 0) =>
+        totalPax.find(tp => tp.feedSource == LiveFeedSource && tp.pax > 0)
+      case totalPax if totalPax.exists(tp => tp.feedSource == ApiFeedSource && tp.splitSource.contains(ApiSplitsWithHistoricalEGateAndFTPercentages) && tp.pax > 0) =>
+        totalPax.find(tp => tp.feedSource == ApiFeedSource && tp.splitSource.contains(ApiSplitsWithHistoricalEGateAndFTPercentages))
+      case totalPax if totalPax.exists(tp => tp.feedSource == ForecastFeedSource && tp.pax > 0) =>
+        totalPax.find(tp => tp.feedSource == ForecastFeedSource && tp.pax > 0)
+      case totalPax if totalPax.exists(tp => tp.feedSource == ApiFeedSource && tp.splitSource.contains(Historical) && tp.pax > 0) =>
+        totalPax.find(tp => tp.feedSource == ApiFeedSource && tp.splitSource.contains(Historical) && tp.pax > 0)
+      case totalPax if totalPax.exists(tp => tp.feedSource == ApiFeedSource && tp.pax > 0) =>
+        totalPax.find(tp => tp.feedSource == ApiFeedSource && tp.pax > 0)
+      case totalPax if totalPax.exists(tp => tp.feedSource == AclFeedSource && tp.pax > 0) =>
+        totalPax.find(tp => tp.feedSource == AclFeedSource)
+      case totalPax =>
+        totalPax.find(tp => tp.feedSource == UnknownFeedSource)
+    }
+    matchedTotalPax.getOrElse(TotalPaxSource(0, UnknownFeedSource, None))
   }
 
   def bestArrivalTime(timeToChox: Long, considerPredictions: Boolean): Long =
