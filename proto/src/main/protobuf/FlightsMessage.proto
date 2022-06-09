@@ -75,5 +75,4 @@ message FeedStatusMessage {
 message TotalPaxSource {
     optional int32 pax = 1;
     optional string feedSource = 2;
-    optional string splitSource = 3;
 }
