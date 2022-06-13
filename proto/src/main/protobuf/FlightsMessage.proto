@@ -72,7 +72,7 @@ message FeedStatusMessage {
     optional string message = 3;
 }
 
-message TotalPaxSource {
+message TotalPaxSourceMessage {
     optional int32 pax = 1;
     optional string feedSource = 2;
 }
