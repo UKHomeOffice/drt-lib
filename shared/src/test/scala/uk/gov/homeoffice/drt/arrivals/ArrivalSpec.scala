@@ -81,5 +81,13 @@ class ArrivalSpec extends Specification {
       val arrival = arrivalBase.copy(TotalPax = Set(aclFeedTotalPaxSource))
       arrival.bestPcpPaxEstimate mustEqual aclFeedTotalPaxSource
     }
+
+    "When totalPax" +
+      " for a LiveFeedSource is less than Transfer passenger numbers and AclFeedSource is more than Transfer passenger number," +
+      " then bestPcpPaxEstimate gives LiveFeedSource with zero pax " in {
+      val arrival = arrivalBase.copy(TranPax = Option(100),
+        TotalPax = Set(aclFeedTotalPaxSource.copy(pax = Option(250)), liveFeedTotalPaxSource.copy(pax = Option(50))))
+      arrival.bestPcpPaxEstimate mustEqual liveFeedTotalPaxSource.copy(pax = Option(0))
+    }
   }
 }
