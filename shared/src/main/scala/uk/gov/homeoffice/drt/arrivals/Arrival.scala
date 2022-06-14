@@ -133,7 +133,7 @@ case class Arrival(Operator: Option[Operator],
       case totalPax if totalPax.exists(tp => tp.feedSource == AclFeedSource && tp.pax.isDefined) =>
         excludeTransferPax(totalPax.find(tp => tp.feedSource == AclFeedSource))
       case _ if fallBackToFeedSource(ActPax).isDefined =>
-        fallBackToFeedSource(ActPax)
+        excludeTransferPax(fallBackToFeedSource(ActPax))
       case totalPax =>
         totalPax.find(tp => tp.feedSource == UnknownFeedSource)
     }
