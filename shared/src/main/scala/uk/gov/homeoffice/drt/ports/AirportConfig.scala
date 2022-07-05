@@ -22,6 +22,7 @@ case class PortCode(iata: String) extends Ordered[PortCode] {
   lazy val isDomestic: Boolean = Ports.isDomestic(this)
   lazy val isCta: Boolean = Ports.isCta(this)
   lazy val isDomesticOrCta: Boolean = Ports.isDomesticOrCta(this)
+  lazy val isCiriumAsPortLive: Boolean = Ports.isCiriumAsPortLive(this.iata)
 }
 
 object PortCode {
