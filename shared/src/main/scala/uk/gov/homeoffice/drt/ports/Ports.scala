@@ -36,7 +36,4 @@ object Ports {
 
   def isDomesticOrCta(port: PortCode): Boolean = isDomestic(port) || isCta(port)
 
-  val ciriumAsPortLive = Seq("PIK", "HUY", "INV", "NQY", "NWI", "SEN")
-
-  val isCiriumAsPortLive: String => Boolean = portCode => ciriumAsPortLive.contains(portCode)
 }
