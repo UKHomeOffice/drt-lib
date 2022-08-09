@@ -29,7 +29,10 @@ object Roles {
     NeboUpload,
     PortFeedUpload,
     PortOperatorStaff,
-    RccView,
+    RccCentral,
+    RccHeathrow,
+    RccNorth,
+    RccSouth,
     RedListFeature,
     RedListsEdit,
     StaffMovementsEdit,
@@ -283,9 +286,22 @@ object Roles {
     override val name: String = "debug"
   }
 
-  case object RccView extends Role {
-    override val name: String = "rcc:view"
+  case object RccCentral extends Role {
+    override val name: String = "rcc:central"
   }
+
+  case object RccHeathrow extends Role {
+    override val name: String = "rcc:heathrow"
+  }
+
+  case object RccNorth extends Role {
+    override val name: String = "rcc:north"
+  }
+
+  case object RccSouth extends Role {
+    override val name: String = "rcc:south"
+  }
+
 
   case object RedListFeature extends Role {
     override val name: String = "red-list-feature"
