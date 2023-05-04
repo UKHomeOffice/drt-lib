@@ -24,12 +24,12 @@ case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpda
 
   def totalPaxFromApi: Option[TotalPaxSource] = splits.collectFirst {
     case splits if splits.source == ApiSplitsWithHistoricalEGateAndFTPercentages =>
-      TotalPaxSource(Option(Math.round(splits.totalPax).toInt), ApiFeedSource)
+      TotalPaxSource(ApiFeedSource, Passengers(Option(Math.round(splits.totalPax).toInt), None))
   }
 
   def totalPaxFromApiExcludingTransfer: Option[TotalPaxSource] =
     splits.collectFirst { case splits if splits.source == ApiSplitsWithHistoricalEGateAndFTPercentages =>
-      TotalPaxSource(Option(Math.round(splits.totalExcludingTransferPax).toInt), ApiFeedSource)
+      TotalPaxSource(ApiFeedSource, Passengers(Option(Math.round(splits.totalExcludingTransferPax).toInt), None))
     }
 
   def pcpPaxEstimate: TotalPaxSource =
@@ -40,19 +40,19 @@ case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpda
 
   def totalPax: Option[TotalPaxSource] =
     if (hasValidApi) totalPaxFromApi
-    else bestSource(apiFlight.ActPax)
+    else bestSource
 
   def equals(candidate: ApiFlightWithSplits): Boolean =
     this.copy(lastUpdated = None) == candidate.copy(lastUpdated = None)
 
-  def bestSource(actPax: Option[Int]): Option[TotalPaxSource] = {
+  def bestSource: Option[TotalPaxSource] = {
     this.apiFlight.FeedSources match {
       case feedSource if feedSource.contains(LiveFeedSource) =>
-        Some(TotalPaxSource(actPax, LiveFeedSource))
+        apiFlight.TotalPax.get(LiveFeedSource).map(TotalPaxSource(LiveFeedSource, _))
       case feedSource if feedSource.contains(ForecastFeedSource) =>
-        Some(TotalPaxSource(actPax, ForecastFeedSource))
+        apiFlight.TotalPax.get(ForecastFeedSource).map(TotalPaxSource(ForecastFeedSource, _))
       case feedSource if feedSource.contains(AclFeedSource) =>
-        Some(TotalPaxSource(actPax, AclFeedSource))
+        apiFlight.TotalPax.get(AclFeedSource).map(TotalPaxSource(AclFeedSource, _))
       case _ =>
         None
     }
@@ -82,7 +82,7 @@ case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpda
 
     val paxSourceAvailable = apiFlight.Scheduled >= totalPaxSourceIntroductionMillis
     val hasLiveSource = if (paxSourceAvailable)
-      apiFlight.TotalPax.get(LiveFeedSource).exists(_.nonEmpty)
+      apiFlight.TotalPax.get(LiveFeedSource).exists(_.actual.nonEmpty)
     else
       apiFlight.FeedSources.contains(LiveFeedSource)
 
@@ -95,10 +95,10 @@ case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpda
     }
   }
 
-  def isWithinThreshold(apiSplits: Splits): Boolean = apiFlight.ActPax.forall { actPax =>
+  def isWithinThreshold(apiSplits: Splits): Boolean = {
     val apiPaxNo = apiSplits.totalExcludingTransferPax
     val threshold: Double = 0.05
-    val portDirectPax: Double = actPax - apiFlight.TranPax.getOrElse(0)
+    val portDirectPax: Double = apiFlight.bestPcpPaxEstimate.getPcpPax.getOrElse(0).toDouble
     apiPaxNo != 0 && Math.abs(apiPaxNo - portDirectPax) / apiPaxNo < threshold
   }
 

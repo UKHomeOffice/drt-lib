@@ -27,7 +27,17 @@ object Prediction {
   implicit val predictionInt: ReadWriter[Prediction[Int]] = macroRW
 }
 
-case class TotalPaxSource(pax: Option[Int], feedSource: FeedSource)
+case class Passengers(actual: Option[Int], transit: Option[Int]) {
+  def getPcpPax: Option[Int] = {
+    actual.map(_ - transit.getOrElse(0))
+  }
+}
+
+case class TotalPaxSource(feedSource: FeedSource, passengers: Passengers) {
+  def getPcpPax: Option[Int] = {
+    passengers.actual.map(_ - passengers.transit.getOrElse(0))
+  }
+}
 
 case class Predictions(lastChecked: Long, predictions: Map[String, Int])
 
@@ -44,8 +54,6 @@ case class Arrival(Operator: Option[Operator],
                    Gate: Option[String],
                    Stand: Option[String],
                    MaxPax: Option[Int],
-                   ActPax: Option[Int],
-                   TranPax: Option[Int],
                    RunwayID: Option[String],
                    BaggageReclaimId: Option[String],
                    AirportID: PortCode,
@@ -55,11 +63,10 @@ case class Arrival(Operator: Option[Operator],
                    PcpTime: Option[Long],
                    FeedSources: Set[FeedSource],
                    CarrierScheduled: Option[Long],
-                   ApiPax: Option[Int],
                    ScheduledDeparture: Option[Long],
                    RedListPax: Option[Int],
-                   TotalPax: Map[FeedSource, Option[Int]]
-                  )
+                   TotalPax: Map[FeedSource, Passengers]
+)
   extends WithUnique[UniqueArrival] with Updatable[Arrival] {
   lazy val differenceFromScheduled: Option[FiniteDuration] = Actual.map(a => (a - Scheduled).milliseconds)
 
@@ -117,7 +124,7 @@ case class Arrival(Operator: Option[Operator],
 
   def hasPcpDuring(start: SDateLike, end: SDateLike): Boolean = {
     val firstPcpMilli = PcpTime.getOrElse(0L)
-    val lastPcpMilli = firstPcpMilli + millisToDisembark(ActPax.getOrElse(0), 20)
+    val lastPcpMilli = firstPcpMilli + millisToDisembark(bestPcpPaxEstimate.passengers.actual.getOrElse(0), 20)
     val firstInRange = start.millisSinceEpoch <= firstPcpMilli && firstPcpMilli <= end.millisSinceEpoch
     val lastInRange = start.millisSinceEpoch <= lastPcpMilli && lastPcpMilli <= end.millisSinceEpoch
     firstInRange || lastInRange
@@ -132,16 +139,17 @@ case class Arrival(Operator: Option[Operator],
     (minutesToDisembark * oneMinuteInMillis).toLong
   }
 
-  val excludeTransferPax: Option[Int] => Option[Int] = maybePax =>
-    maybePax.map(_ - TranPax.getOrElse(0)) match {
-      case Some(nonNegative) if nonNegative >= 0 => Some(nonNegative)
-      case Some(_) => Some(0)
-      case None => None
+  val excludeTransferPax: Option[Passengers] => Option[Passengers] = maybePax =>
+    maybePax.map { p =>
+      p.actual.map(_ - p.transit.getOrElse(0)) match {
+        case Some(nonNegative) if nonNegative >= 0 => p
+        case Some(_) => p.copy(actual = Some(0), transit = Some(0))
+        case None => p.copy(actual = None)
+      }
     }
 
-
   val bestPcpPaxEstimate: TotalPaxSource = {
-    val preferredSources: List[(FeedSource, Option[Int] => Option[Int])] = List(
+    val preferredSources: List[(FeedSource, Option[Passengers] => Option[Passengers])] = List(
       (ScenarioSimulationSource, excludeTransferPax),
       (LiveFeedSource, excludeTransferPax),
       (ApiFeedSource, identity),
@@ -151,23 +159,9 @@ case class Arrival(Operator: Option[Operator],
     )
 
     preferredSources
-      .find { case (source, _) => TotalPax.get(source).exists(_.isDefined) }
-      .map { case (source, fn) => TotalPaxSource(fn(TotalPax(source)), source) }
-      .orElse(fallBackToFeedSource)
-      .getOrElse(TotalPaxSource(None, UnknownFeedSource))
-  }
-
-  def fallBackToFeedSource: Option[TotalPaxSource] = {
-    List(LiveFeedSource, ForecastFeedSource, AclFeedSource)
-      .find(FeedSources.contains)
-      .map { s =>
-        (ActPax, TranPax) match {
-          case (Some(actPax), Some(tranPax)) if actPax - tranPax >= 0 => TotalPaxSource(Some(actPax - tranPax), s)
-          case (Some(actPax), Some(tranPax)) if actPax - tranPax < 0 => TotalPaxSource(Some(0), s)
-          case (None, _) => TotalPaxSource(None, s)
-          case (maybeActPax, None) => TotalPaxSource(maybeActPax, s)
-        }
-      }
+      .find { case (source, _) => TotalPax.get(source).exists(_.actual.isDefined) }
+      .map { case (source, fn) => TotalPaxSource(source, fn(TotalPax.get(source)).getOrElse(Passengers(None, None))) }
+      .getOrElse(TotalPaxSource(UnknownFeedSource, Passengers(None, None)))
   }
 
   lazy val predictedTouchdown: Option[Long] =
@@ -194,8 +188,8 @@ case class Arrival(Operator: Option[Operator],
 
   def minutesOfPaxArrivals: Int = {
     val totalPax = bestPcpPaxEstimate
-    if (totalPax.pax.getOrElse(0) <= 0) 0
-    else (totalPax.pax.getOrElse(0).toDouble / paxOffPerMinute).ceil.toInt - 1
+    if (totalPax.passengers.actual.getOrElse(0) <= 0) 0
+    else (totalPax.passengers.actual.getOrElse(0).toDouble / paxOffPerMinute).ceil.toInt - 1
   }
 
   lazy val pcpRange: NumericRange[Long] = {
@@ -207,7 +201,7 @@ case class Arrival(Operator: Option[Operator],
   }
 
   def paxDeparturesByMinute(departRate: Int): Iterable[(Long, Int)] = {
-    val totalPax = bestPcpPaxEstimate.pax.getOrElse(0)
+    val totalPax = bestPcpPaxEstimate.passengers.actual.getOrElse(0)
     val maybeRemainingPax = totalPax % departRate match {
       case 0 => None
       case someLeftovers => Option(someLeftovers)
@@ -233,7 +227,7 @@ case class Arrival(Operator: Option[Operator],
       RedListPax = if (incoming.RedListPax.nonEmpty) incoming.RedListPax else this.RedListPax
     )
 
-  lazy val hasNoPaxSource: Boolean = !TotalPax.values.exists(_.nonEmpty)
+  lazy val hasNoPaxSource: Boolean = !TotalPax.values.exists(_.actual.nonEmpty)
 }
 
 object Arrival {
@@ -276,35 +270,33 @@ object Arrival {
   implicit val predictionsRw: ReadWriter[Predictions] = macroRW
   implicit val arrivalRw: ReadWriter[Arrival] = macroRW
   implicit val totalPaxSourceRw: ReadWriter[TotalPaxSource] = macroRW
+  implicit val passengersSourceRw: ReadWriter[Passengers] = macroRW
 
   def apply(Operator: Option[Operator],
-            Status: ArrivalStatus,
-            Estimated: Option[Long],
-            Predictions: Predictions,
-            Actual: Option[Long],
-            EstimatedChox: Option[Long],
-            ActualChox: Option[Long],
-            Gate: Option[String],
-            Stand: Option[String],
-            MaxPax: Option[Int],
-            ActPax: Option[Int],
-            TranPax: Option[Int],
-            RunwayID: Option[String],
-            BaggageReclaimId: Option[String],
-            AirportID: PortCode,
-            Terminal: Terminal,
-            rawICAO: String,
-            rawIATA: String,
-            Origin: PortCode,
-            Scheduled: Long,
-            PcpTime: Option[Long],
-            FeedSources: Set[FeedSource],
-            CarrierScheduled: Option[Long] = None,
-            ApiPax: Option[Int] = None,
-            ScheduledDeparture: Option[Long] = None,
-            RedListPax: Option[Int] = None,
-            TotalPax: Map[FeedSource, Option[Int]] = Map.empty
-           ): Arrival = {
+    Status: ArrivalStatus,
+    Estimated: Option[Long],
+    Predictions: Predictions,
+    Actual: Option[Long],
+    EstimatedChox: Option[Long],
+    ActualChox: Option[Long],
+    Gate: Option[String],
+    Stand: Option[String],
+    MaxPax: Option[Int],
+    RunwayID: Option[String],
+    BaggageReclaimId: Option[String],
+    AirportID: PortCode,
+    Terminal: Terminal,
+    rawICAO: String,
+    rawIATA: String,
+    Origin: PortCode,
+    Scheduled: Long,
+    PcpTime: Option[Long],
+    FeedSources: Set[FeedSource],
+    CarrierScheduled: Option[Long] = None,
+    ScheduledDeparture: Option[Long] = None,
+    RedListPax: Option[Int] = None,
+    TotalPax: Map[FeedSource, Passengers] = Map.empty
+  ): Arrival = {
     val (carrierCode: CarrierCode, voyageNumber: VoyageNumber, maybeSuffix: Option[FlightCodeSuffix]) = {
       val bestCode = (rawIATA, rawICAO) match {
         case (iata, _) if iata != "" => iata
@@ -329,8 +321,6 @@ object Arrival {
       Gate = Gate,
       Stand = Stand,
       MaxPax = MaxPax,
-      ActPax = ActPax,
-      TranPax = TranPax,
       RunwayID = RunwayID,
       BaggageReclaimId = BaggageReclaimId,
       AirportID = AirportID,
@@ -340,7 +330,6 @@ object Arrival {
       PcpTime = PcpTime,
       FeedSources = FeedSources,
       CarrierScheduled = CarrierScheduled,
-      ApiPax = ApiPax,
       ScheduledDeparture = ScheduledDeparture,
       RedListPax = RedListPax,
       TotalPax = TotalPax

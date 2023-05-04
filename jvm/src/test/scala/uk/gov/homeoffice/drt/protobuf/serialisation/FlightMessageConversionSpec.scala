@@ -27,8 +27,8 @@ class FlightMessageConversionSpec extends Specification {
     Gate = Option("A"),
     Stand = Option("A1"),
     MaxPax = Option(101),
-    ActPax = Option(95),
-    TranPax = Option(5),
+//    ActPax = Option(95),
+//    TranPax = Option(5),
     RunwayID = Option("1"),
     BaggageReclaimId = Option("abc"),
     AirportID = PortCode("LHR"),
@@ -38,17 +38,17 @@ class FlightMessageConversionSpec extends Specification {
     PcpTime = Option(6L),
     FeedSources = Set(LiveFeedSource, AclFeedSource, ForecastFeedSource, LiveBaseFeedSource, ApiFeedSource),
     CarrierScheduled = Option(7L),
-    ApiPax = Option(96),
+//    ApiPax = Option(96),
     ScheduledDeparture = Option(8L),
     RedListPax = Option(26),
     TotalPax = Map(
-      HistoricApiFeedSource -> Option(95),
-      ForecastFeedSource -> Option(0),
-      LiveFeedSource -> Option(95),
-      ApiFeedSource -> Option(95),
-      AclFeedSource -> Option(95),
-      LiveBaseFeedSource -> Option(95),
-      ScenarioSimulationSource -> Option(95),
+      HistoricApiFeedSource -> Passengers(Option(95),None),
+      ForecastFeedSource -> Passengers(Option(0),None),
+      LiveFeedSource -> Passengers(Option(95),None),
+      ApiFeedSource -> Passengers(Option(95),None),
+      AclFeedSource -> Passengers(Option(95),None),
+      LiveBaseFeedSource -> Passengers(Option(95),None),
+      ScenarioSimulationSource -> Passengers(Option(95),None),
     )
   )
 
@@ -74,7 +74,7 @@ class FlightMessageConversionSpec extends Specification {
   }
 
   "Given an arrival with 0 Passengers" >> {
-    val arrivalWith0Pax = arrival.copy(ActPax = Option(0), TranPax = Option(0), MaxPax = Option(0))
+    val arrivalWith0Pax = arrival.copy(MaxPax = Option(0))
     "When I convert it to a protobuf message and then back to an Arrival" >> {
       val arrivalMessage = FlightMessageConversion.apiFlightToFlightMessage(arrivalWith0Pax)
       val restoredArrival = FlightMessageConversion.flightMessageToApiFlight(arrivalMessage)
