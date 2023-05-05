@@ -105,5 +105,37 @@ class ArrivalSpec extends Specification {
       val arrival = arrivalBase.copy(TotalPax = Map(AclFeedSource -> Passengers(Option(10), None)), FeedSources = Set(AclFeedSource))
       arrival.bestPcpPaxEstimate mustEqual TotalPaxSource(aclFeedTotalPaxSource._1, aclFeedTotalPaxSource._2)
     }
+
+    "fallBackToFeedSource should return known pax when the arrival feed sources contain one of live, forecast or acl" >> {
+      "when there is no act or trans we should get TotalPaxSource(None, _)" >> {
+        val arrival = ArrivalGenerator.arrival(feedSources = Set(LiveFeedSource))
+
+        arrival.fallBackToFeedSource === Option(TotalPaxSource(LiveFeedSource, Passengers(None, None)))
+      }
+
+      "when there is no act but some trans we should get TotalPaxSource(None, _)" >> {
+        val arrival = ArrivalGenerator.arrival(feedSources = Set(LiveFeedSource), totalPax = Map(LiveFeedSource -> Passengers(actual = None, transit = Option(100))))
+
+        arrival.fallBackToFeedSource === Option(TotalPaxSource(LiveFeedSource, Passengers(None, None)))
+      }
+
+      "when there is some act but no trans we should get TotalPaxSource(Some(act), _)" >> {
+        val arrival = ArrivalGenerator.arrival(feedSources = Set(LiveFeedSource), totalPax = Map(LiveFeedSource -> Passengers(actual = Option(100), transit = None)))
+
+        arrival.fallBackToFeedSource === Option(TotalPaxSource(LiveFeedSource, Passengers(Option(100), None)))
+      }
+
+      "when there is some act and trans we should get TotalPaxSource(Some(act - trans), _)" >> {
+        val arrival = ArrivalGenerator.arrival(feedSources = Set(LiveFeedSource), totalPax = Map(LiveFeedSource -> Passengers(actual = Option(100), transit = Option(25))))
+
+        arrival.fallBackToFeedSource === Option(TotalPaxSource(LiveFeedSource, Passengers(Option(100), Option(25))))
+      }
+
+      "when there is some act and trans where trans > act we should get TotalPaxSource(Some(0), _)" >> {
+        val arrival = ArrivalGenerator.arrival(feedSources = Set(LiveFeedSource), totalPax = Map(LiveFeedSource -> Passengers(actual = Option(100), transit = Option(125))))
+
+        arrival.fallBackToFeedSource === Option(TotalPaxSource(LiveFeedSource, Passengers(Option(0), None)))
+      }
+    }
   }
 }

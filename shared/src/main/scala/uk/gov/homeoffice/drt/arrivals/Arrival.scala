@@ -42,30 +42,30 @@ case class TotalPaxSource(feedSource: FeedSource, passengers: Passengers) {
 case class Predictions(lastChecked: Long, predictions: Map[String, Int])
 
 case class Arrival(Operator: Option[Operator],
-                   CarrierCode: CarrierCode,
-                   VoyageNumber: VoyageNumber,
-                   FlightCodeSuffix: Option[FlightCodeSuffix],
-                   Status: ArrivalStatus,
-                   Estimated: Option[Long],
-                   Predictions: Predictions,
-                   Actual: Option[Long],
-                   EstimatedChox: Option[Long],
-                   ActualChox: Option[Long],
-                   Gate: Option[String],
-                   Stand: Option[String],
-                   MaxPax: Option[Int],
-                   RunwayID: Option[String],
-                   BaggageReclaimId: Option[String],
-                   AirportID: PortCode,
-                   Terminal: Terminal,
-                   Origin: PortCode,
-                   Scheduled: Long,
-                   PcpTime: Option[Long],
-                   FeedSources: Set[FeedSource],
-                   CarrierScheduled: Option[Long],
-                   ScheduledDeparture: Option[Long],
-                   RedListPax: Option[Int],
-                   TotalPax: Map[FeedSource, Passengers]
+  CarrierCode: CarrierCode,
+  VoyageNumber: VoyageNumber,
+  FlightCodeSuffix: Option[FlightCodeSuffix],
+  Status: ArrivalStatus,
+  Estimated: Option[Long],
+  Predictions: Predictions,
+  Actual: Option[Long],
+  EstimatedChox: Option[Long],
+  ActualChox: Option[Long],
+  Gate: Option[String],
+  Stand: Option[String],
+  MaxPax: Option[Int],
+  RunwayID: Option[String],
+  BaggageReclaimId: Option[String],
+  AirportID: PortCode,
+  Terminal: Terminal,
+  Origin: PortCode,
+  Scheduled: Long,
+  PcpTime: Option[Long],
+  FeedSources: Set[FeedSource],
+  CarrierScheduled: Option[Long],
+  ScheduledDeparture: Option[Long],
+  RedListPax: Option[Int],
+  TotalPax: Map[FeedSource, Passengers]
 )
   extends WithUnique[UniqueArrival] with Updatable[Arrival] {
   lazy val differenceFromScheduled: Option[FiniteDuration] = Actual.map(a => (a - Scheduled).milliseconds)
@@ -161,7 +161,25 @@ case class Arrival(Operator: Option[Operator],
     preferredSources
       .find { case (source, _) => TotalPax.get(source).exists(_.actual.isDefined) }
       .map { case (source, fn) => TotalPaxSource(source, fn(TotalPax.get(source)).getOrElse(Passengers(None, None))) }
+      .orElse(fallBackToFeedSource)
       .getOrElse(TotalPaxSource(UnknownFeedSource, Passengers(None, None)))
+  }
+
+  def fallBackToFeedSource: Option[TotalPaxSource] = {
+    List(LiveFeedSource, ForecastFeedSource, AclFeedSource)
+      .find(FeedSources.contains)
+      .map { s =>
+        TotalPax.get(s) match {
+          case Some(a) =>
+            (a.actual, a.transit) match {
+              case (Some(actPax), Some(tranPax)) if actPax - tranPax >= 0 => TotalPaxSource(s, Passengers(Some(actPax), Some(tranPax)))
+              case (Some(actPax), Some(tranPax)) if actPax - tranPax < 0 => TotalPaxSource(s, Passengers(Some(0), None))
+              case (None, _) => TotalPaxSource(s, Passengers(None, None))
+              case (maybeActPax, None) => TotalPaxSource(s, Passengers(maybeActPax, None))
+            }
+          case None => TotalPaxSource(s, Passengers(None, None))
+        }
+      }
   }
 
   lazy val predictedTouchdown: Option[Long] =
