@@ -244,8 +244,6 @@ object FlightMessageConversion {
     Gate = flightMessage.gate,
     Stand = flightMessage.stand,
     MaxPax = flightMessage.maxPax,
-    //    ActPax = flightMessage.actPax,
-    //    TranPax = flightMessage.tranPax,
     RunwayID = flightMessage.runwayID,
     BaggageReclaimId = flightMessage.baggageReclaimId,
     AirportID = PortCode(flightMessage.airportID.getOrElse("")),
@@ -257,7 +255,6 @@ object FlightMessageConversion {
     Scheduled = flightMessage.scheduled.getOrElse(0L),
     FeedSources = flightMessage.feedSources.flatMap(FeedSource(_)).toSet,
     CarrierScheduled = flightMessage.carrierScheduled,
-    //    ApiPax = flightMessage.apiPax,
     RedListPax = flightMessage.redListPax,
     ScheduledDeparture = flightMessage.scheduledDeparture,
     TotalPax = flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap

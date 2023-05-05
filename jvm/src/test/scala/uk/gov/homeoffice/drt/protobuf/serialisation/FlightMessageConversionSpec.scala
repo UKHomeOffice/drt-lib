@@ -27,8 +27,6 @@ class FlightMessageConversionSpec extends Specification {
     Gate = Option("A"),
     Stand = Option("A1"),
     MaxPax = Option(101),
-//    ActPax = Option(95),
-//    TranPax = Option(5),
     RunwayID = Option("1"),
     BaggageReclaimId = Option("abc"),
     AirportID = PortCode("LHR"),
@@ -38,7 +36,6 @@ class FlightMessageConversionSpec extends Specification {
     PcpTime = Option(6L),
     FeedSources = Set(LiveFeedSource, AclFeedSource, ForecastFeedSource, LiveBaseFeedSource, ApiFeedSource),
     CarrierScheduled = Option(7L),
-//    ApiPax = Option(96),
     ScheduledDeparture = Option(8L),
     RedListPax = Option(26),
     TotalPax = Map(
