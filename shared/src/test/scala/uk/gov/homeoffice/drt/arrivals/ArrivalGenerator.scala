@@ -5,29 +5,28 @@ import uk.gov.homeoffice.drt.ports.{FeedSource, PortCode}
 import uk.gov.homeoffice.drt.time.SDateLike
 
 object ArrivalGenerator {
-  def arrival(
-    iata: String = "",
-    icao: String = "",
-    sch: Long = 0L,
-    maxPax: Option[Int] = None,
-    terminal: Terminal = Terminal("T1"),
-    origin: PortCode = PortCode(""),
-    operator: Option[Operator] = None,
-    status: ArrivalStatus = ArrivalStatus(""),
-    predictions: Predictions = Predictions(0L, Map()),
-    est: Long = 0L,
-    act: Long = 0L,
-    estChox: Long = 0L,
-    actChox: Long = 0L,
-    gate: Option[String] = None,
-    stand: Option[String] = None,
-    runwayId: Option[String] = None,
-    baggageReclaimId: Option[String] = None,
-    airportId: PortCode = PortCode(""),
-    feedSources: Set[FeedSource] = Set(),
-    pcpTime: Option[Long] = None,
-    totalPax: Map[FeedSource, Passengers] = Map.empty
-  ): Arrival =
+  def arrival(iata: String = "",
+              icao: String = "",
+              sch: Long = 0L,
+              maxPax: Option[Int] = None,
+              terminal: Terminal = Terminal("T1"),
+              origin: PortCode = PortCode(""),
+              operator: Option[Operator] = None,
+              status: ArrivalStatus = ArrivalStatus(""),
+              predictions: Predictions = Predictions(0L, Map()),
+              est: Long = 0L,
+              act: Long = 0L,
+              estChox: Long = 0L,
+              actChox: Long = 0L,
+              gate: Option[String] = None,
+              stand: Option[String] = None,
+              runwayId: Option[String] = None,
+              baggageReclaimId: Option[String] = None,
+              airportId: PortCode = PortCode(""),
+              feedSources: Set[FeedSource] = Set(),
+              pcpTime: Option[Long] = None,
+              passengerSources: Map[FeedSource, Passengers] = Map.empty
+             ): Arrival =
     Arrival(
       Operator = operator,
       Status = status,
@@ -49,7 +48,7 @@ object ArrivalGenerator {
       PcpTime = if (pcpTime.isDefined) Option(pcpTime.get) else if (sch != 0L) Some(sch) else None,
       Scheduled = sch,
       FeedSources = feedSources,
-      TotalPax = totalPax
+      PassengerSources = passengerSources
     )
 
   def flightWithSplitsForDayAndTerminal(date: SDateLike, terminal: Terminal = T1): ApiFlightWithSplits = ApiFlightWithSplits(

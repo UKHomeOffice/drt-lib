@@ -38,6 +38,6 @@ case class ForecastArrival(carrierCode: CarrierCode,
     CarrierScheduled = None,
     ScheduledDeparture = None,
     RedListPax = None,
-    TotalPax = Map(ForecastFeedSource -> Passengers(totalPax, transPax))
+    PassengerSources = Map(ForecastFeedSource -> Passengers(totalPax, transPax))
   )
 }

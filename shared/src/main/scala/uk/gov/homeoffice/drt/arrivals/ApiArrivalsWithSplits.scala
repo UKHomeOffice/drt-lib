@@ -22,19 +22,19 @@ case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpda
     with Updatable[ApiFlightWithSplits]
     with WithLastUpdated {
 
-  def totalPaxFromApi: Option[TotalPaxSource] = splits.collectFirst {
+  def bestPaxFromApi: Option[BestPaxSource] = splits.collectFirst {
     case splits if splits.source == ApiSplitsWithHistoricalEGateAndFTPercentages =>
-      TotalPaxSource(ApiFeedSource, Passengers(Option(splits.totalPax), Option(splits.transPax)))
+      BestPaxSource(ApiFeedSource, Passengers(Option(splits.totalPax), Option(splits.transPax)))
   }
 
-  def pcpPaxEstimate: TotalPaxSource =
-    totalPaxFromApi match {
+  def pcpPaxEstimate: BestPaxSource =
+    bestPaxFromApi match {
       case Some(totalPaxSource) if hasValidApi => totalPaxSource
       case _ => apiFlight.bestPaxEstimate
     }
 
-  def totalPax: Option[TotalPaxSource] =
-    if (hasValidApi) totalPaxFromApi
+  def bestPaxSource: Option[BestPaxSource] =
+    if (hasValidApi) bestPaxFromApi
     else Option(apiFlight.bestPaxEstimate)
 
   def equals(candidate: ApiFlightWithSplits): Boolean =
@@ -65,7 +65,7 @@ case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpda
 
     val paxSourceAvailable = apiFlight.Scheduled >= totalPaxSourceIntroductionMillis
     val hasLiveSource = if (paxSourceAvailable)
-      apiFlight.TotalPax.get(LiveFeedSource).exists(_.actual.nonEmpty)
+      apiFlight.PassengerSources.get(LiveFeedSource).exists(_.actual.nonEmpty)
     else
       apiFlight.FeedSources.contains(LiveFeedSource)
 
@@ -81,7 +81,7 @@ case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpda
   def isWithinThreshold(apiSplits: Splits): Boolean = {
     val apiPaxNo = apiSplits.totalExcludingTransferPax
     val threshold: Double = 0.05
-    val portDirectPax = apiFlight.TotalPax.get(LiveFeedSource).flatMap(_.getPcpPax).getOrElse(0)
+    val portDirectPax = apiFlight.PassengerSources.get(LiveFeedSource).flatMap(_.getPcpPax).getOrElse(0)
     apiPaxNo != 0 && (Math.abs(apiPaxNo - portDirectPax) / apiPaxNo) < threshold
   }
 

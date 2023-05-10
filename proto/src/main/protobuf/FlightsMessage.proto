@@ -35,7 +35,7 @@ message FlightMessage {
     optional int32 ApiPax = 25;
     optional int32 RedListPax = 26;
     optional int64 ScheduledDeparture = 27;
-    repeated TotalPaxSourceMessage TotalPax = 30;
+    repeated PassengerSourceMessage PassengerSources = 30;
     optional PredictionsMessage Predictions = 31;
     optional int32 FlightID__OLD = 10;
     optional int32 LastKnownPax__OLD = 22;
@@ -73,7 +73,7 @@ message FeedStatusMessage {
     optional string message = 3;
 }
 
-message TotalPaxSourceMessage {
+message PassengerSourceMessage {
     optional int32 pax = 1;
     optional string feedSource = 2;
     optional PassengersMessage passengers = 3;

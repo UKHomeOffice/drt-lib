@@ -40,7 +40,7 @@ class FlightMessageConversionSpec extends Specification {
     CarrierScheduled = Option(7L),
     ScheduledDeparture = Option(8L),
     RedListPax = Option(26),
-    TotalPax = Map(
+    PassengerSources = Map(
       HistoricApiFeedSource -> Passengers(Option(95), None),
       ForecastFeedSource -> Passengers(Option(0), None),
       LiveFeedSource -> Passengers(Option(95), None),
@@ -166,7 +166,7 @@ class FlightMessageConversionSpec extends Specification {
   "when flight message is deserialised and if there is apiPax present then arrival should have apiPax in totalPax" >> {
     val apiFlight = arrival.copy(
       FeedSources = Set(ApiFeedSource),
-      TotalPax = Map(ApiFeedSource -> Passengers(Option(95), None),
+      PassengerSources = Map(ApiFeedSource -> Passengers(Option(95), None),
       ))
 
     val flightMessage = FlightMessage(
@@ -194,8 +194,8 @@ class FlightMessageConversionSpec extends Specification {
       carrierScheduled = apiFlight.CarrierScheduled,
       redListPax = apiFlight.RedListPax,
       scheduledDeparture = apiFlight.ScheduledDeparture,
-      totalPax = Seq.empty,
-      apiPax = apiFlight.TotalPax.get(ApiFeedSource).flatMap(_.getPcpPax)
+      passengerSources = Seq.empty,
+      apiPax = apiFlight.PassengerSources.get(ApiFeedSource).flatMap(_.getPcpPax)
     )
 
     val arrivalResult = FlightMessageConversion.flightMessageToApiFlight(flightMessage)
