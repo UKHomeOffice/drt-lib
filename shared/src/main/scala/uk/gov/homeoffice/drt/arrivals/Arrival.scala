@@ -29,44 +29,48 @@ object Prediction {
 
 case class Passengers(actual: Option[Int], transit: Option[Int]) {
   def getPcpPax: Option[Int] = {
-    actual.map(_ - transit.getOrElse(0))
+    actual.map(_ - transit.getOrElse(0)) match {
+      case Some(a) if a > 0 => Option(a)
+      case Some(a) if a <= 0 => Option(0)
+      case _ => None
+    }
   }
 }
 
 case class TotalPaxSource(feedSource: FeedSource, passengers: Passengers) {
   def getPcpPax: Option[Int] = {
-    passengers.actual.map(_ - passengers.transit.getOrElse(0))
+    passengers.getPcpPax
   }
 }
 
 case class Predictions(lastChecked: Long, predictions: Map[String, Int])
 
 case class Arrival(Operator: Option[Operator],
-  CarrierCode: CarrierCode,
-  VoyageNumber: VoyageNumber,
-  FlightCodeSuffix: Option[FlightCodeSuffix],
-  Status: ArrivalStatus,
-  Estimated: Option[Long],
-  Predictions: Predictions,
-  Actual: Option[Long],
-  EstimatedChox: Option[Long],
-  ActualChox: Option[Long],
-  Gate: Option[String],
-  Stand: Option[String],
-  MaxPax: Option[Int],
-  RunwayID: Option[String],
-  BaggageReclaimId: Option[String],
-  AirportID: PortCode,
-  Terminal: Terminal,
-  Origin: PortCode,
-  Scheduled: Long,
-  PcpTime: Option[Long],
-  FeedSources: Set[FeedSource],
-  CarrierScheduled: Option[Long],
-  ScheduledDeparture: Option[Long],
-  RedListPax: Option[Int],
-  TotalPax: Map[FeedSource, Passengers]
-)
+                   CarrierCode: CarrierCode,
+                   VoyageNumber: VoyageNumber,
+                   FlightCodeSuffix: Option[FlightCodeSuffix],
+                   Status: ArrivalStatus,
+                   Estimated: Option[Long],
+                   Predictions: Predictions,
+                   Actual: Option[Long],
+                   EstimatedChox: Option[Long],
+                   ActualChox: Option[Long],
+                   Gate: Option[String],
+                   Stand: Option[String],
+                   MaxPax: Option[Int],
+                   RunwayID: Option[String],
+                   BaggageReclaimId: Option[String],
+                   AirportID: PortCode,
+                   Terminal: Terminal,
+                   Origin: PortCode,
+                   Scheduled: Long,
+                   PcpTime: Option[Long],
+                   FeedSources: Set[FeedSource],
+                   CarrierScheduled: Option[Long],
+                   ScheduledDeparture: Option[Long],
+                   RedListPax: Option[Int],
+                   TotalPax: Map[FeedSource, Passengers]
+                  )
   extends WithUnique[UniqueArrival] with Updatable[Arrival] {
   lazy val differenceFromScheduled: Option[FiniteDuration] = Actual.map(a => (a - Scheduled).milliseconds)
 
@@ -124,7 +128,7 @@ case class Arrival(Operator: Option[Operator],
 
   def hasPcpDuring(start: SDateLike, end: SDateLike): Boolean = {
     val firstPcpMilli = PcpTime.getOrElse(0L)
-    val lastPcpMilli = firstPcpMilli + millisToDisembark(bestPcpPaxEstimate.passengers.actual.getOrElse(0), 20)
+    val lastPcpMilli = firstPcpMilli + millisToDisembark(bestPaxEstimate.passengers.actual.getOrElse(0), 20)
     val firstInRange = start.millisSinceEpoch <= firstPcpMilli && firstPcpMilli <= end.millisSinceEpoch
     val lastInRange = start.millisSinceEpoch <= lastPcpMilli && lastPcpMilli <= end.millisSinceEpoch
     firstInRange || lastInRange
@@ -148,7 +152,7 @@ case class Arrival(Operator: Option[Operator],
       }
     }
 
-  val bestPcpPaxEstimate: TotalPaxSource = {
+  val bestPaxEstimate: TotalPaxSource = {
     val preferredSources: List[(FeedSource, Option[Passengers] => Option[Passengers])] = List(
       (ScenarioSimulationSource, excludeTransferPax),
       (LiveFeedSource, excludeTransferPax),
@@ -163,6 +167,10 @@ case class Arrival(Operator: Option[Operator],
       .map { case (source, fn) => TotalPaxSource(source, fn(TotalPax.get(source)).getOrElse(Passengers(None, None))) }
       .orElse(fallBackToFeedSource)
       .getOrElse(TotalPaxSource(UnknownFeedSource, Passengers(None, None)))
+  }
+
+  val bestPcpPaxEstimate: Option[Int] = {
+    bestPaxEstimate.getPcpPax
   }
 
   def fallBackToFeedSource: Option[TotalPaxSource] = {
@@ -205,7 +213,7 @@ case class Arrival(Operator: Option[Operator],
     PcpTime.map(pcpTime => pcpTime - (bestArrivalTime(considerPredictions) + firstPaxOff))
 
   def minutesOfPaxArrivals: Int = {
-    val totalPax = bestPcpPaxEstimate
+    val totalPax = bestPaxEstimate
     if (totalPax.passengers.actual.getOrElse(0) <= 0) 0
     else (totalPax.passengers.actual.getOrElse(0).toDouble / paxOffPerMinute).ceil.toInt - 1
   }
@@ -219,7 +227,7 @@ case class Arrival(Operator: Option[Operator],
   }
 
   def paxDeparturesByMinute(departRate: Int): Iterable[(Long, Int)] = {
-    val totalPax = bestPcpPaxEstimate.passengers.actual.getOrElse(0)
+    val totalPax = bestPaxEstimate.passengers.actual.getOrElse(0)
     val maybeRemainingPax = totalPax % departRate match {
       case 0 => None
       case someLeftovers => Option(someLeftovers)
@@ -291,30 +299,30 @@ object Arrival {
   implicit val passengersSourceRw: ReadWriter[Passengers] = macroRW
 
   def apply(Operator: Option[Operator],
-    Status: ArrivalStatus,
-    Estimated: Option[Long],
-    Predictions: Predictions,
-    Actual: Option[Long],
-    EstimatedChox: Option[Long],
-    ActualChox: Option[Long],
-    Gate: Option[String],
-    Stand: Option[String],
-    MaxPax: Option[Int],
-    RunwayID: Option[String],
-    BaggageReclaimId: Option[String],
-    AirportID: PortCode,
-    Terminal: Terminal,
-    rawICAO: String,
-    rawIATA: String,
-    Origin: PortCode,
-    Scheduled: Long,
-    PcpTime: Option[Long],
-    FeedSources: Set[FeedSource],
-    CarrierScheduled: Option[Long] = None,
-    ScheduledDeparture: Option[Long] = None,
-    RedListPax: Option[Int] = None,
-    TotalPax: Map[FeedSource, Passengers] = Map.empty
-  ): Arrival = {
+            Status: ArrivalStatus,
+            Estimated: Option[Long],
+            Predictions: Predictions,
+            Actual: Option[Long],
+            EstimatedChox: Option[Long],
+            ActualChox: Option[Long],
+            Gate: Option[String],
+            Stand: Option[String],
+            MaxPax: Option[Int],
+            RunwayID: Option[String],
+            BaggageReclaimId: Option[String],
+            AirportID: PortCode,
+            Terminal: Terminal,
+            rawICAO: String,
+            rawIATA: String,
+            Origin: PortCode,
+            Scheduled: Long,
+            PcpTime: Option[Long],
+            FeedSources: Set[FeedSource],
+            CarrierScheduled: Option[Long] = None,
+            ScheduledDeparture: Option[Long] = None,
+            RedListPax: Option[Int] = None,
+            TotalPax: Map[FeedSource, Passengers] = Map.empty
+           ): Arrival = {
     val (carrierCode: CarrierCode, voyageNumber: VoyageNumber, maybeSuffix: Option[FlightCodeSuffix]) = {
       val bestCode = (rawIATA, rawICAO) match {
         case (iata, _) if iata != "" => iata

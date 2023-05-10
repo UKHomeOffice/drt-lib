@@ -74,8 +74,9 @@ message FeedStatusMessage {
 }
 
 message TotalPaxSourceMessage {
-    optional string feedSource = 1;
-    required PassengersMessage passengers = 2;
+    optional int32 pax = 1;
+    optional string feedSource = 2;
+    optional PassengersMessage passengers = 3;
 }
 
 message PassengersMessage {

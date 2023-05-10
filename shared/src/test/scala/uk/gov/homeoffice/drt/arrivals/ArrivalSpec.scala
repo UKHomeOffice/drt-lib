@@ -26,19 +26,19 @@ class ArrivalSpec extends Specification {
 
     "Give LiveFeedSource as bestPcpPaxEstimate, When LiveFeedSource and ApiFeedSource is present in total pax" in {
       val arrival = arrivalBase.copy(TotalPax = Map(liveFeedTotalPaxSource, apiFeedTotalPaxSource))
-      arrival.bestPcpPaxEstimate mustEqual TotalPaxSource(liveFeedTotalPaxSource._1, liveFeedTotalPaxSource._2)
+      arrival.bestPaxEstimate mustEqual TotalPaxSource(liveFeedTotalPaxSource._1, liveFeedTotalPaxSource._2)
     }
 
     "Give Forecast feed source as bestPcpPaxEstimate, " +
       "When Forecast feed source and HistoricApiFeedSource is present in total pax" in {
       val arrival = arrivalBase.copy(TotalPax = Map(historicApiFeedTotalPaxSource, portForecastFeedTotalPaxSource))
-      arrival.bestPcpPaxEstimate mustEqual TotalPaxSource(portForecastFeedTotalPaxSource._1, portForecastFeedTotalPaxSource._2)
+      arrival.bestPaxEstimate mustEqual TotalPaxSource(portForecastFeedTotalPaxSource._1, portForecastFeedTotalPaxSource._2)
     }
 
     "Give Forecast feed source as bestPcpPaxEstimate, " +
       "When Forecast feed source and Acl Feed source is present in total pax set" in {
       val arrival = arrivalBase.copy(TotalPax = Map(aclFeedTotalPaxSource, portForecastFeedTotalPaxSource))
-      arrival.bestPcpPaxEstimate mustEqual TotalPaxSource(portForecastFeedTotalPaxSource._1, portForecastFeedTotalPaxSource._2)
+      arrival.bestPaxEstimate mustEqual TotalPaxSource(portForecastFeedTotalPaxSource._1, portForecastFeedTotalPaxSource._2)
     }
 
     "When totalPax " +
@@ -50,7 +50,7 @@ class ArrivalSpec extends Specification {
         apiFeedTotalPaxSource,
         historicApiFeedTotalPaxSource,
         aclFeedTotalPaxSource))
-      arrival.bestPcpPaxEstimate mustEqual TotalPaxSource(liveFeedTotalPaxSource._1, liveFeedTotalPaxSource._2)
+      arrival.bestPaxEstimate mustEqual TotalPaxSource(liveFeedTotalPaxSource._1, liveFeedTotalPaxSource._2)
     }
 
     "When totalPax" +
@@ -61,7 +61,7 @@ class ArrivalSpec extends Specification {
         apiFeedTotalPaxSource,
         historicApiFeedTotalPaxSource,
         aclFeedTotalPaxSource))
-      arrival.bestPcpPaxEstimate mustEqual TotalPaxSource(apiFeedTotalPaxSource._1, apiFeedTotalPaxSource._2)
+      arrival.bestPaxEstimate mustEqual TotalPaxSource(apiFeedTotalPaxSource._1, apiFeedTotalPaxSource._2)
     }
 
     "When totalPax " +
@@ -71,7 +71,7 @@ class ArrivalSpec extends Specification {
         portForecastFeedTotalPaxSource,
         historicApiFeedTotalPaxSource,
         aclFeedTotalPaxSource))
-      arrival.bestPcpPaxEstimate mustEqual TotalPaxSource(portForecastFeedTotalPaxSource._1, portForecastFeedTotalPaxSource._2)
+      arrival.bestPaxEstimate mustEqual TotalPaxSource(portForecastFeedTotalPaxSource._1, portForecastFeedTotalPaxSource._2)
     }
 
     "When totalPax" +
@@ -80,7 +80,7 @@ class ArrivalSpec extends Specification {
       val arrival = arrivalBase.copy(TotalPax = Map(
         historicApiFeedTotalPaxSource,
         aclFeedTotalPaxSource))
-      arrival.bestPcpPaxEstimate mustEqual TotalPaxSource(historicApiFeedTotalPaxSource._1, historicApiFeedTotalPaxSource._2)
+      arrival.bestPaxEstimate mustEqual TotalPaxSource(historicApiFeedTotalPaxSource._1, historicApiFeedTotalPaxSource._2)
     }
 
     "When totalPax" +
@@ -88,7 +88,7 @@ class ArrivalSpec extends Specification {
       " HistoricApiFeedSource , port forecast feed source and ApiFeed Source without splits" +
       " bestPcpPaxEstimate gives aclFeed " in {
       val arrival = arrivalBase.copy(TotalPax = Map(aclFeedTotalPaxSource))
-      arrival.bestPcpPaxEstimate mustEqual TotalPaxSource(aclFeedTotalPaxSource._1, aclFeedTotalPaxSource._2)
+      arrival.bestPaxEstimate mustEqual TotalPaxSource(aclFeedTotalPaxSource._1, aclFeedTotalPaxSource._2)
     }
 
     "When totalPax" +
@@ -96,14 +96,14 @@ class ArrivalSpec extends Specification {
       " then bestPcpPaxEstimate gives LiveFeedSource with zero pax " in {
       val arrival = arrivalBase.copy(
         TotalPax = Map(AclFeedSource -> Passengers(Option(250), None), LiveFeedSource -> Passengers(Option(50), Option(100))))
-      arrival.bestPcpPaxEstimate mustEqual TotalPaxSource(LiveFeedSource, Passengers(Option(0), Option(0)))
+      arrival.bestPaxEstimate mustEqual TotalPaxSource(LiveFeedSource, Passengers(Option(0), Option(0)))
     }
 
     "When totalPax" +
       " does not contain any SourceData," +
       " then bestPcpPaxEstimate fallback to FeedSource " in {
       val arrival = arrivalBase.copy(TotalPax = Map(AclFeedSource -> Passengers(Option(10), None)), FeedSources = Set(AclFeedSource))
-      arrival.bestPcpPaxEstimate mustEqual TotalPaxSource(aclFeedTotalPaxSource._1, aclFeedTotalPaxSource._2)
+      arrival.bestPaxEstimate mustEqual TotalPaxSource(aclFeedTotalPaxSource._1, aclFeedTotalPaxSource._2)
     }
 
     "fallBackToFeedSource should return known pax when the arrival feed sources contain one of live, forecast or acl" >> {

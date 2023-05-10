@@ -12,7 +12,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(feedSources = Set(LiveFeedSource),
         totalPax = Map(LiveFeedSource -> Passengers(Option(50), None), ApiFeedSource -> Passengers(Option(100), None)))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 50
 
       result === expected
@@ -23,7 +23,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(feedSources = Set(LiveFeedSource),
         totalPax = Map(LiveFeedSource -> Passengers(Option(50), None)))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 50
 
       result === expected
@@ -34,7 +34,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(feedSources = Set(LiveFeedSource),
         totalPax = Map(ApiFeedSource -> Passengers(Option(100), None)))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 100
 
       result === expected
@@ -45,7 +45,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(feedSources = Set(LiveFeedSource),
         totalPax = Map(LiveFeedSource -> Passengers(Option(100), None)))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 100
 
       result === expected
@@ -56,7 +56,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(maxPax = Option(150), feedSources = Set(LiveFeedSource),
         totalPax = Map(LiveFeedSource -> Passengers(Option(50), Option(100))))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 0
 
       result === expected
@@ -67,7 +67,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(feedSources = Set(LiveFeedSource),
         totalPax = Map(LiveFeedSource -> Passengers(Option(100), Option(0))))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 100
 
       result === expected
@@ -78,7 +78,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(maxPax = Option(130), feedSources = Set(LiveFeedSource),
         totalPax = Map(LiveFeedSource -> Passengers(Option(0), Option(0))))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 0
 
       result === expected
@@ -88,7 +88,7 @@ class ArrivalPcpPaxSpec extends Specification {
       "Then I should expect 90 PCP pax" >> {
       val a = arrival(feedSources = Set(LiveFeedSource),
         totalPax = Map(LiveFeedSource -> Passengers(Option(100), Option(10)), ApiFeedSource -> Passengers(Option(100), None)))
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 90
 
       result === expected
@@ -98,7 +98,7 @@ class ArrivalPcpPaxSpec extends Specification {
       "Then I should expect 0 PCP pax" >> {
       val a = arrival(maxPax = Option(130), feedSources = Set(LiveFeedSource), totalPax = Map(LiveFeedSource -> Passengers(None, None)))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 0
 
       result === expected
@@ -112,7 +112,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(feedSources = Set(AclFeedSource),
         totalPax = Map(ApiFeedSource -> Passengers(Option(100), None), AclFeedSource -> Passengers(Option(50), None)))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 100
 
       result === expected
@@ -123,7 +123,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(feedSources = Set(AclFeedSource),
         totalPax = Map(AclFeedSource -> Passengers(Option(50), None)))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 50
 
       result === expected
@@ -134,7 +134,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(feedSources = Set(AclFeedSource),
         totalPax = Map(ApiFeedSource -> Passengers(Option(100), None)))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 100
 
       result === expected
@@ -145,7 +145,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(feedSources = Set(AclFeedSource),
         totalPax = Map(AclFeedSource -> Passengers(Option(100), None)))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 100
 
       result === expected
@@ -156,7 +156,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(maxPax = Option(150), feedSources = Set(AclFeedSource),
         totalPax = Map(AclFeedSource -> Passengers(Option(50), Option(100))))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 0
 
       result === expected
@@ -167,7 +167,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(feedSources = Set(AclFeedSource),
         totalPax = Map(AclFeedSource -> Passengers(Option(100), Option(0))))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 100
 
       result === expected
@@ -178,7 +178,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(maxPax = Option(130), feedSources = Set(AclFeedSource),
         totalPax = Map(AclFeedSource -> Passengers(Option(0), Option(0))))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 0
 
       result === expected
@@ -189,7 +189,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(feedSources = Set(AclFeedSource),
         totalPax = Map(AclFeedSource -> Passengers(Option(100), Option(10))))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 90
 
       result === expected
@@ -200,7 +200,7 @@ class ArrivalPcpPaxSpec extends Specification {
       val a = arrival(maxPax = Option(130), feedSources = Set(AclFeedSource),
         totalPax = Map(AclFeedSource -> Passengers(Option(0), None)))
 
-      val result = a.bestPcpPaxEstimate.getPcpPax.getOrElse(0)
+      val result = a.bestPcpPaxEstimate.getOrElse(0)
       val expected = 0
 
       result === expected

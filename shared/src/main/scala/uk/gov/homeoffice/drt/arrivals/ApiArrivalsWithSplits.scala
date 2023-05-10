@@ -24,39 +24,22 @@ case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpda
 
   def totalPaxFromApi: Option[TotalPaxSource] = splits.collectFirst {
     case splits if splits.source == ApiSplitsWithHistoricalEGateAndFTPercentages =>
-      TotalPaxSource(ApiFeedSource, Passengers(Option(Math.round(splits.totalPax).toInt), None))
+      TotalPaxSource(ApiFeedSource, Passengers(Option(splits.totalPax), Option(splits.transPax)))
   }
 
-  def totalPaxFromApiExcludingTransfer: Option[TotalPaxSource] =
-    splits.collectFirst { case splits if splits.source == ApiSplitsWithHistoricalEGateAndFTPercentages =>
-      TotalPaxSource(ApiFeedSource, Passengers(Option(Math.round(splits.totalExcludingTransferPax).toInt), None))
-    }
-
   def pcpPaxEstimate: TotalPaxSource =
-    totalPaxFromApiExcludingTransfer match {
+    totalPaxFromApi match {
       case Some(totalPaxSource) if hasValidApi => totalPaxSource
-      case _ => apiFlight.bestPcpPaxEstimate
+      case _ => apiFlight.bestPaxEstimate
     }
 
   def totalPax: Option[TotalPaxSource] =
     if (hasValidApi) totalPaxFromApi
-    else bestSource
+    else Option(apiFlight.bestPaxEstimate)
 
   def equals(candidate: ApiFlightWithSplits): Boolean =
     this.copy(lastUpdated = None) == candidate.copy(lastUpdated = None)
 
-  def bestSource: Option[TotalPaxSource] = {
-    this.apiFlight.FeedSources match {
-      case feedSource if feedSource.contains(LiveFeedSource) =>
-        apiFlight.TotalPax.get(LiveFeedSource).map(TotalPaxSource(LiveFeedSource, _))
-      case feedSource if feedSource.contains(ForecastFeedSource) =>
-        apiFlight.TotalPax.get(ForecastFeedSource).map(TotalPaxSource(ForecastFeedSource, _))
-      case feedSource if feedSource.contains(AclFeedSource) =>
-        apiFlight.TotalPax.get(AclFeedSource).map(TotalPaxSource(AclFeedSource, _))
-      case _ =>
-        None
-    }
-  }
 
   def bestSplits: Option[Splits] = {
     val apiSplitsDc = splits.find(s => s.source == SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages)
@@ -98,8 +81,8 @@ case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpda
   def isWithinThreshold(apiSplits: Splits): Boolean = {
     val apiPaxNo = apiSplits.totalExcludingTransferPax
     val threshold: Double = 0.05
-    val portDirectPax: Double = apiFlight.bestPcpPaxEstimate.getPcpPax.getOrElse(0).toDouble
-    apiPaxNo != 0 && Math.abs(apiPaxNo - portDirectPax) / apiPaxNo < threshold
+    val portDirectPax = apiFlight.TotalPax.get(LiveFeedSource).flatMap(_.getPcpPax).getOrElse(0)
+    apiPaxNo != 0 && (Math.abs(apiPaxNo - portDirectPax) / apiPaxNo) < threshold
   }
 
   def hasPcpPaxIn(start: SDateLike, end: SDateLike): Boolean = apiFlight.hasPcpDuring(start, end)

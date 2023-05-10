@@ -9,6 +9,8 @@ import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.Historical
 import uk.gov.homeoffice.drt.ports.Terminals.T1
 import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.prediction.arrival.OffScheduleModelAndFeatures
+import uk.gov.homeoffice.drt.protobuf.messages.FlightsMessage.FlightMessage
+import uk.gov.homeoffice.drt.protobuf.messages.Prediction.{PredictionIntMessage, PredictionsMessage}
 import uk.gov.homeoffice.drt.time.SDate
 
 class FlightMessageConversionSpec extends Specification {
@@ -39,13 +41,13 @@ class FlightMessageConversionSpec extends Specification {
     ScheduledDeparture = Option(8L),
     RedListPax = Option(26),
     TotalPax = Map(
-      HistoricApiFeedSource -> Passengers(Option(95),None),
-      ForecastFeedSource -> Passengers(Option(0),None),
-      LiveFeedSource -> Passengers(Option(95),None),
-      ApiFeedSource -> Passengers(Option(95),None),
-      AclFeedSource -> Passengers(Option(95),None),
-      LiveBaseFeedSource -> Passengers(Option(95),None),
-      ScenarioSimulationSource -> Passengers(Option(95),None),
+      HistoricApiFeedSource -> Passengers(Option(95), None),
+      ForecastFeedSource -> Passengers(Option(0), None),
+      LiveFeedSource -> Passengers(Option(95), None),
+      ApiFeedSource -> Passengers(Option(95), None),
+      AclFeedSource -> Passengers(Option(95), None),
+      LiveBaseFeedSource -> Passengers(Option(95), None),
+      ScenarioSimulationSource -> Passengers(Option(95), None),
     )
   )
 
@@ -62,7 +64,7 @@ class FlightMessageConversionSpec extends Specification {
   "Given an Arrival with a suffix" >> {
     val arrivalWithSuffix = arrival.copy(FlightCodeSuffix = Option(FlightCodeSuffix("P")))
     "When I convert it to a protobuf message and then back to an Arrival" >> {
-      val arrivalMessage = FlightMessageConversion.apiFlightToFlightMessage(arrivalWithSuffix)
+      val arrivalMessage: FlightMessage = FlightMessageConversion.apiFlightToFlightMessage(arrivalWithSuffix)
       val restoredArrival = FlightMessageConversion.flightMessageToApiFlight(arrivalMessage)
       "Then the converted Arrival should match the original" >> {
         restoredArrival === arrivalWithSuffix
@@ -159,5 +161,45 @@ class FlightMessageConversionSpec extends Specification {
         restoredDiff === diff
       }
     }
+  }
+
+  "when flight message is deserialised and if there is apiPax present then arrival should have apiPax in totalPax" >> {
+    val apiFlight = arrival.copy(
+      FeedSources = Set(ApiFeedSource),
+      TotalPax = Map(ApiFeedSource -> Passengers(Option(95), None),
+      ))
+
+    val flightMessage = FlightMessage(
+      operator = apiFlight.Operator.map(_.code),
+      gate = apiFlight.Gate,
+      stand = apiFlight.Stand,
+      status = Option(apiFlight.Status.description),
+      maxPax = apiFlight.MaxPax,
+      runwayID = apiFlight.RunwayID,
+      baggageReclaimId = apiFlight.BaggageReclaimId,
+      airportID = Option(apiFlight.AirportID.iata),
+      terminal = Option(apiFlight.Terminal.toString),
+      iCAO = Option(apiFlight.flightCodeString),
+      iATA = Option(apiFlight.flightCodeString),
+      origin = Option(apiFlight.Origin.toString),
+      pcpTime = apiFlight.PcpTime,
+      feedSources = Seq.empty,
+      scheduled = Option(apiFlight.Scheduled),
+      estimated = apiFlight.Estimated,
+      predictions = Option(PredictionsMessage(Option(apiFlight.Predictions.lastChecked),
+        apiFlight.Predictions.predictions.map { case (k, v) => PredictionIntMessage(Option(k), Option(v)) }.toSeq)),
+      touchdown = apiFlight.Actual,
+      estimatedChox = apiFlight.EstimatedChox,
+      actualChox = apiFlight.ActualChox,
+      carrierScheduled = apiFlight.CarrierScheduled,
+      redListPax = apiFlight.RedListPax,
+      scheduledDeparture = apiFlight.ScheduledDeparture,
+      totalPax = Seq.empty,
+      apiPax = apiFlight.TotalPax.get(ApiFeedSource).flatMap(_.getPcpPax)
+    )
+
+    val arrivalResult = FlightMessageConversion.flightMessageToApiFlight(flightMessage)
+
+    arrivalResult === apiFlight
   }
 }

@@ -8,7 +8,7 @@ import uk.gov.homeoffice.drt.feeds.{FeedStatus, FeedStatusFailure, FeedStatusSuc
 import uk.gov.homeoffice.drt.ports.Queues.Queue
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{SplitSource, SplitSources}
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import uk.gov.homeoffice.drt.ports.{ApiPaxTypeAndQueueCount, FeedSource, PaxAge, PaxType, PortCode, UnknownFeedSource}
+import uk.gov.homeoffice.drt.ports.{ApiFeedSource, ApiPaxTypeAndQueueCount, FeedSource, PaxAge, PaxType, PortCode, UnknownFeedSource}
 import uk.gov.homeoffice.drt.protobuf.messages.CrunchState.{FlightWithSplitsMessage, FlightsWithSplitsDiffMessage, FlightsWithSplitsMessage, PaxTypeAndQueueCountMessage, SplitMessage}
 import uk.gov.homeoffice.drt.protobuf.messages.FlightsMessage.{FeedStatusMessage, FeedStatusesMessage, FlightMessage, FlightStateSnapshotMessage, PassengersMessage, TotalPaxSourceMessage, UniqueArrivalMessage}
 import uk.gov.homeoffice.drt.protobuf.messages.Prediction.{PredictionIntMessage, PredictionLongMessage, PredictionsMessage}
@@ -65,7 +65,7 @@ object FlightMessageConversion {
   }
 
   def restoreArrivalsFromSnapshot(restorer: ArrivalsRestorer[Arrival],
-    snMessage: FlightStateSnapshotMessage): Unit = {
+                                  snMessage: FlightStateSnapshotMessage): Unit = {
     restorer.applyUpdates(snMessage.flightMessages.map(flightMessageToApiFlight))
   }
 
@@ -176,8 +176,6 @@ object FlightMessageConversion {
       stand = apiFlight.Stand,
       status = Option(apiFlight.Status.description),
       maxPax = apiFlight.MaxPax,
-      //      actPax = apiFlight.ActPax,
-      //      tranPax = apiFlight.TranPax,
       runwayID = apiFlight.RunwayID,
       baggageReclaimId = apiFlight.BaggageReclaimId,
       airportID = Option(apiFlight.AirportID.iata),
@@ -194,7 +192,6 @@ object FlightMessageConversion {
       estimatedChox = apiFlight.EstimatedChox,
       actualChox = apiFlight.ActualChox,
       carrierScheduled = apiFlight.CarrierScheduled,
-      //      apiPax = apiFlight.ApiPax,
       redListPax = apiFlight.RedListPax,
       scheduledDeparture = apiFlight.ScheduledDeparture,
       totalPax = convertTotalPaxToMessage(apiFlight.TotalPax)
@@ -203,7 +200,8 @@ object FlightMessageConversion {
 
   def convertTotalPaxToMessage(totalPax: Map[FeedSource, Passengers]): Seq[TotalPaxSourceMessage] =
     totalPax.map { case (source, passengers: Passengers) =>
-      TotalPaxSourceMessage(feedSource = Option(source.name), passengers = PassengersMessage(passengers.actual,passengers.transit))
+      TotalPaxSourceMessage(feedSource = Option(source.name),
+        passengers = Option(PassengersMessage(passengers.actual, passengers.transit)))
     }.toSeq
 
   def predictionsToMessage(predictions: Predictions): PredictionsMessage =
@@ -253,16 +251,34 @@ object FlightMessageConversion {
     Origin = PortCode(flightMessage.origin.getOrElse("")),
     PcpTime = flightMessage.pcpTime,
     Scheduled = flightMessage.scheduled.getOrElse(0L),
-    FeedSources = flightMessage.feedSources.flatMap(FeedSource(_)).toSet,
+    FeedSources = getFeedSource(flightMessage),
     CarrierScheduled = flightMessage.carrierScheduled,
     RedListPax = flightMessage.redListPax,
     ScheduledDeparture = flightMessage.scheduledDeparture,
-    TotalPax = flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap
+    TotalPax = getTotalPax(flightMessage)
   )
+
+  private def getTotalPax(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
+    if (flightMessage.apiPax.isDefined) {
+      flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap ++
+        Seq(TotalPaxSourceMessage(flightMessage.apiPax,
+          Option(ApiFeedSource.name),
+          Option(PassengersMessage(actual = flightMessage.apiPax, None))
+        )).map(totalPaxSourceFromMessage).toMap
+    } else
+      flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap
+  }
+
+  private def getFeedSource(flightMessage: FlightMessage): Set[FeedSource] = {
+    if (flightMessage.apiPax.isDefined) {
+      flightMessage.feedSources.flatMap(FeedSource(_)).toSet + ApiFeedSource
+    } else
+      flightMessage.feedSources.flatMap(FeedSource(_)).toSet
+  }
 
   def totalPaxSourceFromMessage(message: TotalPaxSourceMessage): (FeedSource, Passengers) = {
     val feedSource = message.feedSource.flatMap(FeedSource.findByName).getOrElse(UnknownFeedSource)
-    (feedSource, Passengers(message.passengers.actual,message.passengers.transit))
+    (feedSource, Passengers(message.passengers.flatMap(_.actual), message.passengers.flatMap(_.transit)))
   }
 
   def flightsToMessage(flights: Iterable[ApiFlightWithSplits]): FlightsWithSplitsMessage =
