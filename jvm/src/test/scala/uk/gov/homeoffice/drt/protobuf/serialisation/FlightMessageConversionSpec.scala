@@ -9,7 +9,7 @@ import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.Historical
 import uk.gov.homeoffice.drt.ports.Terminals.T1
 import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.prediction.arrival.OffScheduleModelAndFeatures
-import uk.gov.homeoffice.drt.protobuf.messages.FlightsMessage.FlightMessage
+import uk.gov.homeoffice.drt.protobuf.messages.FlightsMessage.{FlightMessage, PassengersMessage, TotalPaxSourceMessage}
 import uk.gov.homeoffice.drt.protobuf.messages.Prediction.{PredictionIntMessage, PredictionsMessage}
 import uk.gov.homeoffice.drt.time.SDate
 
@@ -50,6 +50,39 @@ class FlightMessageConversionSpec extends Specification {
       ScenarioSimulationSource -> Passengers(Option(95), None),
     )
   )
+
+  def getFlightMessageWithoutPax(apiFlight: Arrival): FlightMessage = {
+    FlightMessage(
+      operator = apiFlight.Operator.map(_.code),
+      gate = apiFlight.Gate,
+      stand = apiFlight.Stand,
+      status = Option(apiFlight.Status.description),
+      maxPax = apiFlight.MaxPax,
+      runwayID = apiFlight.RunwayID,
+      baggageReclaimId = apiFlight.BaggageReclaimId,
+      airportID = Option(apiFlight.AirportID.iata),
+      terminal = Option(apiFlight.Terminal.toString),
+      iCAO = Option(apiFlight.flightCodeString),
+      iATA = Option(apiFlight.flightCodeString),
+      origin = Option(apiFlight.Origin.toString),
+      pcpTime = apiFlight.PcpTime,
+      feedSources = Seq.empty,
+      scheduled = Option(apiFlight.Scheduled),
+      estimated = apiFlight.Estimated,
+      predictions = Option(PredictionsMessage(Option(apiFlight.Predictions.lastChecked),
+        apiFlight.Predictions.predictions.map { case (k, v) => PredictionIntMessage(Option(k), Option(v)) }.toSeq)),
+      touchdown = apiFlight.Actual,
+      estimatedChox = apiFlight.EstimatedChox,
+      actualChox = apiFlight.ActualChox,
+      carrierScheduled = apiFlight.CarrierScheduled,
+      redListPax = apiFlight.RedListPax,
+      scheduledDeparture = apiFlight.ScheduledDeparture,
+      totalPax = Seq.empty,
+      apiPax = None,
+      actPax = None,
+      tranPax = None
+    )
+  }
 
   "Given an Arrival with no suffix" >> {
     "When I convert it to a protobuf message and then back to an Arrival" >> {
@@ -163,38 +196,14 @@ class FlightMessageConversionSpec extends Specification {
     }
   }
 
-  "when flight message is deserialised and if there is apiPax present then arrival should have apiPax in totalPax" >> {
+  "when flight message is deserialize and if there is apiPax present then arrival should have apiPax in totalPax" >> {
     val apiFlight = arrival.copy(
       FeedSources = Set(ApiFeedSource),
       PassengerSources = Map(ApiFeedSource -> Passengers(Option(95), None),
       ))
 
-    val flightMessage = FlightMessage(
-      operator = apiFlight.Operator.map(_.code),
-      gate = apiFlight.Gate,
-      stand = apiFlight.Stand,
-      status = Option(apiFlight.Status.description),
-      maxPax = apiFlight.MaxPax,
-      runwayID = apiFlight.RunwayID,
-      baggageReclaimId = apiFlight.BaggageReclaimId,
-      airportID = Option(apiFlight.AirportID.iata),
-      terminal = Option(apiFlight.Terminal.toString),
-      iCAO = Option(apiFlight.flightCodeString),
-      iATA = Option(apiFlight.flightCodeString),
-      origin = Option(apiFlight.Origin.toString),
-      pcpTime = apiFlight.PcpTime,
-      feedSources = Seq.empty,
-      scheduled = Option(apiFlight.Scheduled),
-      estimated = apiFlight.Estimated,
-      predictions = Option(PredictionsMessage(Option(apiFlight.Predictions.lastChecked),
-        apiFlight.Predictions.predictions.map { case (k, v) => PredictionIntMessage(Option(k), Option(v)) }.toSeq)),
-      touchdown = apiFlight.Actual,
-      estimatedChox = apiFlight.EstimatedChox,
-      actualChox = apiFlight.ActualChox,
-      carrierScheduled = apiFlight.CarrierScheduled,
-      redListPax = apiFlight.RedListPax,
-      scheduledDeparture = apiFlight.ScheduledDeparture,
-      passengerSources = Seq.empty,
+    val flightMessage = getFlightMessageWithoutPax(apiFlight).copy(
+      feedSources = Seq(ApiFeedSource.toString),
       apiPax = apiFlight.PassengerSources.get(ApiFeedSource).flatMap(_.getPcpPax)
     )
 
@@ -202,4 +211,39 @@ class FlightMessageConversionSpec extends Specification {
 
     arrivalResult === apiFlight
   }
+
+  "when flight message is deserialize and if there is actPax and/or transPax present then arrival should have actPax and transPax in totalPax" >> {
+    val apiFlight = arrival.copy(
+      FeedSources = Set(LiveFeedSource),
+      PassengerSources = Map(LiveFeedSource -> Passengers(Option(95), Option(10)),
+      ))
+
+    val flightMessage = getFlightMessageWithoutPax(apiFlight).copy(
+      feedSources = Seq(LiveFeedSource.toString),
+      actPax = apiFlight.PassengerSources.get(LiveFeedSource).flatMap(_.actual),
+      tranPax = apiFlight.PassengerSources.get(LiveFeedSource).flatMap(_.transit)
+    )
+
+    val arrivalResult = FlightMessageConversion.flightMessageToApiFlight(flightMessage)
+
+    arrivalResult === apiFlight
+  }
+
+  "when arrival object has PassengerSources then serialise and deserialize should have actPax and transPax in totalPax" >> {
+    val apiFlight = arrival.copy(
+      FeedSources = Set(LiveFeedSource),
+      PassengerSources = Map(LiveFeedSource -> Passengers(Option(95), Option(10)),
+      ))
+
+    val flightMessage = getFlightMessageWithoutPax(apiFlight).copy(
+      feedSources = Seq(LiveFeedSource.toString),
+      totalPax = Seq(TotalPaxSourceMessage(feedSource = Option(LiveFeedSource.toString) ,passengers = Option(PassengersMessage(Option(95),Option(10)))))
+
+    )
+
+    val arrivalResult = FlightMessageConversion.flightMessageToApiFlight(flightMessage)
+
+    arrivalResult === apiFlight
+  }
+
 }

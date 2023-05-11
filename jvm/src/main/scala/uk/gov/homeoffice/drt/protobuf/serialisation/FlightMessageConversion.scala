@@ -1,16 +1,16 @@
 package uk.gov.homeoffice.drt.protobuf.serialisation
 
 import org.slf4j.{Logger, LoggerFactory}
-import uk.gov.homeoffice.drt.Nationality
+import uk.gov.homeoffice.drt.{Nationality, ports}
 import uk.gov.homeoffice.drt.actor.state.ArrivalsState
-import uk.gov.homeoffice.drt.arrivals.{ApiFlightWithSplits, Arrival, ArrivalStatus, ArrivalsRestorer, EventType, FlightsWithSplitsDiff, LegacyUniqueArrival, Operator, Passengers, Prediction, Predictions, SplitStyle, Splits, BestPaxSource, UniqueArrival, UniqueArrivalLike}
+import uk.gov.homeoffice.drt.arrivals.{ApiFlightWithSplits, Arrival, ArrivalStatus, ArrivalsRestorer, EventType, FlightsWithSplitsDiff, LegacyUniqueArrival, Operator, Passengers, PaxSource, Prediction, Predictions, SplitStyle, Splits, UniqueArrival, UniqueArrivalLike}
 import uk.gov.homeoffice.drt.feeds.{FeedStatus, FeedStatusFailure, FeedStatusSuccess, FeedStatuses}
 import uk.gov.homeoffice.drt.ports.Queues.Queue
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{SplitSource, SplitSources}
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import uk.gov.homeoffice.drt.ports.{ApiFeedSource, ApiPaxTypeAndQueueCount, FeedSource, PaxAge, PaxType, PortCode, UnknownFeedSource}
+import uk.gov.homeoffice.drt.ports.{AclFeedSource, ApiFeedSource, ApiPaxTypeAndQueueCount, FeedSource, ForecastFeedSource, HistoricApiFeedSource, LiveFeedSource, PaxAge, PaxType, PortCode, UnknownFeedSource}
 import uk.gov.homeoffice.drt.protobuf.messages.CrunchState.{FlightWithSplitsMessage, FlightsWithSplitsDiffMessage, FlightsWithSplitsMessage, PaxTypeAndQueueCountMessage, SplitMessage}
-import uk.gov.homeoffice.drt.protobuf.messages.FlightsMessage.{FeedStatusMessage, FeedStatusesMessage, FlightMessage, FlightStateSnapshotMessage, PassengersMessage, PassengerSourceMessage, UniqueArrivalMessage}
+import uk.gov.homeoffice.drt.protobuf.messages.FlightsMessage.{FeedStatusMessage, FeedStatusesMessage, FlightMessage, FlightStateSnapshotMessage, PassengersMessage, TotalPaxSourceMessage, UniqueArrivalMessage}
 import uk.gov.homeoffice.drt.protobuf.messages.Prediction.{PredictionIntMessage, PredictionLongMessage, PredictionsMessage}
 import uk.gov.homeoffice.drt.time.SDate
 
@@ -194,13 +194,13 @@ object FlightMessageConversion {
       carrierScheduled = apiFlight.CarrierScheduled,
       redListPax = apiFlight.RedListPax,
       scheduledDeparture = apiFlight.ScheduledDeparture,
-      passengerSources = convertPassengerSourcesToMessage(apiFlight.PassengerSources)
+      totalPax = convertPassengerSourcesToMessage(apiFlight.PassengerSources)
     )
   }
 
-  def convertPassengerSourcesToMessage(totalPax: Map[FeedSource, Passengers]): Seq[PassengerSourceMessage] =
+  def convertPassengerSourcesToMessage(totalPax: Map[FeedSource, Passengers]): Seq[TotalPaxSourceMessage] =
     totalPax.map { case (source, passengers: Passengers) =>
-      PassengerSourceMessage(feedSource = Option(source.name),
+      TotalPaxSourceMessage(feedSource = Option(source.toString),
         passengers = Option(PassengersMessage(passengers.actual, passengers.transit)))
     }.toSeq
 
@@ -259,25 +259,46 @@ object FlightMessageConversion {
   )
 
   private def getPassengerSources(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
-    if (flightMessage.apiPax.isDefined) {
-      flightMessage.passengerSources.map(totalPaxSourceFromMessage).toMap ++
-        Seq(PassengerSourceMessage(flightMessage.apiPax,
-          Option(ApiFeedSource.name),
+    val includeDeprecatedApiPassenger: Map[FeedSource, Passengers] = if (flightMessage.apiPax.isDefined) {
+      flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap ++
+        Seq(TotalPaxSourceMessage(flightMessage.apiPax,
+          Option(ApiFeedSource.toString),
           Option(PassengersMessage(actual = flightMessage.apiPax, None))
         )).map(totalPaxSourceFromMessage).toMap
     } else
-      flightMessage.passengerSources.map(totalPaxSourceFromMessage).toMap
+      flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap
+
+    val includeDeprecatedActPax: Map[FeedSource, Passengers] = if (flightMessage.actPax.isDefined) {
+      includeDeprecatedApiPassenger ++ Seq(TotalPaxSourceMessage(flightMessage.actPax,
+        Option(getFeedSourceForActPax(flightMessage).toString),
+        Option(PassengersMessage(actual = flightMessage.actPax, flightMessage.tranPax))
+      )).map(totalPaxSourceFromMessage).toMap
+    } else includeDeprecatedApiPassenger
+
+    includeDeprecatedActPax
+  }
+
+  private def getFeedSourceForActPax(flightMessage: FlightMessage): FeedSource = {
+    if (flightMessage.feedSources.contains(LiveFeedSource.toString))
+      LiveFeedSource
+    else if (flightMessage.feedSources.contains(ApiFeedSource.toString))
+      ApiFeedSource
+    else if (flightMessage.feedSources.contains(ForecastFeedSource.toString))
+      ForecastFeedSource
+    else if (flightMessage.feedSources.contains(HistoricApiFeedSource.toString))
+      HistoricApiFeedSource
+    else if (flightMessage.feedSources.contains(AclFeedSource.toString))
+      AclFeedSource
+    else
+      UnknownFeedSource
   }
 
   private def getFeedSource(flightMessage: FlightMessage): Set[FeedSource] = {
-    if (flightMessage.apiPax.isDefined) {
-      flightMessage.feedSources.flatMap(FeedSource(_)).toSet + ApiFeedSource
-    } else
-      flightMessage.feedSources.flatMap(FeedSource(_)).toSet
+    flightMessage.feedSources.flatMap(FeedSource(_)).toSet
   }
 
-  def totalPaxSourceFromMessage(message: PassengerSourceMessage): (FeedSource, Passengers) = {
-    val feedSource = message.feedSource.flatMap(FeedSource.findByName).getOrElse(UnknownFeedSource)
+  def totalPaxSourceFromMessage(message: TotalPaxSourceMessage): (FeedSource, Passengers) = {
+    val feedSource = message.feedSource.flatMap(FeedSource(_)).getOrElse(UnknownFeedSource)
     (feedSource, Passengers(message.passengers.flatMap(_.actual), message.passengers.flatMap(_.transit)))
   }
 

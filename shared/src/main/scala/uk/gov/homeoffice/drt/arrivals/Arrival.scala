@@ -37,7 +37,7 @@ case class Passengers(actual: Option[Int], transit: Option[Int]) {
   }
 }
 
-case class BestPaxSource(feedSource: FeedSource, passengers: Passengers) {
+case class PaxSource(feedSource: FeedSource, passengers: Passengers) {
   def getPcpPax: Option[Int] = {
     passengers.getPcpPax
   }
@@ -152,7 +152,7 @@ case class Arrival(Operator: Option[Operator],
       }
     }
 
-  val bestPaxEstimate: BestPaxSource = {
+  val bestPaxEstimate: PaxSource = {
     val preferredSources: List[(FeedSource, Option[Passengers] => Option[Passengers])] = List(
       (ScenarioSimulationSource, excludeTransferPax),
       (LiveFeedSource, excludeTransferPax),
@@ -164,30 +164,12 @@ case class Arrival(Operator: Option[Operator],
 
     preferredSources
       .find { case (source, _) => PassengerSources.get(source).exists(_.actual.isDefined) }
-      .map { case (source, fn) => BestPaxSource(source, fn(PassengerSources.get(source)).getOrElse(Passengers(None, None))) }
-      .orElse(fallBackToFeedSource)
-      .getOrElse(BestPaxSource(UnknownFeedSource, Passengers(None, None)))
+      .map { case (source, fn) => PaxSource(source, fn(PassengerSources.get(source)).getOrElse(Passengers(None, None))) }
+      .getOrElse(PaxSource(UnknownFeedSource, Passengers(None, None)))
   }
 
   val bestPcpPaxEstimate: Option[Int] = {
     bestPaxEstimate.getPcpPax
-  }
-
-  def fallBackToFeedSource: Option[BestPaxSource] = {
-    List(LiveFeedSource, ForecastFeedSource, AclFeedSource)
-      .find(FeedSources.contains)
-      .map { s =>
-        PassengerSources.get(s) match {
-          case Some(a) =>
-            (a.actual, a.transit) match {
-              case (Some(actPax), Some(tranPax)) if actPax - tranPax >= 0 => BestPaxSource(s, Passengers(Some(actPax), Some(tranPax)))
-              case (Some(actPax), Some(tranPax)) if actPax - tranPax < 0 => BestPaxSource(s, Passengers(Some(0), None))
-              case (None, _) => BestPaxSource(s, Passengers(None, None))
-              case (maybeActPax, None) => BestPaxSource(s, Passengers(maybeActPax, None))
-            }
-          case None => BestPaxSource(s, Passengers(None, None))
-        }
-      }
   }
 
   lazy val predictedTouchdown: Option[Long] =
@@ -295,7 +277,7 @@ object Arrival {
   implicit val portCodeRw: ReadWriter[PortCode] = macroRW
   implicit val predictionsRw: ReadWriter[Predictions] = macroRW
   implicit val arrivalRw: ReadWriter[Arrival] = macroRW
-  implicit val totalPaxSourceRw: ReadWriter[BestPaxSource] = macroRW
+  implicit val totalPaxSourceRw: ReadWriter[PaxSource] = macroRW
   implicit val passengersSourceRw: ReadWriter[Passengers] = macroRW
 
   def apply(Operator: Option[Operator],
