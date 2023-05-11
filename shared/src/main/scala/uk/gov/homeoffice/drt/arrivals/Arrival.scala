@@ -28,8 +28,11 @@ object Prediction {
 }
 
 case class Passengers(actual: Option[Int], transit: Option[Int]) {
+
+  def diffInActualAndTrans: Option[Int] = actual.map(_ - transit.getOrElse(0))
+
   def getPcpPax: Option[Int] = {
-    actual.map(_ - transit.getOrElse(0)) match {
+    diffInActualAndTrans match {
       case Some(a) if a > 0 => Option(a)
       case Some(a) if a <= 0 => Option(0)
       case _ => None
@@ -38,9 +41,16 @@ case class Passengers(actual: Option[Int], transit: Option[Int]) {
 }
 
 case class PaxSource(feedSource: FeedSource, passengers: Passengers) {
-  def getPcpPax: Option[Int] = {
-    passengers.getPcpPax
+
+  def excludeTransferPassenger: PaxSource = {
+    passengers.diffInActualAndTrans match {
+      case Some(a) if a <= 0 => PaxSource(feedSource, passengers.copy(Option(0), Option(0)))
+      case _ => PaxSource(feedSource, passengers)
+    }
   }
+
+  def getPcpPax: Option[Int] = passengers.getPcpPax
+
 }
 
 case class Predictions(lastChecked: Long, predictions: Map[String, Int])
@@ -143,34 +153,25 @@ case class Arrival(Operator: Option[Operator],
     (minutesToDisembark * oneMinuteInMillis).toLong
   }
 
-  val excludeTransferPax: Option[Passengers] => Option[Passengers] = maybePax =>
-    maybePax.map { p =>
-      p.actual.map(_ - p.transit.getOrElse(0)) match {
-        case Some(nonNegative) if nonNegative >= 0 => p
-        case Some(_) => p.copy(actual = Some(0), transit = Some(0))
-        case None => p.copy(actual = None)
-      }
-    }
-
-  val bestPaxEstimate: PaxSource = {
-    val preferredSources: List[(FeedSource, Option[Passengers] => Option[Passengers])] = List(
-      (ScenarioSimulationSource, excludeTransferPax),
-      (LiveFeedSource, excludeTransferPax),
-      (ApiFeedSource, identity),
-      (ForecastFeedSource, excludeTransferPax),
-      (HistoricApiFeedSource, identity),
-      (AclFeedSource, excludeTransferPax),
+  def bestPaxEstimate: PaxSource = {
+    val preferredSources: List[FeedSource] = List(
+      ScenarioSimulationSource,
+      LiveFeedSource,
+      ApiFeedSource,
+      ForecastFeedSource,
+      HistoricApiFeedSource,
+      AclFeedSource,
     )
 
     preferredSources
-      .find { case (source, _) => PassengerSources.get(source).exists(_.actual.isDefined) }
-      .map { case (source, fn) => PaxSource(source, fn(PassengerSources.get(source)).getOrElse(Passengers(None, None))) }
-      .getOrElse(PaxSource(UnknownFeedSource, Passengers(None, None)))
+      .find { case source => PassengerSources.get(source).exists(_.actual.isDefined) }
+      .map { case source => PassengerSources.get(source).map(PaxSource(source, _).excludeTransferPassenger)
+        .getOrElse(PaxSource(source, Passengers(None, None)))
+      }.getOrElse(PaxSource(UnknownFeedSource, Passengers(None, None)))
+
   }
 
-  val bestPcpPaxEstimate: Option[Int] = {
-    bestPaxEstimate.getPcpPax
-  }
+  val bestPcpPaxEstimate: Option[Int] = bestPaxEstimate.getPcpPax
 
   lazy val predictedTouchdown: Option[Long] =
     Predictions.predictions

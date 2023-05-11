@@ -120,32 +120,32 @@ class ApiFlightWithSplitsSpec extends Specification {
 
     "give a pax count from splits when it has API splits" in {
       val flightWithSplits = flightWithPaxAndApiSplits( 45, 0, Set(), Map(), scheduledAfterPaxSources)
-      flightWithSplits.bestPaxFromApi.flatMap(_.passengers.actual) mustEqual Option(45)
+      flightWithSplits.bestPaxSource.passengers.actual mustEqual Option(45)
     }
 
     "give a pax count from splits when it has API splits which does not include transfer pax" in {
       val flightWithSplits = flightWithPaxAndApiSplits(45, 20, Set(), Map(), scheduledAfterPaxSources)
-      flightWithSplits.bestPaxFromApi.flatMap(_.passengers.getPcpPax) mustEqual Option(45)
+      flightWithSplits.bestPaxSource.passengers.getPcpPax mustEqual Option(45)
     }
 
     "give a pax count from splits when it has API splits even when it is outside the trusted threshold" in {
       val flightWithSplits = flightWithPaxAndApiSplits( 150, 0, Set(LiveFeedSource), Map(), scheduledAfterPaxSources)
-      flightWithSplits.bestPaxFromApi.flatMap(_.passengers.actual) mustEqual Option(150)
+      flightWithSplits.bestPaxSource.passengers.actual mustEqual Option(150)
     }
 
     "give no pax count from splits it has no API splits" in {
       val flightWithSplits = flightWithPaxAndHistoricSplits( 45, 20, Set(),Map())
-      flightWithSplits.bestPaxFromApi.flatMap(_.passengers.actual) must beNone
+      flightWithSplits.bestPaxSource.passengers.actual must beNone
     }
 
     "give None for totalPaxFromApiExcludingTransfer when it doesn't have live API splits" in {
       val fws = flightWithPaxAndHistoricSplits( 100, 0, Set(),Map())
-      fws.bestPaxFromApi === None
+      fws.bestPaxSource.passengers.actual === None
     }
 
     "give None for totalPaxFromApi when it doesn't have live API splits" in {
       val fws = flightWithPaxAndHistoricSplits(100, 0, Set(),Map())
-      fws.bestPaxFromApi === None
+      fws.bestPaxSource.passengers.actual === None
     }
   }
 

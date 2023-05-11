@@ -259,19 +259,19 @@ object FlightMessageConversion {
   )
 
   private def getPassengerSources(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
-    val includeDeprecatedApiPassenger: Map[FeedSource, Passengers] = if (flightMessage.apiPax.isDefined) {
+    val includeDeprecatedApiPassenger: Map[FeedSource, Passengers] = if (flightMessage.apiPaxOLD.isDefined) {
       flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap ++
-        Seq(TotalPaxSourceMessage(flightMessage.apiPax,
+        Seq(TotalPaxSourceMessage(
           Option(ApiFeedSource.toString),
-          Option(PassengersMessage(actual = flightMessage.apiPax, None))
+          Option(PassengersMessage(actual = flightMessage.apiPaxOLD, None))
         )).map(totalPaxSourceFromMessage).toMap
     } else
       flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap
 
-    val includeDeprecatedActPax: Map[FeedSource, Passengers] = if (flightMessage.actPax.isDefined) {
-      includeDeprecatedApiPassenger ++ Seq(TotalPaxSourceMessage(flightMessage.actPax,
+    val includeDeprecatedActPax: Map[FeedSource, Passengers] = if (flightMessage.actPaxOLD.isDefined) {
+      includeDeprecatedApiPassenger ++ Seq(TotalPaxSourceMessage(
         Option(getFeedSourceForActPax(flightMessage).toString),
-        Option(PassengersMessage(actual = flightMessage.actPax, flightMessage.tranPax))
+        Option(PassengersMessage(actual = flightMessage.actPaxOLD, flightMessage.tranPaxOLD))
       )).map(totalPaxSourceFromMessage).toMap
     } else includeDeprecatedApiPassenger
 

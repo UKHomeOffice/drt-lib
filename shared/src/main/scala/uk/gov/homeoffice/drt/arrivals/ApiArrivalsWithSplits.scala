@@ -22,13 +22,13 @@ case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpda
     with Updatable[ApiFlightWithSplits]
     with WithLastUpdated {
 
-  def bestPaxFromApi: Option[PaxSource] = splits.collectFirst {
+  private def paxFromApi: Option[PaxSource] = splits.collectFirst {
     case splits if splits.source == ApiSplitsWithHistoricalEGateAndFTPercentages =>
       PaxSource(ApiFeedSource, Passengers(Option(splits.totalPax), Option(splits.transPax)))
   }
 
   def bestPaxSource: PaxSource =
-    bestPaxFromApi match {
+    paxFromApi match {
       case Some(totalPaxSource) if hasValidApi => totalPaxSource
       case _ => apiFlight.bestPaxEstimate
     }
