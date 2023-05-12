@@ -258,32 +258,48 @@ object FlightMessageConversion {
     PassengerSources = getPassengerSources(flightMessage)
   )
 
-  private def getPassengerSources(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
-    val includeDeprecatedApiPassenger: Map[FeedSource, Passengers] = if (flightMessage.apiPaxOLD.isDefined) {
-      flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap ++
-        Seq(TotalPaxSourceMessage(
-          Option(ApiFeedSource.toString),
-          Option(PassengersMessage(actual = flightMessage.apiPaxOLD, getTransPaxAccordingToFeedSource(ApiFeedSource.toString, flightMessage)))
-        )).map(totalPaxSourceFromMessage).toMap
-    } else
-      flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap
+  private def getVersion3PassengerSourceWhenApiPaxOldExist(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
+    Seq(TotalPaxSourceMessage(
+      Option(ApiFeedSource.toString),
+      Option(PassengersMessage(actual = flightMessage.apiPaxOLD, getTransPaxAccordingToFeedSource(ApiFeedSource.toString, flightMessage)))
+    )).map(totalPaxSourceFromMessage).toMap
+  }
 
-    val includeDeprecatedActPax: Map[FeedSource, Passengers] = if (flightMessage.actPaxOLD.isDefined) {
-      includeDeprecatedApiPassenger ++ Seq(TotalPaxSourceMessage(
-        Option(getFeedSourceForActPax(flightMessage).toString),
-        Option(PassengersMessage(actual = flightMessage.actPaxOLD, getTransPaxAccordingToFeedSource(getFeedSourceForActPax(flightMessage).toString, flightMessage)))
+  private def getVersion3PassengerSourceWhenActPaxOldExist(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
+    Seq(TotalPaxSourceMessage(
+      Option(getFeedSourceForActPax(flightMessage).toString),
+      Option(PassengersMessage(actual = flightMessage.actPaxOLD, getTransPaxAccordingToFeedSource(getFeedSourceForActPax(flightMessage).toString, flightMessage)))
+    )).map(totalPaxSourceFromMessage).toMap
+  }
+
+  private def getVersion2PassengerSourceWhenPaxOldInTotalPaxExist(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
+    flightMessage.totalPax.filter(_.paxOLD.isDefined).map(a =>
+      TotalPaxSourceMessage(
+        Option(a.getFeedSource),
+        Option(PassengersMessage(actual = a.paxOLD, getTransPaxAccordingToFeedSource(a.getFeedSource, flightMessage)))
       )).map(totalPaxSourceFromMessage).toMap
-    } else includeDeprecatedApiPassenger
+  }
 
-    val includeDeprecatedPaxInPassenger: Map[FeedSource, Passengers] = if (flightMessage.totalPax.map(_.paxOLD).nonEmpty) {
-      includeDeprecatedActPax ++ flightMessage.totalPax.filter(_.paxOLD.isDefined).map(a =>
-        TotalPaxSourceMessage(
-          Option(a.getFeedSource),
-          Option(PassengersMessage(actual = a.paxOLD, getTransPaxAccordingToFeedSource(a.getFeedSource, flightMessage)))
-        )).map(totalPaxSourceFromMessage).toMap
-    } else includeDeprecatedActPax
+  private def getPassengerSources(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
+    val version4FlightMessage = flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap
 
-    includeDeprecatedPaxInPassenger
+    //version 3 when apiPaxOld exists
+    val version3FlightMessageWithApiPaxOldPresent: Map[FeedSource, Passengers] = if (flightMessage.apiPaxOLD.isDefined) {
+      version4FlightMessage ++ getVersion3PassengerSourceWhenApiPaxOldExist(flightMessage)
+    } else
+      version4FlightMessage
+
+    //version 3 when actPaxOld exists
+    val version3FlightMessageWithActPaxOldPresent: Map[FeedSource, Passengers] = if (flightMessage.actPaxOLD.isDefined) {
+      version3FlightMessageWithApiPaxOldPresent ++ getVersion3PassengerSourceWhenActPaxOldExist(flightMessage)
+    } else version3FlightMessageWithApiPaxOldPresent
+
+    //version 2 when paxOld in TotalPax exists
+    val version2FlightMessageWithPaxOldInTotalPaxPresent: Map[FeedSource, Passengers] = if (flightMessage.totalPax.map(_.paxOLD).nonEmpty) {
+      version3FlightMessageWithActPaxOldPresent ++ getVersion2PassengerSourceWhenPaxOldInTotalPaxExist(flightMessage)
+    } else version3FlightMessageWithActPaxOldPresent
+
+    version2FlightMessageWithPaxOldInTotalPaxPresent
   }
 
   private def getTransPaxAccordingToFeedSource(searchFeedSource: String, flightMessage: FlightMessage): Option[Int] = {
