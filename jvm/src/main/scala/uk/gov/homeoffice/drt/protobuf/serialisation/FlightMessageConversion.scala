@@ -298,16 +298,10 @@ object FlightMessageConversion {
   }
 
   private def getFeedSourceForActPax(flightMessage: FlightMessage): FeedSource = {
-    if (flightMessage.feedSources.contains(LiveFeedSource.toString))
-      LiveFeedSource
-    else if (flightMessage.feedSources.contains(ForecastFeedSource.toString))
-      ForecastFeedSource
-    else if (flightMessage.feedSources.contains(HistoricApiFeedSource.toString))
-      HistoricApiFeedSource
-    else if (flightMessage.feedSources.contains(AclFeedSource.toString))
-      AclFeedSource
-    else
-      UnknownFeedSource
+    val feedSourceString = List(LiveFeedSource.toString, ForecastFeedSource.toString, HistoricApiFeedSource.toString, AclFeedSource.toString)
+      .find(flightMessage.feedSources.contains).getOrElse(UnknownFeedSource.toString)
+
+    FeedSource(feedSourceString).getOrElse(UnknownFeedSource)
   }
 
   private def getFeedSource(flightMessage: FlightMessage): Set[FeedSource] = {
