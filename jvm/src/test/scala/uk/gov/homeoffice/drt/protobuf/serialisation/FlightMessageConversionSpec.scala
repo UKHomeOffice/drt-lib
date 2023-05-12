@@ -249,7 +249,7 @@ class FlightMessageConversionSpec extends Specification {
   "when flight message is deserialize and if there is actPax and/or transPax present then arrival should have actPax , transPax with ForecastFeedSource and apiPax with ApiFeedSource in totalPax" >> {
     val apiFlight = arrival.copy(
       FeedSources = Set(ForecastFeedSource, ApiFeedSource),
-      PassengerSources = Map(ApiFeedSource -> Passengers(Option(100), Some(10)), ForecastFeedSource -> Passengers(Some(95), None)),
+      PassengerSources = Map(ApiFeedSource -> Passengers(Option(100), Some(10)), ForecastFeedSource -> Passengers(Some(95), Some(10))),
     )
 
     val flightMessage = getFlightMessageWithoutPax(apiFlight).copy(
@@ -381,7 +381,7 @@ class FlightMessageConversionSpec extends Specification {
   "when flightMessage totalPax has old TotalPaxSourceMessage with paxOld then arrival object after deserialize should have actual  and transit with ForecastFeedSource in totalPax" >> {
     val apiFlight = arrival.copy(
       FeedSources = Set(ForecastFeedSource),
-      PassengerSources = Map(ForecastFeedSource -> Passengers(Option(95), None),
+      PassengerSources = Map(ForecastFeedSource -> Passengers(Option(95), Option(10)),
       ))
 
     val flightMessage = getFlightMessageWithoutPax(apiFlight).copy(
@@ -398,7 +398,7 @@ class FlightMessageConversionSpec extends Specification {
   "when flightMessage totalPax has TotalPaxSourceMessage with paxOld then arrival object after deserialize should have actual and transit with ForecastFeedSource and LiveFeedSource in totalPax" >> {
     val apiFlight = arrival.copy(
       FeedSources = Set(ForecastFeedSource, LiveFeedSource),
-      PassengerSources = Map(ForecastFeedSource -> Passengers(Option(95), None),
+      PassengerSources = Map(ForecastFeedSource -> Passengers(Option(95), Option(10)),
         LiveFeedSource -> Passengers(Option(90), Option(10))),
     )
 

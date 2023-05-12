@@ -289,9 +289,11 @@ object FlightMessageConversion {
   private def getTransPaxAccordingToFeedSource(searchFeedSource: String, flightMessage: FlightMessage): Option[Int] = {
     if (searchFeedSource == LiveFeedSource.toString && flightMessage.feedSources.contains(LiveFeedSource.toString))
       flightMessage.tranPaxOLD
-    else if (searchFeedSource == ApiFeedSource.toString && flightMessage.apiPaxOLD.isDefined && flightMessage.feedSources.contains(ApiFeedSource.toString))
+    else if (flightMessage.apiPaxOLD.isDefined && searchFeedSource == ApiFeedSource.toString && flightMessage.feedSources.contains(ApiFeedSource.toString))
       flightMessage.tranPaxOLD
-    else if (flightMessage.apiPaxOLD.isDefined && flightMessage.feedSources.contains(HistoricApiFeedSource.toString))
+    else if (flightMessage.apiPaxOLD.isDefined && searchFeedSource == HistoricApiFeedSource.toString && flightMessage.feedSources.contains(HistoricApiFeedSource.toString))
+      flightMessage.tranPaxOLD
+    else if (searchFeedSource == ForecastFeedSource.toString && flightMessage.feedSources.contains(ForecastFeedSource.toString))
       flightMessage.tranPaxOLD
     else
       None
