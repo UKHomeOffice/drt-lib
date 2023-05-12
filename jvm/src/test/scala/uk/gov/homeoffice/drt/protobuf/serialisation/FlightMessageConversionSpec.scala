@@ -232,7 +232,7 @@ class FlightMessageConversionSpec extends Specification {
   "when flight message is deserialize and if there is actPax and/or transPax present then arrival should have actPax and transPax with ForecastFeedSource in totalPax" >> {
     val apiFlight = arrival.copy(
       FeedSources = Set(ForecastFeedSource, AclFeedSource),
-      PassengerSources = Map(ForecastFeedSource -> Passengers(Option(95), Option(10)),
+      PassengerSources = Map(ForecastFeedSource -> Passengers(Option(95), None),
       ))
 
     val flightMessage = getFlightMessageWithoutPax(apiFlight).copy(
@@ -248,12 +248,12 @@ class FlightMessageConversionSpec extends Specification {
 
   "when flight message is deserialize and if there is actPax and/or transPax present then arrival should have actPax , transPax with ForecastFeedSource and apiPax with ApiFeedSource in totalPax" >> {
     val apiFlight = arrival.copy(
-      FeedSources = Set(ForecastFeedSource, AclFeedSource),
-      PassengerSources = Map(ApiFeedSource -> Passengers(Option(100), None), ForecastFeedSource -> Passengers(Some(95), Some(10))),
+      FeedSources = Set(ForecastFeedSource, ApiFeedSource),
+      PassengerSources = Map(ApiFeedSource -> Passengers(Option(100), Some(10)), ForecastFeedSource -> Passengers(Some(95), None)),
     )
 
     val flightMessage = getFlightMessageWithoutPax(apiFlight).copy(
-      feedSources = Seq(ForecastFeedSource.toString, AclFeedSource.toString),
+      feedSources = Seq(ForecastFeedSource.toString, ApiFeedSource.toString),
       actPaxOLD = Option(95),
       tranPaxOLD = Option(10),
       apiPaxOLD = Option(100)
@@ -304,13 +304,13 @@ class FlightMessageConversionSpec extends Specification {
   "when flight message is deserialize and if there is actPax and/or transPax present then arrival should have actPax and transPax with AclFeedSource in totalPax" >> {
     val apiFlight = arrival.copy(
       FeedSources = Set(AclFeedSource),
-      PassengerSources = Map(AclFeedSource -> Passengers(Option(95), Option(10)),
+      PassengerSources = Map(AclFeedSource -> Passengers(Option(95), None),
       ))
 
     val flightMessage = getFlightMessageWithoutPax(apiFlight).copy(
       feedSources = Seq(AclFeedSource.toString),
       actPaxOLD = apiFlight.PassengerSources.get(AclFeedSource).flatMap(_.actual),
-      tranPaxOLD = apiFlight.PassengerSources.get(AclFeedSource).flatMap(_.transit)
+      tranPaxOLD = Option(10)
     )
 
     val arrivalResult = FlightMessageConversion.flightMessageToApiFlight(flightMessage)
@@ -324,45 +324,89 @@ class FlightMessageConversionSpec extends Specification {
       PassengerSources = Map(LiveFeedSource -> Passengers(Option(95), Option(10)),
       ))
 
-    val flightMessage = getFlightMessageWithoutPax(apiFlight).copy(
+    val flightMessage = FlightMessageConversion.apiFlightToFlightMessage(apiFlight)
+
+    val flightMessageExpected = getFlightMessageWithoutPax(apiFlight).copy(
       feedSources = Seq(LiveFeedSource.toString),
       totalPax = Seq(TotalPaxSourceMessage(feedSource = Option(LiveFeedSource.toString), passengers = Option(PassengersMessage(Option(95), Option(10)))))
-
     )
 
     val arrivalResult = FlightMessageConversion.flightMessageToApiFlight(flightMessage)
 
+    flightMessageExpected === flightMessage
     arrivalResult === apiFlight
+
   }
 
   "when arrival object has PassengerSources then serialise and deserialize should have actPax and transPax with AclFeedSource in totalPax" >> {
     val apiFlight = arrival.copy(
       FeedSources = Set(AclFeedSource),
-      PassengerSources = Map(AclFeedSource -> Passengers(Option(95), Option(10)),
+      PassengerSources = Map(AclFeedSource -> Passengers(Option(95), None),
+      ))
+
+    val flightMessageExpected = getFlightMessageWithoutPax(apiFlight).copy(
+      feedSources = Seq(AclFeedSource.toString),
+      totalPax = Seq(TotalPaxSourceMessage(feedSource = Option(AclFeedSource.toString), passengers = Option(PassengersMessage(Option(95), None))))
+    )
+
+    val flightMessage = FlightMessageConversion.apiFlightToFlightMessage(apiFlight)
+
+    val arrivalResult = FlightMessageConversion.flightMessageToApiFlight(flightMessage)
+
+    flightMessageExpected === flightMessage
+    arrivalResult === apiFlight
+
+  }
+
+  "when arrival object has PassengerSources then serialise and deserialize should have actPax and transPax with ForecastFeedSource in totalPax" >> {
+    val apiFlight = arrival.copy(
+      FeedSources = Set(ForecastFeedSource),
+      PassengerSources = Map(ForecastFeedSource -> Passengers(Option(95), None),
+      ))
+
+    val flightMessageExpected = getFlightMessageWithoutPax(apiFlight).copy(
+      feedSources = Seq(ForecastFeedSource.toString),
+      totalPax = Seq(TotalPaxSourceMessage(feedSource = Option(ForecastFeedSource.toString), passengers = Option(PassengersMessage(Option(95), None))))
+
+    )
+    val flightMessage = FlightMessageConversion.apiFlightToFlightMessage(apiFlight)
+
+    val arrivalResult = FlightMessageConversion.flightMessageToApiFlight(flightMessage)
+
+    flightMessageExpected === flightMessage
+    arrivalResult === apiFlight
+  }
+
+
+  "when flightMessage totalPax has old TotalPaxSourceMessage with paxOld then arrival object after deserialize should have actual  and transit with ForecastFeedSource in totalPax" >> {
+    val apiFlight = arrival.copy(
+      FeedSources = Set(ForecastFeedSource),
+      PassengerSources = Map(ForecastFeedSource -> Passengers(Option(95), None),
       ))
 
     val flightMessage = getFlightMessageWithoutPax(apiFlight).copy(
-      feedSources = Seq(AclFeedSource.toString),
-      totalPax = Seq(TotalPaxSourceMessage(feedSource = Option(AclFeedSource.toString), passengers = Option(PassengersMessage(Option(95), Option(10)))))
+      feedSources = Seq(ForecastFeedSource.toString),
+      tranPaxOLD = Option(10),
+      totalPax = Seq(TotalPaxSourceMessage(feedSource = Option(ForecastFeedSource.toString), paxOLD = Option(95))))
 
-    )
 
     val arrivalResult = FlightMessageConversion.flightMessageToApiFlight(flightMessage)
 
     arrivalResult === apiFlight
   }
 
-  "when arrival object has PassengerSources then serialise and deserialize should have actPax and transPax with ForecastFeedSource in totalPax" >> {
+  "when flightMessage totalPax has TotalPaxSourceMessage with paxOld then arrival object after deserialize should have actual and transit with ForecastFeedSource and LiveFeedSource in totalPax" >> {
     val apiFlight = arrival.copy(
-      FeedSources = Set(ForecastFeedSource),
-      PassengerSources = Map(ForecastFeedSource -> Passengers(Option(95), Option(10)),
-      ))
+      FeedSources = Set(ForecastFeedSource, LiveFeedSource),
+      PassengerSources = Map(ForecastFeedSource -> Passengers(Option(95), None),
+        LiveFeedSource -> Passengers(Option(90), Option(10))),
+    )
 
     val flightMessage = getFlightMessageWithoutPax(apiFlight).copy(
-      feedSources = Seq(ForecastFeedSource.toString),
-      totalPax = Seq(TotalPaxSourceMessage(feedSource = Option(ForecastFeedSource.toString), passengers = Option(PassengersMessage(Option(95), Option(10)))))
-
-    )
+      feedSources = Seq(ForecastFeedSource.toString, LiveFeedSource.toString),
+      tranPaxOLD = Option(10),
+      totalPax = Seq(TotalPaxSourceMessage(feedSource = Option(ForecastFeedSource.toString), paxOLD = Option(95)),
+        TotalPaxSourceMessage(feedSource = Option(LiveFeedSource.toString), paxOLD = Option(90))))
 
     val arrivalResult = FlightMessageConversion.flightMessageToApiFlight(flightMessage)
 

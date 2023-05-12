@@ -118,6 +118,17 @@ class ApiFlightWithSplitsSpec extends Specification {
       }
     }
 
+    "when there actual pax number in liveFeed" in {
+      "and api splits has pax number and hasValidApi is false" in {
+        val flightWithSplits = flightWithPaxAndApiSplits(100, 0, Set(LiveFeedSource), Map(LiveFeedSource -> Passengers(Option(95), Option(0))), scheduledAfterPaxSources)
+        flightWithSplits.hasValidApi mustEqual false
+        flightWithSplits.bestPaxSource.getPcpPax must beSome(95)
+        flightWithSplits.bestPaxSource.feedSource === LiveFeedSource
+        val paxPerQueue: Option[Map[Queues.Queue, Int]] = ApiSplitsToSplitRatio.paxPerQueueUsingBestSplitsAsRatio(flightWithSplits)
+        paxPerQueue must beNone
+      }
+    }
+
     "give a pax count from splits when it has API splits" in {
       val flightWithSplits = flightWithPaxAndApiSplits( 45, 0, Set(), Map(), scheduledAfterPaxSources)
       flightWithSplits.bestPaxSource.passengers.actual mustEqual Option(45)

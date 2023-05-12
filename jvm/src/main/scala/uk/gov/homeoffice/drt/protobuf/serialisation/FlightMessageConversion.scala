@@ -263,7 +263,7 @@ object FlightMessageConversion {
       flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap ++
         Seq(TotalPaxSourceMessage(
           Option(ApiFeedSource.toString),
-          Option(PassengersMessage(actual = flightMessage.apiPaxOLD, None))
+          Option(PassengersMessage(actual = flightMessage.apiPaxOLD, getTransPaxAccordingToFeedSource(ApiFeedSource.toString, flightMessage)))
         )).map(totalPaxSourceFromMessage).toMap
     } else
       flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap
@@ -271,18 +271,35 @@ object FlightMessageConversion {
     val includeDeprecatedActPax: Map[FeedSource, Passengers] = if (flightMessage.actPaxOLD.isDefined) {
       includeDeprecatedApiPassenger ++ Seq(TotalPaxSourceMessage(
         Option(getFeedSourceForActPax(flightMessage).toString),
-        Option(PassengersMessage(actual = flightMessage.actPaxOLD, flightMessage.tranPaxOLD))
+        Option(PassengersMessage(actual = flightMessage.actPaxOLD, getTransPaxAccordingToFeedSource(getFeedSourceForActPax(flightMessage).toString, flightMessage)))
       )).map(totalPaxSourceFromMessage).toMap
     } else includeDeprecatedApiPassenger
 
-    includeDeprecatedActPax
+    val includeDeprecatedPaxInPassenger: Map[FeedSource, Passengers] = if (flightMessage.totalPax.map(_.paxOLD).nonEmpty) {
+      includeDeprecatedActPax ++ flightMessage.totalPax.filter(_.paxOLD.isDefined).map(a =>
+        TotalPaxSourceMessage(
+          Option(a.getFeedSource),
+          Option(PassengersMessage(actual = a.paxOLD, getTransPaxAccordingToFeedSource(a.getFeedSource, flightMessage)))
+        )).map(totalPaxSourceFromMessage).toMap
+    } else includeDeprecatedActPax
+
+    includeDeprecatedPaxInPassenger
+  }
+
+  private def getTransPaxAccordingToFeedSource(searchFeedSource: String, flightMessage: FlightMessage): Option[Int] = {
+    if (searchFeedSource == LiveFeedSource.toString && flightMessage.feedSources.contains(LiveFeedSource.toString))
+      flightMessage.tranPaxOLD
+    else if (searchFeedSource == ApiFeedSource.toString && flightMessage.apiPaxOLD.isDefined && flightMessage.feedSources.contains(ApiFeedSource.toString))
+      flightMessage.tranPaxOLD
+    else if (flightMessage.apiPaxOLD.isDefined && flightMessage.feedSources.contains(HistoricApiFeedSource.toString))
+      flightMessage.tranPaxOLD
+    else
+      None
   }
 
   private def getFeedSourceForActPax(flightMessage: FlightMessage): FeedSource = {
     if (flightMessage.feedSources.contains(LiveFeedSource.toString))
       LiveFeedSource
-    else if (flightMessage.feedSources.contains(ApiFeedSource.toString))
-      ApiFeedSource
     else if (flightMessage.feedSources.contains(ForecastFeedSource.toString))
       ForecastFeedSource
     else if (flightMessage.feedSources.contains(HistoricApiFeedSource.toString))
