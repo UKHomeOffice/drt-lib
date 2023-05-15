@@ -12,7 +12,7 @@ import uk.gov.homeoffice.drt.prediction.arrival.OffScheduleModelAndFeatures
 import uk.gov.homeoffice.drt.protobuf.messages.FlightsMessage.FlightMessage
 import uk.gov.homeoffice.drt.time.SDate
 
-class FlightMessageConversionV4WithSplitsSpec extends Specification {
+class FlightMessageConversionSpec extends Specification {
 
   val arrival: Arrival = Arrival(
     Operator = Option(Operator("British Airways")),

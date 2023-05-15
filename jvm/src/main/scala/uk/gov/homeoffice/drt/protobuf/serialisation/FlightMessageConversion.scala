@@ -251,80 +251,72 @@ object FlightMessageConversion {
     Origin = PortCode(flightMessage.origin.getOrElse("")),
     PcpTime = flightMessage.pcpTime,
     Scheduled = flightMessage.scheduled.getOrElse(0L),
-    FeedSources = getFeedSource(flightMessage),
+    FeedSources = getFeedSources(flightMessage.feedSources),
     CarrierScheduled = flightMessage.carrierScheduled,
     RedListPax = flightMessage.redListPax,
     ScheduledDeparture = flightMessage.scheduledDeparture,
     PassengerSources = getPassengerSources(flightMessage)
   )
 
-  private def getVersion3PassengerSourceWhenApiPaxOldExist(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
-    Seq(TotalPaxSourceMessage(
-      Option(ApiFeedSource.toString),
-      Option(PassengersMessage(actual = flightMessage.apiPaxOLD, getTransPaxAccordingToFeedSource(ApiFeedSource.toString, flightMessage)))
-    )).map(totalPaxSourceFromMessage).toMap
+  private def passengerSourcesFromV1(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
+    val source: FeedSource = if (flightMessage.actualChox.isDefined) LiveFeedSource else UnknownFeedSource
+    val paxSources = Map(source -> Passengers(flightMessage.actPaxOLD, flightMessage.tranPaxOLD))
+
+    addApiPaxIfAvailable(flightMessage, paxSources)
   }
 
-  private def getVersion3PassengerSourceWhenActPaxOldExist(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
-    Seq(TotalPaxSourceMessage(
-      Option(getFeedSourceForActPax(flightMessage).toString),
-      Option(PassengersMessage(actual = flightMessage.actPaxOLD, getTransPaxAccordingToFeedSource(getFeedSourceForActPax(flightMessage).toString, flightMessage)))
-    )).map(totalPaxSourceFromMessage).toMap
+  private def addApiPaxIfAvailable(flightMessage: FlightMessage, paxSources: Map[FeedSource, Passengers]): Map[FeedSource, Passengers] = {
+    flightMessage.apiPaxOLD match {
+      case None => paxSources
+      case Some(pax) => paxSources.updated(ApiFeedSource, Passengers(Option(pax), flightMessage.tranPaxOLD))
+    }
   }
 
-  private def getVersion2PassengerSourceWhenPaxOldInTotalPaxExist(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
-    flightMessage.totalPax.filter(_.paxOLD.isDefined).map(a =>
-      TotalPaxSourceMessage(
-        Option(a.getFeedSource),
-        Option(PassengersMessage(actual = a.paxOLD, getTransPaxAccordingToFeedSource(a.getFeedSource, flightMessage)))
-      )).map(totalPaxSourceFromMessage).toMap
+  private def passengerSourcesFromV2(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
+    val bestSource = bestFeedSource(getFeedSources(flightMessage.feedSources).toSeq)
+    val paxSources = flightMessage.feedSources.map {
+      case best if best == bestSource.toString => (bestSource, Passengers(flightMessage.actPaxOLD, flightMessage.tranPaxOLD))
+      case other => (FeedSource(other).getOrElse(UnknownFeedSource), Passengers(None, None))
+    }.toMap
+
+    addApiPaxIfAvailable(flightMessage, paxSources)
   }
+
+  private def passengerSourcesFromV3(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
+    val bestSource = bestFeedSource(getFeedSources(flightMessage.totalPax.map(tp => tp.feedSource.getOrElse(""))).toSeq)
+    val paxSources = flightMessage.totalPax.map {
+      case TotalPaxSourceMessage(source, _, paxOLD) if source.getOrElse("") == bestSource.toString =>
+        val feedSource = source.flatMap(FeedSource(_)).getOrElse(UnknownFeedSource)
+        (feedSource, Passengers(paxOLD, flightMessage.tranPaxOLD))
+      case TotalPaxSourceMessage(source, _, paxOLD) =>
+        val feedSource = source.flatMap(FeedSource(_)).getOrElse(UnknownFeedSource)
+        (feedSource, Passengers(paxOLD, None))
+    }.toMap
+
+    if (!paxSources.contains(ApiFeedSource)) addApiPaxIfAvailable(flightMessage, paxSources) else paxSources
+  }
+
+  private def isV1Message(flightMessage: FlightMessage): Boolean =
+    flightMessage.totalPax.isEmpty && flightMessage.feedSources.isEmpty
+
+  private def isV2Message(flightMessage: FlightMessage): Boolean =
+    flightMessage.totalPax.isEmpty && flightMessage.feedSources.nonEmpty
+
+  private def isV3Message(flightMessage: FlightMessage): Boolean =
+    flightMessage.totalPax.exists(_.paxOLD.isDefined)
 
   private def getPassengerSources(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
-    val version4FlightMessage = flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap
-
-    //version 3 when apiPaxOld exists
-    val version3FlightMessageWithApiPaxOldPresent: Map[FeedSource, Passengers] = if (flightMessage.apiPaxOLD.isDefined) {
-      version4FlightMessage ++ getVersion3PassengerSourceWhenApiPaxOldExist(flightMessage)
-    } else
-      version4FlightMessage
-
-    //version 3 when actPaxOld exists
-    val version3FlightMessageWithActPaxOldPresent: Map[FeedSource, Passengers] = if (flightMessage.actPaxOLD.isDefined) {
-      version3FlightMessageWithApiPaxOldPresent ++ getVersion3PassengerSourceWhenActPaxOldExist(flightMessage)
-    } else version3FlightMessageWithApiPaxOldPresent
-
-    //version 2 when paxOld in TotalPax exists
-    val version2FlightMessageWithPaxOldInTotalPaxPresent: Map[FeedSource, Passengers] = if (flightMessage.totalPax.map(_.paxOLD).nonEmpty) {
-      version3FlightMessageWithActPaxOldPresent ++ getVersion2PassengerSourceWhenPaxOldInTotalPaxExist(flightMessage)
-    } else version3FlightMessageWithActPaxOldPresent
-
-    version2FlightMessageWithPaxOldInTotalPaxPresent
+    if (isV1Message(flightMessage)) passengerSourcesFromV1(flightMessage)
+    else if (isV2Message(flightMessage)) passengerSourcesFromV2(flightMessage)
+    else if (isV3Message(flightMessage)) passengerSourcesFromV3(flightMessage)
+    else flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap
   }
 
-  private def getTransPaxAccordingToFeedSource(searchFeedSource: String, flightMessage: FlightMessage): Option[Int] = {
-    if (searchFeedSource == LiveFeedSource.toString && flightMessage.feedSources.contains(LiveFeedSource.toString))
-      flightMessage.tranPaxOLD
-    else if (flightMessage.apiPaxOLD.isDefined && searchFeedSource == ApiFeedSource.toString && flightMessage.feedSources.contains(ApiFeedSource.toString))
-      flightMessage.tranPaxOLD
-    else if (flightMessage.apiPaxOLD.isDefined && searchFeedSource == HistoricApiFeedSource.toString && flightMessage.feedSources.contains(HistoricApiFeedSource.toString))
-      flightMessage.tranPaxOLD
-    else if (searchFeedSource == ForecastFeedSource.toString && flightMessage.feedSources.contains(ForecastFeedSource.toString))
-      flightMessage.tranPaxOLD
-    else
-      None
-  }
+  private def bestFeedSource(sources: Seq[FeedSource]): FeedSource =
+    List(LiveFeedSource, ForecastFeedSource, HistoricApiFeedSource, AclFeedSource)
+      .find(sources.contains).getOrElse(UnknownFeedSource)
 
-  private def getFeedSourceForActPax(flightMessage: FlightMessage): FeedSource = {
-    val feedSourceString = List(LiveFeedSource.toString, ForecastFeedSource.toString, HistoricApiFeedSource.toString, AclFeedSource.toString)
-      .find(flightMessage.feedSources.contains).getOrElse(UnknownFeedSource.toString)
-
-    FeedSource(feedSourceString).getOrElse(UnknownFeedSource)
-  }
-
-  private def getFeedSource(flightMessage: FlightMessage): Set[FeedSource] = {
-    flightMessage.feedSources.flatMap(FeedSource(_)).toSet
-  }
+  private def getFeedSources(sources: Seq[String]): Set[FeedSource] = sources.flatMap(FeedSource(_)).toSet
 
   def totalPaxSourceFromMessage(message: TotalPaxSourceMessage): (FeedSource, Passengers) = {
     val feedSource = message.feedSource.flatMap(FeedSource(_)).getOrElse(UnknownFeedSource)
