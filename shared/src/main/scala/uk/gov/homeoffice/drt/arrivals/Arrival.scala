@@ -42,13 +42,6 @@ case class Passengers(actual: Option[Int], transit: Option[Int]) {
 
 case class PaxSource(feedSource: FeedSource, passengers: Passengers) {
 
-  def excludeTransferPassenger: PaxSource = {
-    passengers.diffInActualAndTrans match {
-      case Some(a) if a <= 0 => PaxSource(feedSource, passengers.copy(Option(0), Option(0)))
-      case _ => PaxSource(feedSource, passengers)
-    }
-  }
-
   def getPcpPax: Option[Int] = passengers.getPcpPax
 
 }
@@ -165,9 +158,8 @@ case class Arrival(Operator: Option[Operator],
 
     preferredSources
       .find { case source => PassengerSources.get(source).exists(_.actual.isDefined) }
-      .map { case source => PassengerSources.get(source).map(PaxSource(source, _).excludeTransferPassenger)
-        .getOrElse(PaxSource(source, Passengers(None, None)))
-      }.getOrElse(PaxSource(UnknownFeedSource, Passengers(None, None)))
+      .flatMap { case source => PassengerSources.get(source).map(PaxSource(source, _)) }
+      .getOrElse(PaxSource(UnknownFeedSource, Passengers(None, None)))
 
   }
 

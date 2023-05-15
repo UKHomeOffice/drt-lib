@@ -96,7 +96,8 @@ class ArrivalSpec extends Specification {
       " then bestPcpPaxEstimate gives LiveFeedSource with zero pax " in {
       val arrival = arrivalBase.copy(
         PassengerSources = Map(AclFeedSource -> Passengers(Option(250), None), LiveFeedSource -> Passengers(Option(50), Option(100))))
-      arrival.bestPaxEstimate mustEqual PaxSource(LiveFeedSource, Passengers(Option(0), Option(0)))
+      arrival.bestPaxEstimate mustEqual PaxSource(LiveFeedSource, Passengers(Option(50), Option(100)))
+      arrival.bestPcpPaxEstimate must beSome(0)
     }
 
     "When totalPax" +
