@@ -306,15 +306,10 @@ object FlightMessageConversion {
     flightMessage.totalPax.exists(_.paxOLD.isDefined)
 
   private def getPassengerSources(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
-    if (isV1Message(flightMessage)) {
-      passengerSourcesFromV1(flightMessage)
-    } else if (isV2Message(flightMessage)) {
-      passengerSourcesFromV2(flightMessage)
-    } else if (isV3Message(flightMessage)) {
-      passengerSourcesFromV3(flightMessage)
-    } else {
-      flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap
-    }
+    if (isV1Message(flightMessage)) passengerSourcesFromV1(flightMessage)
+    else if (isV2Message(flightMessage)) passengerSourcesFromV2(flightMessage)
+    else if (isV3Message(flightMessage)) passengerSourcesFromV3(flightMessage)
+    else flightMessage.totalPax.map(totalPaxSourceFromMessage).toMap
   }
 
   private def bestFeedSource(sources: Seq[FeedSource]): FeedSource =
