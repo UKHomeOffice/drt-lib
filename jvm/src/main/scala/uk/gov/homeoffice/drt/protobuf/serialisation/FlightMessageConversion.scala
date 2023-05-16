@@ -305,7 +305,7 @@ object FlightMessageConversion {
   private def isV3Message(flightMessage: FlightMessage): Boolean =
     flightMessage.totalPax.exists(_.paxOLD.isDefined)
 
-  private def getPassengerSources(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
+  def getPassengerSources(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
     if (isV1Message(flightMessage)) passengerSourcesFromV1(flightMessage)
     else if (isV2Message(flightMessage)) passengerSourcesFromV2(flightMessage)
     else if (isV3Message(flightMessage)) passengerSourcesFromV3(flightMessage)
