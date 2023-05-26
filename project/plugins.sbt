@@ -1,6 +1,7 @@
 ThisBuild / libraryDependencySchemes ++= Seq(
   "org.scala-lang.modules" % "scala-xml" % VersionScheme.Always
 )
+
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.6")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.2.0")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.13.0")
