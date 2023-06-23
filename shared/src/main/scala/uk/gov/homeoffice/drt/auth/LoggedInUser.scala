@@ -4,7 +4,7 @@ import uk.gov.homeoffice.drt.AppEnvironment.AppEnvironment
 import uk.gov.homeoffice.drt.auth.Roles.{PortAccess, Role, SingleEnvironmentAccess}
 import upickle.default.{macroRW, ReadWriter => RW}
 
-case class LoggedInUser(userName: String, id: String, email: String, roles: Set[Role]) {
+case class LoggedInUser(userName: String, id: String, email: String, roles: Set[Role], viewedFeatureContent: Seq[String]) {
   def hasRole(role: Role): Boolean = roles.exists(_.name == role.name)
 
   def canAccessPort(port: String): Boolean = Roles.parse(port) match {
