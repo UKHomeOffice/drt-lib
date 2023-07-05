@@ -1,8 +1,8 @@
 package uk.gov.homeoffice.drt.training
 
 import org.specs2.mutable.Specification
-class TrainingDataSpec extends Specification {
-  val trainingData =
+class FeatureGuideSpec extends Specification {
+  val featureGuide =
     """
       |[{"id":[1],"uploadTime":"1686066599088","fileName":["test1"],"title":["Test1"],"markdownContent":"Here is markdown example"},
       |{"id":[2],"uploadTime":"1686066891940","fileName":["test1"],"title":["Test1"],"markdownContent":"Here is markdown example"},
@@ -15,7 +15,7 @@ class TrainingDataSpec extends Specification {
       |{"id":[9],"uploadTime":"1686070683558","fileName":["test2.mov"],"title":["RTest4"],"markdownContent":"Here is markdown example test4\r\n\r\n- Some information 1\r\n- Some information 2 \r\n- Some information 3"}]
       |""".stripMargin
 
-  val trainingData1 =
+  val featureGuide_1 =
     """
       |[{"id":[1],"uploadTime":"2023-06-06 15:49:59.088","fileName":["test1"],"title":["Test1"],"markdownContent":"Here is markdown example"},
       |{"id":[2],"uploadTime":"2023-06-06 15:54:51.94","fileName":["test1"],"title":["Test1"],"markdownContent":"Here is markdown example"},
@@ -27,11 +27,10 @@ class TrainingDataSpec extends Specification {
       |{"id":[8],"uploadTime":"2023-06-06 16:50:23.212","fileName":["test2.mov"],"title":["Test2"],"markdownContent":"Here is markdown example test3"},
       |{"id":[9],"uploadTime":"2023-06-06 16:58:03.558","fileName":["test2.mov"],"title":["RTest4"],"markdownContent":"Here is markdown example test4\r\n\r\n- Some information 1\r\n- Some information 2 \r\n- Some information 3"}]
       |""".stripMargin
-  "" >> {
+  "Given sequence of FeatureGuide json string" >> {
     "Then I should be able to serialise and deserialise it" >> {
-     val a = TrainingData.getTrainingDataConversion(trainingData)
-      a.map(println(_))
-      a must beAnInstanceOf[Seq[TrainingData]]
+     val a = FeatureGuide.getFeatureGuideConversion(featureGuide)
+      a must beAnInstanceOf[Seq[FeatureGuide]]
     }
   }
 }
