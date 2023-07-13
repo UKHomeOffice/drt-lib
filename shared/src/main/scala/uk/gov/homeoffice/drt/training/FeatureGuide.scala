@@ -3,7 +3,7 @@ package uk.gov.homeoffice.drt.training
 
 import upickle.default._
 
-case class FeatureGuide(id: Option[Int], uploadTime: Long, fileName: Option[String], title: Option[String], markdownContent: String)
+case class FeatureGuide(id: Option[Int], uploadTime: Long, fileName: Option[String], title: Option[String], markdownContent: String, published: Boolean)
 
 object FeatureGuide {
 
