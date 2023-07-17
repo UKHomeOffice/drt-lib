@@ -10,4 +10,6 @@ object FeatureGuide {
   implicit val rw: ReadWriter[FeatureGuide] = macroRW
 
   def deserializeFromJsonString(string: String): Seq[FeatureGuide] = read[Seq[FeatureGuide]](string)
+
+  def serializeToJsonString(featureGuides: Seq[FeatureGuide]): String = write(featureGuides)
 }
