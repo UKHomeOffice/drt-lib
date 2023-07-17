@@ -32,14 +32,14 @@ object AirportConfigDefaults {
 
   val defaultQueueRatios: Map[PaxType, Seq[(Queue, Double)]] = Map(
     GBRNational -> List(Queues.EGate -> 0.8, Queues.EeaDesk -> 0.2),
-    GBRNationalBelowEgateAge -> List(Queues.EeaDesk -> 1.0),
     EeaMachineReadable -> List(Queues.EGate -> 0.8, Queues.EeaDesk -> 0.2),
+    B5JPlusNational -> List(Queues.EGate -> 0.7, Queues.EeaDesk -> 0.3),
+    NonVisaNational -> List(Queues.NonEeaDesk -> 0.98, Queues.EGate -> 0.02),
+    VisaNational -> List(Queues.NonEeaDesk -> 0.98, Queues.EGate -> 0.02),
+    GBRNationalBelowEgateAge -> List(Queues.EeaDesk -> 1.0),
     EeaBelowEGateAge -> List(Queues.EeaDesk -> 1.0),
     EeaNonMachineReadable -> List(Queues.EeaDesk -> 1.0),
-    NonVisaNational -> List(Queues.NonEeaDesk -> 1.0),
-    VisaNational -> List(Queues.NonEeaDesk -> 1.0),
-    B5JPlusNational -> List(Queues.EGate -> 0.7, Queues.EeaDesk -> 0.3),
-    B5JPlusNationalBelowEGateAge -> List(Queues.EeaDesk -> 1),
+    B5JPlusNationalBelowEGateAge -> List(Queues.EeaDesk -> 1.0),
     PaxTypes.Transit -> List(),
   )
 
@@ -47,21 +47,29 @@ object AirportConfigDefaults {
     GBRNational -> List(EeaDesk -> 1.0),
     EeaMachineReadable -> List(EeaDesk -> 1.0),
     B5JPlusNational -> List(EeaDesk -> 1.0),
+    NonVisaNational -> List(Queues.NonEeaDesk -> 1.0),
+    VisaNational -> List(Queues.NonEeaDesk -> 1.0),
+    GBRNationalBelowEgateAge -> List(Queues.EeaDesk -> 1.0),
+    EeaBelowEGateAge -> List(Queues.EeaDesk -> 1.0),
+    EeaNonMachineReadable -> List(Queues.EeaDesk -> 1.0),
+    B5JPlusNationalBelowEGateAge -> List(Queues.EeaDesk -> 1.0),
   )
 
   val defaultProcessingTimes: Map[PaxTypeAndQueue, Double] = Map(
-    b5jsskToDesk -> (54d / 60),
-    b5jsskChildToDesk -> (54d / 60),
-    eeaChildToDesk -> 31d / 60,
-    eeaMachineReadableToDesk -> 31d / 60,
-    eeaNonMachineReadableToDesk -> 31d / 60,
-    gbrNationalToDesk -> 24d / 60,
-    gbrNationalChildToDesk -> 24d / 60,
-    b5jsskToEGate -> (46d / 60),
-    eeaMachineReadableToEGate -> 46d / 60,
+    b5jsskToDesk -> (62d / 60),
+    b5jsskChildToDesk -> (62d / 60),
+    eeaChildToDesk -> 35d / 60,
+    eeaMachineReadableToDesk -> 35d / 60,
+    eeaNonMachineReadableToDesk -> 35d / 60,
+    gbrNationalToDesk -> 25d / 60,
+    gbrNationalChildToDesk -> 25d / 60,
+    visaNationalToDesk -> 122d / 60,
+    nonVisaNationalToDesk -> 109d / 60,
     gbrNationalToEgate -> 46d / 60,
-    visaNationalToDesk -> 119d / 60,
-    nonVisaNationalToDesk -> 101d / 60
+    eeaMachineReadableToEGate -> 46d / 60,
+    b5jsskToEGate -> (46d / 60),
+    nonVisaNationalToEGate -> (44d / 60),
+    visaNationalToEGate -> (43d / 60),
   )
 
   val fallbackProcessingTime: Double = defaultProcessingTimes.values.sum / defaultProcessingTimes.size

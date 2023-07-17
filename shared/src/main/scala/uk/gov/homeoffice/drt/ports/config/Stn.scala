@@ -39,11 +39,13 @@ object Stn extends AirportConfigLike {
       eeaChildToDesk -> 40d / 60,
       gbrNationalToDesk -> 33d / 60,
       gbrNationalChildToDesk -> 33d / 60,
-      b5jsskToEGate -> 45d / 60,
-      eeaMachineReadableToEGate -> 45d / 60,
-      gbrNationalToEgate -> 45d / 60,
+      b5jsskToEGate -> 41d / 60,
+      eeaMachineReadableToEGate -> 42d / 60,
+      gbrNationalToEgate -> 41d / 60,
       visaNationalToDesk -> 101d / 60,
       nonVisaNationalToDesk -> 94d / 60,
+      visaNationalToEGate -> 51d / 60,
+      nonVisaNationalToEGate -> 51d / 60,
     )),
     minMaxDesksByTerminalQueue24Hrs = Map(
       T1 -> Map(
@@ -58,10 +60,13 @@ object Stn extends AirportConfigLike {
       "Forgery Officer, 00:00, 23:59, 1"),
     role = STN,
     terminalPaxTypeQueueAllocation = Map(
-      T1 -> (defaultQueueRatios + (EeaMachineReadable -> List(
-        EGate -> 0.8084,
-        EeaDesk -> (1.0 - 0.8084)
-      )))
+      T1 -> (defaultQueueRatios + (
+        GBRNational -> List(Queues.EGate -> 0.69, Queues.EeaDesk -> 0.31),
+        EeaMachineReadable -> List(Queues.EGate -> 0.75, Queues.EeaDesk -> 0.25),
+        B5JPlusNational -> List(Queues.EGate -> 0.74, Queues.EeaDesk -> 0.26),
+        NonVisaNational -> List(Queues.EGate -> 0.02, Queues.NonEeaDesk -> 0.98),
+        VisaNational -> List(Queues.EGate -> 0.03, Queues.NonEeaDesk -> 0.97),
+      ))
     ),
     flexedQueues = Set(EeaDesk, NonEeaDesk),
     desksByTerminal = Map(T1 -> 22),

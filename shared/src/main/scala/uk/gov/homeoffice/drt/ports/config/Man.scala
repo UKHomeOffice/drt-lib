@@ -40,11 +40,13 @@ object Man extends AirportConfigLike {
         eeaChildToDesk -> 45d / 60,
         gbrNationalToDesk -> 34d / 60,
         gbrNationalChildToDesk -> 34d / 60,
-        b5jsskToEGate -> 38d / 60,
-        eeaMachineReadableToEGate -> 44d / 60,
-        gbrNationalToEgate -> 44d / 60,
+        b5jsskToEGate -> 39d / 60,
+        eeaMachineReadableToEGate -> 38d / 60,
+        gbrNationalToEgate -> 38d / 60,
         visaNationalToDesk -> 116d / 60,
         nonVisaNationalToDesk -> 111d / 60,
+        visaNationalToEGate -> 48d / 60,
+        nonVisaNationalToEGate -> 49d / 60,
       ),
       T2 -> Map(
         b5jsskToDesk -> 72d / 60,
@@ -54,11 +56,13 @@ object Man extends AirportConfigLike {
         eeaChildToDesk -> 48d / 60,
         gbrNationalToDesk -> 32d / 60,
         gbrNationalChildToDesk -> 32d / 60,
-        b5jsskToEGate -> 51d / 60,
-        eeaMachineReadableToEGate -> 51d / 60,
-        gbrNationalToEgate -> 51d / 60,
+        b5jsskToEGate -> 46d / 60,
+        eeaMachineReadableToEGate -> 45d / 60,
+        gbrNationalToEgate -> 43d / 60,
         visaNationalToDesk -> 119d / 60,
         nonVisaNationalToDesk -> 120d / 60,
+        visaNationalToEGate -> 52d / 60,
+        nonVisaNationalToEGate -> 50d / 60,
       ),
       T3 -> Map(
         b5jsskToDesk -> 68d / 60,
@@ -68,11 +72,13 @@ object Man extends AirportConfigLike {
         eeaChildToDesk -> 43d / 60,
         gbrNationalToDesk -> 35d / 60,
         gbrNationalChildToDesk -> 35d / 60,
-        b5jsskToEGate -> 44d / 60,
-        eeaMachineReadableToEGate -> 44d / 60,
-        gbrNationalToEgate -> 44d / 60,
+        b5jsskToEGate -> 39d / 60,
+        eeaMachineReadableToEGate -> 40d / 60,
+        gbrNationalToEgate -> 39d / 60,
         visaNationalToDesk -> 108d / 60,
         nonVisaNationalToDesk -> 105d / 60,
+        visaNationalToEGate -> 45d / 60,
+        nonVisaNationalToEGate -> 45d / 60,
       )),
     minMaxDesksByTerminalQueue24Hrs = Map(
       T1 -> Map(
@@ -98,18 +104,27 @@ object Man extends AirportConfigLike {
     ),
     role = MAN,
     terminalPaxTypeQueueAllocation = Map(
-      T1 -> (defaultQueueRatios + (EeaMachineReadable -> List(
-        EGate -> 0.7968,
-        EeaDesk -> (1.0 - 0.7968)
+      T1 -> (defaultQueueRatios + (
+        GBRNational -> List(Queues.EGate -> 0.66, Queues.EeaDesk -> 0.34),
+        EeaMachineReadable -> List(Queues.EGate -> 0.75, Queues.EeaDesk -> 0.25),
+        B5JPlusNational -> List(Queues.EGate -> 0.70, Queues.EeaDesk -> 0.30),
+        NonVisaNational -> List(Queues.EGate -> 0.02, Queues.NonEeaDesk -> 0.98),
+        VisaNational -> List(Queues.EGate -> 0.02, Queues.NonEeaDesk -> 0.98),
+      )),
+      T2 -> (defaultQueueRatios + (
+        GBRNational -> List(Queues.EGate -> 0.62, Queues.EeaDesk -> 0.32),
+        EeaMachineReadable -> List(Queues.EGate -> 0.73, Queues.EeaDesk -> 0.23),
+        B5JPlusNational -> List(Queues.EGate -> 0.67, Queues.EeaDesk -> 0.33),
+        NonVisaNational -> List(Queues.EGate -> 0.02, Queues.NonEeaDesk -> 0.98),
+        VisaNational -> List(Queues.EGate -> 0.02, Queues.NonEeaDesk -> 0.98),
+      )),
+      T3 -> (defaultQueueRatios + (
+        GBRNational -> List(Queues.EGate -> 0.74, Queues.EeaDesk -> 0.26),
+        EeaMachineReadable -> List(Queues.EGate -> 0.73, Queues.EeaDesk -> 0.23),
+        B5JPlusNational -> List(Queues.EGate -> 0.77, Queues.EeaDesk -> 0.23),
+        NonVisaNational -> List(Queues.EGate -> 0.03, Queues.NonEeaDesk -> 0.97),
+        VisaNational -> List(Queues.EGate -> 0.03, Queues.NonEeaDesk -> 0.97),
       ))),
-      T2 -> (defaultQueueRatios + (EeaMachineReadable -> List(
-        EGate -> 0.7140,
-        EeaDesk -> (1.0 - 0.7140)
-      ))),
-      T3 -> (defaultQueueRatios + (EeaMachineReadable -> List(
-        EGate -> 0.7038,
-        EeaDesk -> (1.0 - 0.7038)
-      )))),
     flexedQueues = Set(EeaDesk, NonEeaDesk),
     desksByTerminal = Map[Terminal, Int](
       T1 -> 14,

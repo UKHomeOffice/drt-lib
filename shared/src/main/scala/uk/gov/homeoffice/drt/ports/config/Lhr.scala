@@ -11,16 +11,11 @@ import uk.gov.homeoffice.drt.ports._
 import scala.collection.immutable.SortedMap
 
 object Lhr extends AirportConfigLike {
-  val lhrDefaultQueueRatios: Map[PaxType, Seq[(Queue, Double)]] = Map(
-    GBRNational -> List(Queues.EGate -> 0.80, Queues.EeaDesk -> 0.20),
+  val nonEgateQueueRatios: Map[PaxType, Seq[(Queue, Double)]] = Map(
     GBRNationalBelowEgateAge -> List(Queues.EeaDesk -> 1.0),
-    EeaMachineReadable -> List(Queues.EGate -> 0.80, Queues.EeaDesk -> 0.20),
     EeaBelowEGateAge -> List(Queues.EeaDesk -> 1.0),
     EeaNonMachineReadable -> List(Queues.EeaDesk -> 1.0),
     Transit -> List(Queues.Transfer -> 1.0),
-    NonVisaNational -> List(Queues.NonEeaDesk -> 1.0),
-    VisaNational -> List(Queues.NonEeaDesk -> 1.0),
-    B5JPlusNational -> List(Queues.EGate -> 0.70, Queues.EeaDesk -> 0.30),
     B5JPlusNationalBelowEGateAge -> List(Queues.EeaDesk -> 1)
   )
 
@@ -54,13 +49,15 @@ object Lhr extends AirportConfigLike {
         eeaChildToDesk -> 52d / 60,
         gbrNationalToDesk -> 43d / 60,
         gbrNationalChildToDesk -> 43d / 60,
-        b5jsskToEGate -> (44d / 60),
-        eeaMachineReadableToEGate -> 44d / 60,
-        gbrNationalToEgate -> 44d / 60,
+        b5jsskToEGate -> (40d / 60),
+        eeaMachineReadableToEGate -> 39d / 60,
+        gbrNationalToEgate -> 39d / 60,
         visaNationalToDesk -> 120d / 60,
         nonVisaNationalToDesk -> 107d / 60,
         visaNationalToFastTrack -> 120d / 60,
         nonVisaNationalToFastTrack -> 107d / 60,
+        visaNationalToEGate -> 47d / 60,
+        nonVisaNationalToEGate -> 47d / 60,
         transitToTransfer -> 0d,
       ),
       T3 -> Map(
@@ -71,13 +68,15 @@ object Lhr extends AirportConfigLike {
         eeaChildToDesk -> 49d / 60,
         gbrNationalToDesk -> 40d / 60,
         gbrNationalChildToDesk -> 40d / 60,
-        b5jsskToEGate -> (44d / 60),
-        eeaMachineReadableToEGate -> 44d / 60,
-        gbrNationalToEgate -> 44d / 60,
+        b5jsskToEGate -> (43d / 60),
+        eeaMachineReadableToEGate -> 42d / 60,
+        gbrNationalToEgate -> 41d / 60,
         visaNationalToDesk -> 121d / 60,
         nonVisaNationalToDesk -> 107d / 60,
         visaNationalToFastTrack -> 121d / 60,
         nonVisaNationalToFastTrack -> 107d / 60,
+        visaNationalToEGate -> 47d / 60,
+        nonVisaNationalToEGate -> 47d / 60,
         transitToTransfer -> 0d,
       ),
       T4 -> Map(
@@ -88,13 +87,15 @@ object Lhr extends AirportConfigLike {
         eeaChildToDesk -> 52d / 60,
         gbrNationalToDesk -> 41d / 60,
         gbrNationalChildToDesk -> 41d / 60,
-        b5jsskToEGate -> (44d / 60),
-        eeaMachineReadableToEGate -> 44d / 60,
-        gbrNationalToEgate -> 44d / 60,
+        b5jsskToEGate -> (40d / 60),
+        eeaMachineReadableToEGate -> 41d / 60,
+        gbrNationalToEgate -> 41d / 60,
         visaNationalToDesk -> 123d / 60,
         nonVisaNationalToDesk -> 107 / 60,
         visaNationalToFastTrack -> 123d / 60,
         nonVisaNationalToFastTrack -> 107 / 60,
+        visaNationalToEGate -> 48d / 60,
+        nonVisaNationalToEGate -> 47d / 60,
         transitToTransfer -> 0d,
       ),
       T5 -> Map(
@@ -105,13 +106,15 @@ object Lhr extends AirportConfigLike {
         eeaChildToDesk -> 51d / 60,
         gbrNationalToDesk -> 41d / 60,
         gbrNationalChildToDesk -> 41d / 60,
-        b5jsskToEGate -> (47d / 60),
-        eeaMachineReadableToEGate -> 47d / 60,
-        gbrNationalToEgate -> 47d / 60,
+        b5jsskToEGate -> (41d / 60),
+        eeaMachineReadableToEGate -> 41d / 60,
+        gbrNationalToEgate -> 40d / 60,
         visaNationalToDesk -> 130d / 60,
         nonVisaNationalToDesk -> 109d / 60,
         visaNationalToFastTrack -> 130d / 60,
         nonVisaNationalToFastTrack -> 109d / 60,
+        visaNationalToEGate -> 49d / 60,
+        nonVisaNationalToEGate -> 49d / 60,
         transitToTransfer -> 0d,
       )
     ),
@@ -152,27 +155,35 @@ object Lhr extends AirportConfigLike {
     desksExportQueueOrder = Queues.deskExportQueueOrderWithFastTrack,
     role = LHR,
     terminalPaxTypeQueueAllocation = {
-      val egateSplitT2 = 0.8102
-      val egateSplitT3 = 0.8075
-      val egateSplitT4 = 0.7687
-      val egateSplitT5 = 0.8466
       Map(
-        T2 -> (lhrDefaultQueueRatios + (EeaMachineReadable -> List(
-          EGate -> egateSplitT2,
-          EeaDesk -> (1.0 - egateSplitT2)
-        ))),
-        T3 -> (lhrDefaultQueueRatios + (EeaMachineReadable -> List(
-          EGate -> egateSplitT3,
-          EeaDesk -> (1.0 - egateSplitT3)
-        ))),
-        T4 -> (lhrDefaultQueueRatios + (EeaMachineReadable -> List(
-          EGate -> egateSplitT4,
-          EeaDesk -> (1.0 - egateSplitT4)
-        ))),
-        T5 -> (lhrDefaultQueueRatios + (EeaMachineReadable -> List(
-          EGate -> egateSplitT5,
-          EeaDesk -> (1.0 - egateSplitT5)
-        )))
+        T2 -> (nonEgateQueueRatios + (
+          GBRNational -> List(Queues.EGate -> 0.71, Queues.EeaDesk -> 0.29),
+          EeaMachineReadable -> List(Queues.EGate -> 0.74, Queues.EeaDesk -> 0.26),
+          B5JPlusNational -> List(Queues.EGate -> 0.72, Queues.EeaDesk -> 0.28),
+          NonVisaNational -> List(Queues.EGate -> 0.02, Queues.NonEeaDesk -> 0.98),
+          VisaNational -> List(Queues.EGate -> 0.01, Queues.NonEeaDesk -> 0.99),
+          )),
+        T3 -> (nonEgateQueueRatios + (
+          GBRNational -> List(Queues.EGate -> 0.73, Queues.EeaDesk -> 0.27),
+          EeaMachineReadable -> List(Queues.EGate -> 0.78, Queues.EeaDesk -> 0.22),
+          B5JPlusNational -> List(Queues.EGate -> 0.80, Queues.EeaDesk -> 0.20),
+          NonVisaNational -> List(Queues.EGate -> 0.01, Queues.NonEeaDesk -> 0.99),
+          VisaNational -> List(Queues.EGate -> 0.01, Queues.NonEeaDesk -> 0.99),
+        )),
+        T4 -> (nonEgateQueueRatios + (
+          GBRNational -> List(Queues.EGate -> 0.69, Queues.EeaDesk -> 0.31),
+          EeaMachineReadable -> List(Queues.EGate -> 0.75, Queues.EeaDesk -> 0.25),
+          B5JPlusNational -> List(Queues.EGate -> 0.77, Queues.EeaDesk -> 0.23),
+          NonVisaNational -> List(Queues.EGate -> 0.01, Queues.NonEeaDesk -> 0.99),
+          VisaNational -> List(Queues.EGate -> 0.00, Queues.NonEeaDesk -> 1.00),
+        )),
+        T5 -> (nonEgateQueueRatios + (
+          GBRNational -> List(Queues.EGate -> 0.77, Queues.EeaDesk -> 0.23),
+          EeaMachineReadable -> List(Queues.EGate -> 0.80, Queues.EeaDesk -> 0.20),
+          B5JPlusNational -> List(Queues.EGate -> 0.78, Queues.EeaDesk -> 0.22),
+          NonVisaNational -> List(Queues.EGate -> 0.02, Queues.NonEeaDesk -> 0.98),
+          VisaNational -> List(Queues.EGate -> 0.01, Queues.NonEeaDesk -> 0.99),
+        ))
       )
     },
     hasTransfer = true,

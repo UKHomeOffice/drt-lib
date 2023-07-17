@@ -43,11 +43,13 @@ object Lgw extends AirportConfigLike {
         eeaChildToDesk -> 45d / 60,
         gbrNationalToDesk -> 35d / 60,
         gbrNationalChildToDesk -> 35d / 60,
-        b5jsskToEGate -> 47d / 60,
-        eeaMachineReadableToEGate -> 47d / 60,
-        gbrNationalToEgate -> 47d / 60,
+        b5jsskToEGate -> 42d / 60,
+        eeaMachineReadableToEGate -> 41d / 60,
+        gbrNationalToEgate -> 40d / 60,
         visaNationalToDesk -> 126d / 60,
-        nonVisaNationalToDesk -> 115d / 60
+        nonVisaNationalToDesk -> 115d / 60,
+        visaNationalToEGate -> 50d / 60,
+        nonVisaNationalToEGate -> 49d / 60,
       ),
       S -> Map(
         b5jsskToDesk -> 70d / 60,
@@ -57,11 +59,13 @@ object Lgw extends AirportConfigLike {
         eeaChildToDesk -> 45d / 60,
         gbrNationalToDesk -> 35d / 60,
         gbrNationalChildToDesk -> 35d / 60,
-        b5jsskToEGate -> 47d / 60,
-        eeaMachineReadableToEGate -> 47d / 60,
-        gbrNationalToEgate -> 47d / 60,
+        b5jsskToEGate -> 40d / 60,
+        eeaMachineReadableToEGate -> 41d / 60,
+        gbrNationalToEgate -> 40d / 60,
         visaNationalToDesk -> 128d / 60,
         nonVisaNationalToDesk -> 112d / 60,
+        visaNationalToEGate -> 50d / 60,
+        nonVisaNationalToEGate -> 50d / 60,
       )),
     minMaxDesksByTerminalQueue24Hrs = Map(
       N -> Map(
@@ -81,14 +85,20 @@ object Lgw extends AirportConfigLike {
     ),
     role = LGW,
     terminalPaxTypeQueueAllocation = Map(
-      N -> (defaultQueueRatios + (EeaMachineReadable -> List(
-        EGate -> 0.8244,
-        EeaDesk -> (1.0 - 0.8244)
+      N -> (defaultQueueRatios + (
+        GBRNational -> List(Queues.EGate -> 0.71, Queues.EeaDesk -> 0.29),
+        EeaMachineReadable -> List(Queues.EGate -> 0.75, Queues.EeaDesk -> 0.25),
+        B5JPlusNational -> List(Queues.EGate -> 0.78, Queues.EeaDesk -> 0.22),
+        NonVisaNational -> List(Queues.EGate -> 0.02, Queues.NonEeaDesk -> 0.98),
+        VisaNational -> List(Queues.EGate -> 0.02, Queues.NonEeaDesk -> 0.98),
+      )),
+      S -> (defaultQueueRatios + (
+        GBRNational -> List(Queues.EGate -> 0.69, Queues.EeaDesk -> 0.31),
+        EeaMachineReadable -> List(Queues.EGate -> 0.78, Queues.EeaDesk -> 0.22),
+        B5JPlusNational -> List(Queues.EGate -> 0.79, Queues.EeaDesk -> 0.21),
+        NonVisaNational -> List(Queues.EGate -> 0.02, Queues.NonEeaDesk -> 0.98),
+        VisaNational -> List(Queues.EGate -> 0.02, Queues.NonEeaDesk -> 0.98),
       ))),
-      S -> (defaultQueueRatios + (EeaMachineReadable -> List(
-        EGate -> 0.8375,
-        EeaDesk -> (1.0 - 0.8375)
-      )))),
     feedSources = Seq(ApiFeedSource, LiveBaseFeedSource, LiveFeedSource, ForecastFeedSource, AclFeedSource),
     flexedQueues = Set(EeaDesk, NonEeaDesk),
     desksByTerminal = Map[Terminal, Int](N -> 31, S -> 28)
