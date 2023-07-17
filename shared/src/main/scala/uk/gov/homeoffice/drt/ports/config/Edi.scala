@@ -31,11 +31,13 @@ object Edi extends AirportConfigLike {
         eeaChildToDesk -> 32d / 60,
         gbrNationalToDesk -> 25d / 60,
         gbrNationalChildToDesk -> 25d / 60,
-        b5jsskToEGate -> 47d / 60,
-        eeaMachineReadableToEGate -> 47d / 60,
-        gbrNationalToEgate -> 47d / 60,
+        b5jsskToEGate -> 41d / 60,
+        eeaMachineReadableToEGate -> 41d / 60,
+        gbrNationalToEgate -> 40d / 60,
         visaNationalToDesk -> 101d / 60,
-        nonVisaNationalToDesk -> 70d / 60
+        nonVisaNationalToDesk -> 70d / 60,
+        visaNationalToEGate -> 48d / 60,
+        nonVisaNationalToEGate -> 49d / 60,
       ),
       A2 -> Map(
         b5jsskToDesk -> 51d / 60,
@@ -45,11 +47,13 @@ object Edi extends AirportConfigLike {
         eeaChildToDesk -> 38d / 60,
         gbrNationalToDesk -> 31d / 60,
         gbrNationalChildToDesk -> 31d / 60,
-        b5jsskToEGate -> 47d / 60,
-        eeaMachineReadableToEGate -> 47d / 60,
-        gbrNationalToEgate -> 47d / 60,
+        b5jsskToEGate -> 41d / 60,
+        eeaMachineReadableToEGate -> 41d / 60,
+        gbrNationalToEgate -> 40d / 60,
         visaNationalToDesk -> 115d / 60,
         nonVisaNationalToDesk -> 88d / 60,
+        visaNationalToEGate -> 48d / 60,
+        nonVisaNationalToEGate -> 49d / 60,
       )),
     minMaxDesksByTerminalQueue24Hrs = Map(
       A1 -> Map(
@@ -66,14 +70,20 @@ object Edi extends AirportConfigLike {
     eGateBankSizes = Map(A1 -> Iterable(5), A2 -> Iterable(10)),
     role = EDI,
     terminalPaxTypeQueueAllocation = Map(
-      A1 -> (defaultQueueRatios + (EeaMachineReadable -> List(
-        EGate -> 0.8140,
-        EeaDesk -> (1.0 - 0.8140)
-      ))),
-      A2 -> (defaultQueueRatios + (EeaMachineReadable -> List(
-        EGate -> 0.7894,
-        EeaDesk -> (1.0 - 0.7894)
-      )))
+      A1 -> (defaultQueueRatios + (
+        GBRNational -> List(Queues.EGate -> 0.58, Queues.EeaDesk -> 0.42),
+        EeaMachineReadable -> List(Queues.EGate -> 0.64, Queues.EeaDesk -> 0.36),
+        B5JPlusNational -> List(Queues.EGate -> 0.62, Queues.EeaDesk -> 0.38),
+        NonVisaNational -> List(Queues.EGate -> 0.04, Queues.NonEeaDesk -> 0.96),
+        VisaNational -> List(Queues.EGate -> 0.04, Queues.NonEeaDesk -> 0.96),
+      )),
+      A2 -> (defaultQueueRatios + (
+        GBRNational -> List(Queues.EGate -> 0.58, Queues.EeaDesk -> 0.42),
+        EeaMachineReadable -> List(Queues.EGate -> 0.64, Queues.EeaDesk -> 0.36),
+        B5JPlusNational -> List(Queues.EGate -> 0.62, Queues.EeaDesk -> 0.38),
+        NonVisaNational -> List(Queues.EGate -> 0.04, Queues.NonEeaDesk -> 0.96),
+        VisaNational -> List(Queues.EGate -> 0.04, Queues.NonEeaDesk -> 0.96),
+      ))
     ),
     flexedQueues = Set(EeaDesk, NonEeaDesk),
     desksByTerminal = Map[Terminal, Int](A1 -> 11, A2 -> 9),
