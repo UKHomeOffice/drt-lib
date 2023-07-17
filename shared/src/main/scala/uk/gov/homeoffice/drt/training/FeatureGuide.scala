@@ -9,5 +9,5 @@ object FeatureGuide {
 
   implicit val rw: ReadWriter[FeatureGuide] = macroRW
 
-  def getFeatureGuideConversion(string: String): Seq[FeatureGuide] = read[Seq[FeatureGuide]](string)
+  def deserializeFromJsonString(string: String): Seq[FeatureGuide] = read[Seq[FeatureGuide]](string)
 }

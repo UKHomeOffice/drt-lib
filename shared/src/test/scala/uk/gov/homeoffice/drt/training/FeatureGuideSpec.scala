@@ -19,7 +19,7 @@ class FeatureGuideSpec extends Specification {
 
   "Given sequence of FeatureGuide json string" >> {
     "Then I should be able to serialise and de-serialise it" >> {
-      val a = FeatureGuide.getFeatureGuideConversion(featureGuide)
+      val a = FeatureGuide.deserializeFromJsonString(featureGuide)
       a must beAnInstanceOf[Seq[FeatureGuide]]
     }
   }
