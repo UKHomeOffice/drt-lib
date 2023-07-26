@@ -78,15 +78,19 @@ steps:
     image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.0.0
     commands:
       - /root/entrypoint.sh
-      - sbt -ivy ./.ivy2 dependencyCheck
+      - sbt -ivy ./.ivy2 -DdependencyCheckArtifactoryAnalyzerUsername=${DEPENDENCY_CHECK_USERNAME} -DdependencyCheckArtifactoryAnalyzerApiToken=${DEPENDENCY_CHECK_API_TOKEN} dependencyCheck
       - sbt -ivy ./.ivy2 -mem 4096 -J-XX:+UseG1GC clean coverage test coverageReport
     environment:
+      DEPENDENCY_CHECK_API_TOKEN:
+        from_secret: DEPENDENCY_CHECK_API_TOKEN
+      DEPENDENCY_CHECK_USERNAME:
+        from_secret: DEPENDENCY_CHECK_USERNAME
       ARTIFACTORY_PASSWORD:
         from_secret: ARTIFACTORY_PASSWORD
       ARTIFACTORY_USERNAME: drt-artifactory-robot
       ENV_LOG_LEVEL: ERROR
     when:
-      branch: master
+#      branch: master
       event:
         - push
 
