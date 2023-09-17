@@ -1,6 +1,6 @@
 import sbt.Keys.libraryDependencies
 
-lazy val scala = "2.13.11"
+lazy val scala = "2.13.12"
 
 ThisBuild / scalaVersion := scala
 ThisBuild / organization := "uk.gov.homeoffice"
