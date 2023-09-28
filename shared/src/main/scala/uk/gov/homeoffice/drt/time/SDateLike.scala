@@ -10,7 +10,7 @@ trait SDateLike {
 
   def ddMMyyString: String = f"$getDate%02d/$getMonth%02d/${getFullYear - 2000}%02d"
 
-  def `DD-MM-YYYY-String`: String = f"$getDate%02d-$getMonth%02d-${getFullYear}%04d"
+  def `DD-MONTHString-YYYY`: String = f"$getDate%02d $getMonthString $getFullYear%04d"
 
   def <(other: SDateLike): Boolean = millisSinceEpoch < other.millisSinceEpoch
 
@@ -76,6 +76,10 @@ trait SDateLike {
 
   def prettyTime: String = f"$getHours%02d:$getMinutes%02d"
 
+  def prettyTimeWithMeridian: String = {
+    val hourIn12Format = if (getHours % 12 == 0) 12 else getHours % 12
+    f"$hourIn12Format%02d:$getMinutes%02d ${if(getHours >= 12) "PM" else "AM"}"
+  }
   def hms: String = f"$getHours%02d:$getMinutes%02d:$getSeconds%02d"
 
   def getZone: String
