@@ -10,6 +10,8 @@ trait SDateLike {
 
   def ddMMyyString: String = f"$getDate%02d/$getMonth%02d/${getFullYear - 2000}%02d"
 
+  def `dd-MM-yyyy-String`: String = f"$getDate%02d-$getMonth%02d-${getFullYear}%04d"
+
   def <(other: SDateLike): Boolean = millisSinceEpoch < other.millisSinceEpoch
 
   def >(other: SDateLike): Boolean = millisSinceEpoch > other.millisSinceEpoch
