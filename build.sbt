@@ -31,6 +31,8 @@ lazy val booPickleVersion = "1.3.3"
 lazy val specs2 = "4.20.0"
 lazy val csvCommonsVersion = "1.10.0"
 lazy val catsVersion = "2.9.0"
+lazy val slickVersion = "3.4.1"
+lazy val postgresqlVersion = "42.6.0"
 
 lazy val cross = crossProject(JVMPlatform, JSPlatform)
   .in(file("."))
@@ -62,6 +64,10 @@ lazy val cross = crossProject(JVMPlatform, JSPlatform)
       "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
       "com.github.dnvriend" %% "akka-persistence-inmemory" % akkaPersistenceInMemoryVersion % "test",
       "com.typesafe" %% "ssl-config-core" % sslConfigCore,
+      "com.typesafe.slick" %% "slick" % slickVersion,
+      "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
+      "org.postgresql" % "postgresql" % postgresqlVersion,
+      "com.h2database" % "h2" % "2.2.220" % Test
     ),
     Compile / PB.targets := Seq(scalapb.gen() -> (Compile / sourceManaged).value),
     Compile / PB.protoSources := Seq(file("proto/src/main/protobuf")),
