@@ -6,15 +6,6 @@ import slick.jdbc.PostgresProfile.api._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class UserFeedbackRow(email: String,
-                           actionedAt: java.sql.Timestamp,
-                           feedbackAt: java.sql.Timestamp,
-                           closeBanner: Boolean,
-                           bfRole: String,
-                           drtQuality: String,
-                           drtLikes: String,
-                           drtImprovements: String,
-                           participationInterest: Boolean)
 
 class UserFeedbackTable(tag: Tag) extends Table[UserFeedbackRow](tag, "user_feedback") {
 
