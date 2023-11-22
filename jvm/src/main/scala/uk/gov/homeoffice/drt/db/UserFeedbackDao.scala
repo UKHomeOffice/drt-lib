@@ -2,9 +2,21 @@ package uk.gov.homeoffice.drt.db
 
 import slick.lifted.{ProvenShape, TableQuery, Tag}
 import slick.jdbc.PostgresProfile.api._
+import uk.gov.homeoffice.drt.feedback.UserFeedback
 
 import scala.concurrent.{ExecutionContext, Future}
 
+case class UserFeedbackRow(email: String,
+                           actionedAt: java.sql.Timestamp,
+                           feedbackAt: Option[java.sql.Timestamp],
+                           closeBanner: Boolean,
+                           bfRole: String,
+                           drtQuality: String,
+                           drtLikes: String,
+                           drtImprovements: String,
+                           participationInterest: Boolean) {
+  def toUserFeedback = UserFeedback(email, actionedAt.getTime, feedbackAt.map(_.getTime), closeBanner, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest)
+}
 
 
 class UserFeedbackTable(tag: Tag) extends Table[UserFeedbackRow](tag, "user_feedback") {
@@ -13,7 +25,7 @@ class UserFeedbackTable(tag: Tag) extends Table[UserFeedbackRow](tag, "user_feed
 
   def actionedAt = column[java.sql.Timestamp]("actioned_at")
 
-  def feedbackAt = column[java.sql.Timestamp]("feedback_at")
+  def feedbackAt = column[Option[java.sql.Timestamp]]("feedback_at")
 
   def closeBanner = column[Boolean]("close_banner")
 
@@ -29,7 +41,7 @@ class UserFeedbackTable(tag: Tag) extends Table[UserFeedbackRow](tag, "user_feed
 
   val pk = primaryKey("user_feedback_pkey", (email, actionedAt))
 
-  def * : ProvenShape[UserFeedbackRow] = (email, actionedAt ,feedbackAt, closeBanner, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest).mapTo[UserFeedbackRow]
+  def * : ProvenShape[UserFeedbackRow] = (email, actionedAt, feedbackAt, closeBanner, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest).mapTo[UserFeedbackRow]
 }
 
 trait IUserFeedbackDao {
