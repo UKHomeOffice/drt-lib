@@ -27,7 +27,7 @@ class UserFeedbackDaoSpec extends Specification with BeforeEach {
   def getUserFeedBackRow(feedbackAt: Timestamp, actionedAt: Timestamp) = {
     UserFeedbackRow(email = "test@test.com",
       actionedAt = actionedAt,
-      feedbackAt = feedbackAt,
+      feedbackAt = Option(feedbackAt),
       closeBanner = false,
       bfRole = "test",
       drtQuality = "Good",
