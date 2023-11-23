@@ -17,7 +17,7 @@ class UserFeedbackDaoSpec extends Specification with BeforeEach {
   lazy val db = TestDatabase.db
 
   override protected def before = {
-    Await.ready(
+    Await.result(
       db.run(DBIO.seq(
         TestDatabase.userFeedbackTable.schema.dropIfExists,
         TestDatabase.userFeedbackTable.schema.createIfNotExists)
@@ -42,7 +42,7 @@ class UserFeedbackDaoSpec extends Specification with BeforeEach {
       val userFeedbackRow = getUserFeedBackRow(new Timestamp(Instant.now().minusSeconds(60).toEpochMilli),
         new Timestamp(Instant.now().minusSeconds(60).toEpochMilli))
 
-      Await.ready(userFeedbackDao.insertOrUpdate(userFeedbackRow), 1.second)
+      Await.result(userFeedbackDao.insertOrUpdate(userFeedbackRow), 1.second)
       val userFeedbackResult = Await.result(userFeedbackDao.selectAll(), 1.second)
 
       userFeedbackResult.size mustEqual 1
