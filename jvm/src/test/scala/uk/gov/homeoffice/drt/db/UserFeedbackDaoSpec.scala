@@ -31,9 +31,11 @@ class UserFeedbackDaoSpec extends Specification with BeforeEach {
       closeBanner = false,
       bfRole = "test",
       drtQuality = "Good",
-      drtLikes = "Arrivals",
-      drtImprovements = "Staffing",
-      participationInterest = true)
+      drtLikes = Option("Arrivals"),
+      drtImprovements = Option("Staffing"),
+      participationInterest = true,
+      feedbackType = Option("test"),
+      aOrBTest = Option("A"))
   }
 
   "UserFeedbackDao list" >> {
