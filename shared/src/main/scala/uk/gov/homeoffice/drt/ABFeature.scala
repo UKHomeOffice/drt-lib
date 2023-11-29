@@ -1,3 +1,3 @@
 package uk.gov.homeoffice.drt
 
-case class ABFeature(presented_at: Long, function_name: String, test_type: String)
+case class ABFeature(email:String, function_name: String, presented_at: Long, test_type: String)

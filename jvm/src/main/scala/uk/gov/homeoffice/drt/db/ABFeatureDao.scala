@@ -8,29 +8,40 @@ import java.sql.Timestamp
 import scala.concurrent.Future
 
 trait IABFeatureDao {
+  def insertOrUpdate(aBFeatureRow: ABFeatureRow): Future[Int]
+
   def getABFeatures: Future[Seq[ABFeatureRow]]
+
+  def getABFeaturesByEmailForFunction(email: String, functionName: String): Future[Seq[ABFeatureRow]]
+
   def getABFeatureByFunctionName(functionName: String): Future[Seq[ABFeatureRow]]
 }
 
-case class ABFeatureRow(presented_at: Timestamp, function_name: String, test_type: String) {
-  def toABFeature = ABFeature(presented_at.getTime, function_name, test_type)
+case class ABFeatureRow(email: String, function_name: String, presented_at: Timestamp, test_type: String) {
+  def toABFeature = ABFeature(email, function_name, presented_at.getTime, test_type)
 }
 
 class ABFeatureTable(tag: Tag) extends Table[ABFeatureRow](tag, "ab_feature") {
 
-  def presentedAt = column[java.sql.Timestamp]("presented_at")
+  def email = column[String]("email")
 
   def functionName = column[String]("function_name")
 
+  def presentedAt = column[java.sql.Timestamp]("presented_at")
+
   def testType = column[String]("test_type")
 
-  val pk = primaryKey("ab_feature_pkey", (presentedAt, functionName))
+  val pk = primaryKey("ab_feature_pkey", (email, functionName))
 
-  def * : ProvenShape[ABFeatureRow] = (presentedAt, functionName, testType).mapTo[ABFeatureRow]
+  def * : ProvenShape[ABFeatureRow] = (email, functionName, presentedAt, testType).mapTo[ABFeatureRow]
 }
 
 case class ABFeatureDao(db: Database) extends IABFeatureDao {
   val abFeatureTable: TableQuery[ABFeatureTable] = TableQuery[ABFeatureTable]
+
+  def insertOrUpdate(aBFeatureRow: ABFeatureRow): Future[Int] = {
+    db.run(abFeatureTable insertOrUpdate aBFeatureRow)
+  }
 
   def getABFeatures: Future[Seq[ABFeatureRow]] = {
     db.run(abFeatureTable.result).mapTo[Seq[ABFeatureRow]]
@@ -39,4 +50,8 @@ case class ABFeatureDao(db: Database) extends IABFeatureDao {
   override def getABFeatureByFunctionName(functionName: String): Future[Seq[ABFeatureRow]] = {
     db.run(abFeatureTable.filter(_.functionName === functionName).result).mapTo[Seq[ABFeatureRow]]
   }
+
+  override def getABFeaturesByEmailForFunction(email: String, functionName: String): Future[Seq[ABFeatureRow]] =
+    db.run(abFeatureTable.filter(ab => ab.email === email && ab.functionName === functionName).result).mapTo[Seq[ABFeatureRow]]
+
 }
