@@ -17,8 +17,8 @@ trait IABFeatureDao {
   def getABFeatureByFunctionName(functionName: String): Future[Seq[ABFeatureRow]]
 }
 
-case class ABFeatureRow(email: String, function_name: String, presented_at: Timestamp, test_type: String) {
-  def toABFeature = ABFeature(email, function_name, presented_at.getTime, test_type)
+case class ABFeatureRow(email: String, functionName: String, presentedAt: Timestamp, testType: String) {
+  def toABFeature = ABFeature(email, functionName, presentedAt.getTime, testType)
 }
 
 class ABFeatureTable(tag: Tag) extends Table[ABFeatureRow](tag, "ab_feature") {

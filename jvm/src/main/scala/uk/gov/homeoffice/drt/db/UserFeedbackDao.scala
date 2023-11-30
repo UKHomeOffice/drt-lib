@@ -1,5 +1,6 @@
 package uk.gov.homeoffice.drt.db
 
+import akka.stream.scaladsl.Source
 import slick.lifted.{ProvenShape, TableQuery, Tag}
 import slick.jdbc.PostgresProfile.api._
 import uk.gov.homeoffice.drt.feedback.UserFeedback
@@ -53,6 +54,8 @@ class UserFeedbackTable(tag: Tag) extends Table[UserFeedbackRow](tag, "user_feed
 trait IUserFeedbackDao {
   def insertOrUpdate(userFeedbackRow: UserFeedbackRow): Future[Int]
 
+  def selectAllAsStream(): Source[UserFeedbackRow, _]
+
   def selectAll()(implicit executionContext: ExecutionContext): Future[Seq[UserFeedbackRow]]
 
   def selectByEmail(email: String): Future[Seq[UserFeedbackRow]]
@@ -64,6 +67,10 @@ case class UserFeedbackDao(db: Database) extends IUserFeedbackDao {
 
   def insertOrUpdate(userFeedbackRow: UserFeedbackRow): Future[Int] = {
     db.run(userFeedbackTable insertOrUpdate userFeedbackRow)
+  }
+
+  def selectAllAsStream(): Source[UserFeedbackRow, _] = {
+    Source.fromPublisher(db.stream(userFeedbackTable.result))
   }
 
   def selectAll()(implicit executionContext: ExecutionContext): Future[Seq[UserFeedbackRow]] = {
