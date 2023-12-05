@@ -39,11 +39,11 @@ class ABFeatureTable(tag: Tag) extends Table[ABFeatureRow](tag, "ab_feature") {
 case class ABFeatureDao(db: Database) extends IABFeatureDao {
   val abFeatureTable: TableQuery[ABFeatureTable] = TableQuery[ABFeatureTable]
 
-  def insertOrUpdate(aBFeatureRow: ABFeatureRow): Future[Int] = {
+  override def insertOrUpdate(aBFeatureRow: ABFeatureRow): Future[Int] = {
     db.run(abFeatureTable insertOrUpdate aBFeatureRow)
   }
 
-  def getABFeatures: Future[Seq[ABFeatureRow]] = {
+  override def getABFeatures: Future[Seq[ABFeatureRow]] = {
     db.run(abFeatureTable.result).mapTo[Seq[ABFeatureRow]]
   }
 
