@@ -17,8 +17,8 @@ trait IABFeatureDao {
   def getABFeatureByFunctionName(functionName: String): Future[Seq[ABFeatureRow]]
 }
 
-case class ABFeatureRow(email: String, functionName: String, presentedAt: Timestamp, testType: String) {
-  def toABFeature = ABFeature(email, functionName, presentedAt.getTime, testType)
+case class ABFeatureRow(email: String, functionName: String, presentedAt: Timestamp, abVersion: String) {
+  def toABFeature = ABFeature(email, functionName, presentedAt.getTime, abVersion)
 }
 
 class ABFeatureTable(tag: Tag) extends Table[ABFeatureRow](tag, "ab_feature") {
@@ -29,11 +29,11 @@ class ABFeatureTable(tag: Tag) extends Table[ABFeatureRow](tag, "ab_feature") {
 
   def presentedAt = column[java.sql.Timestamp]("presented_at")
 
-  def testType = column[String]("test_type")
+  def abVersion = column[String]("ab_version")
 
   val pk = primaryKey("ab_feature_pkey", (email, functionName))
 
-  def * : ProvenShape[ABFeatureRow] = (email, functionName, presentedAt, testType).mapTo[ABFeatureRow]
+  def * : ProvenShape[ABFeatureRow] = (email, functionName, presentedAt, abVersion).mapTo[ABFeatureRow]
 }
 
 case class ABFeatureDao(db: Database) extends IABFeatureDao {

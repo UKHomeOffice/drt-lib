@@ -8,8 +8,7 @@ import uk.gov.homeoffice.drt.feedback.UserFeedback
 import scala.concurrent.{ExecutionContext, Future}
 
 case class UserFeedbackRow(email: String,
-                           actionedAt: java.sql.Timestamp,
-                           feedbackAt: Option[java.sql.Timestamp],
+                           createdAt: java.sql.Timestamp,
                            closeBanner: Boolean,
                            feedbackType: Option[String],
                            bfRole: String,
@@ -17,8 +16,8 @@ case class UserFeedbackRow(email: String,
                            drtLikes: Option[String],
                            drtImprovements: Option[String],
                            participationInterest: Boolean,
-                           aOrBTest: Option[String]) {
-  def toUserFeedback = UserFeedback(email, actionedAt.getTime, feedbackAt.map(_.getTime), closeBanner, feedbackType, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest, aOrBTest)
+                           abVersion: Option[String]) {
+  def toUserFeedback = UserFeedback(email, createdAt.getTime, closeBanner, feedbackType, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest, abVersion)
 }
 
 
@@ -26,9 +25,7 @@ class UserFeedbackTable(tag: Tag) extends Table[UserFeedbackRow](tag, "user_feed
 
   def email = column[String]("email")
 
-  def actionedAt = column[java.sql.Timestamp]("actioned_at")
-
-  def feedbackAt = column[Option[java.sql.Timestamp]]("feedback_at")
+  def createdAt = column[java.sql.Timestamp]("created_at")
 
   def closeBanner = column[Boolean]("close_banner")
 
@@ -44,11 +41,11 @@ class UserFeedbackTable(tag: Tag) extends Table[UserFeedbackRow](tag, "user_feed
 
   def participationInterest = column[Boolean]("participation_interest")
 
-  def aORbTest = column[Option[String]]("a_or_b_test")
+  def abVersion = column[Option[String]]("ab_version")
 
-  val pk = primaryKey("user_feedback_pkey", (email, actionedAt))
+  val pk = primaryKey("user_feedback_pkey", (email, createdAt))
 
-  def * : ProvenShape[UserFeedbackRow] = (email, actionedAt, feedbackAt, closeBanner, feedbackType, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest, aORbTest).mapTo[UserFeedbackRow]
+  def * : ProvenShape[UserFeedbackRow] = (email, createdAt, closeBanner, feedbackType, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest, abVersion).mapTo[UserFeedbackRow]
 }
 
 trait IUserFeedbackDao {

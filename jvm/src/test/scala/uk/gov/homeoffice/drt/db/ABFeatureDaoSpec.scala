@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.drt.db
 
 import org.specs2.mutable.Specification
+import org.specs2.specification.BeforeEach
 import slick.dbio.DBIO
 
 import scala.concurrent.Await
@@ -10,13 +11,13 @@ import slick.jdbc.PostgresProfile.api._
 import java.sql.Timestamp
 import java.time.Instant
 
-class ABFeatureDaoSpec extends Specification {
+class ABFeatureDaoSpec extends Specification with BeforeEach {
 
   sequential
 
   lazy val db = TestDatabase.db
 
-  def setup() = {
+  override def before = {
     Await.result(
       db.run(DBIO.seq(
         TestDatabase.abFeatureTable.schema.dropIfExists,
@@ -28,12 +29,11 @@ class ABFeatureDaoSpec extends Specification {
     ABFeatureRow(email = "test@test.com",
       functionName = "feedback",
       presentedAt = new Timestamp(Instant.now().toEpochMilli),
-      testType = "A")
+      abVersion = "A")
   }
 
   "ABFeatureDao" should {
     "should return a list of AB Features" in {
-      setup()
       val abFeatureDao = ABFeatureDao(TestDatabase.db)
       val abFeatureRow = getABFeatureRow()
 
@@ -45,7 +45,6 @@ class ABFeatureDaoSpec extends Specification {
     }
 
     "should return AB Features for a given functionName" in {
-      setup()
       val abFeatureDao = ABFeatureDao(TestDatabase.db)
       val abFeatureRow = getABFeatureRow()
 
@@ -60,16 +59,14 @@ class ABFeatureDaoSpec extends Specification {
     }
 
     "should return AB Features for a given functionName and email" in {
-      setup()
       val abFeatureDao = ABFeatureDao(TestDatabase.db)
       val abFeatureRow = getABFeatureRow()
 
-      val arrivalFeature = abFeatureRow.copy(functionName = "arrival")
-      val arrivalFeature2 = abFeatureRow.copy(functionName = "arrival",email="test1@test.com")
+      val arrivalFeature = abFeatureRow.copy(functionName = "arrival",email="test1@test.com")
       Await.result(abFeatureDao.insertOrUpdate(abFeatureRow), 1.second)
       Await.result(abFeatureDao.insertOrUpdate(arrivalFeature), 1.second)
 
-      val abFeatureSelectResult = Await.result(abFeatureDao.getABFeaturesByEmailForFunction("test@test.com","arrival"), 1.second)
+      val abFeatureSelectResult = Await.result(abFeatureDao.getABFeaturesByEmailForFunction("test1@test.com","arrival"), 1.second)
 
       abFeatureSelectResult.size === 1
       abFeatureSelectResult.head === arrivalFeature

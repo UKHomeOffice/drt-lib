@@ -1,8 +1,7 @@
 package uk.gov.homeoffice.drt.feedback
 
 case class UserFeedback(email: String,
-                        actionedAt: Long,
-                        feedbackAt: Option[Long],
+                        createdAt: Long,
                         closeBanner: Boolean,
                         feedbackType: Option[String],
                         bfRole: String,
@@ -10,5 +9,5 @@ case class UserFeedback(email: String,
                         drtLikes: Option[String],
                         drtImprovements: Option[String],
                         participationInterest: Boolean,
-                        aOrBTest: Option[String])
+                        abVersion: Option[String])
 

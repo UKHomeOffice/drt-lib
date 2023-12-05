@@ -3,6 +3,7 @@ package uk.gov.homeoffice.drt.db
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
 import org.specs2.mutable.Specification
+import org.specs2.specification.BeforeEach
 import slick.dbio.DBIO
 import slick.jdbc.PostgresProfile.api._
 
@@ -12,12 +13,12 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 
-class UserFeedbackDaoSpec extends Specification {
+class UserFeedbackDaoSpec extends Specification with BeforeEach {
   sequential
 
   lazy val db = TestDatabase.db
 
-  def setup() = {
+  override def before = {
     Await.result(
       db.run(DBIO.seq(
         TestDatabase.userFeedbackTable.schema.dropIfExists,
@@ -25,10 +26,9 @@ class UserFeedbackDaoSpec extends Specification {
       ), 2.second)
   }
 
-  def getUserFeedBackRow(feedbackAt: Timestamp, actionedAt: Timestamp) = {
+  def getUserFeedBackRow(createdAt: Timestamp) = {
     UserFeedbackRow(email = "test@test.com",
-      actionedAt = actionedAt,
-      feedbackAt = Option(feedbackAt),
+      createdAt = createdAt,
       closeBanner = false,
       bfRole = "test",
       drtQuality = "Good",
@@ -36,15 +36,13 @@ class UserFeedbackDaoSpec extends Specification {
       drtImprovements = Option("Staffing"),
       participationInterest = true,
       feedbackType = Option("test"),
-      aOrBTest = Option("A"))
+      abVersion = Option("A"))
   }
 
   "UserFeedbackDao" should {
     "should return a list of user feedback submitted" in {
-      setup()
       val userFeedbackDao = UserFeedbackDao(TestDatabase.db)
-      val userFeedbackRow = getUserFeedBackRow(new Timestamp(Instant.now().minusSeconds(60).toEpochMilli),
-        new Timestamp(Instant.now().minusSeconds(60).toEpochMilli))
+      val userFeedbackRow = getUserFeedBackRow(new Timestamp(Instant.now().minusSeconds(60).toEpochMilli))
 
       Await.result(userFeedbackDao.insertOrUpdate(userFeedbackRow), 1.second)
       val userFeedbackResult = Await.result(userFeedbackDao.selectAll(), 1.second)
@@ -53,31 +51,30 @@ class UserFeedbackDaoSpec extends Specification {
       userFeedbackResult.head === userFeedbackRow
     }
 
-
     "should return a list of user feedback using stream" in {
-      implicit val system = ActorSystem("test")
-      setup()
+      implicit val system: ActorSystem = ActorSystem("testSystem")
+
       val userFeedbackDao = UserFeedbackDao(TestDatabase.db)
-      val userFeedbackRow = getUserFeedBackRow(new Timestamp(Instant.now().minusSeconds(60).toEpochMilli),
-        new Timestamp(Instant.now().minusSeconds(60).toEpochMilli))
+      val userFeedbackResult = Await.result(userFeedbackDao.selectAll(), 1.second)
+      userFeedbackResult.size === 1
+      val exitingRow = userFeedbackResult.head
+      val userFeedbackRow = getUserFeedBackRow(new Timestamp(Instant.now().minusSeconds(60).toEpochMilli)).copy(email = "test1@test.com")
 
       Await.result(userFeedbackDao.insertOrUpdate(userFeedbackRow), 1.second)
       userFeedbackDao.selectAllAsStream().runWith(Sink.seq)
         .map { userFeedbackResult =>
-          userFeedbackResult.size === 1
-          userFeedbackResult.head === userFeedbackRow
+          userFeedbackResult.size === 2
+          userFeedbackResult === Seq(exitingRow, userFeedbackRow)
         }
     }
 
     "should return a list of user feedback for given email" in {
-      setup()
       val userFeedbackDao = UserFeedbackDao(TestDatabase.db)
-      val userFeedbackRow = getUserFeedBackRow(new Timestamp(Instant.now().minusSeconds(60).toEpochMilli),
-        new Timestamp(Instant.now().minusSeconds(60).toEpochMilli))
-     val secondRow = userFeedbackRow.copy(email="test1@test.com")
+      val userFeedbackRow = getUserFeedBackRow(new Timestamp(Instant.now().minusSeconds(60).toEpochMilli))
+      val secondRow = userFeedbackRow.copy(email = "test2@test.com")
       Await.result(userFeedbackDao.insertOrUpdate(userFeedbackRow), 1.second)
       Await.result(userFeedbackDao.insertOrUpdate(secondRow), 1.second)
-      userFeedbackDao.selectByEmail("test1@test.com")
+      userFeedbackDao.selectByEmail("test2@test.com")
         .map { userFeedbackResult =>
           userFeedbackResult.size === 1
           userFeedbackResult.head === secondRow
