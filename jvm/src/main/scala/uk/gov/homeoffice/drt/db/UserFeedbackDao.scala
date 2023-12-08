@@ -9,7 +9,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class UserFeedbackRow(email: String,
                            createdAt: java.sql.Timestamp,
-                           closeBanner: Boolean,
                            feedbackType: Option[String],
                            bfRole: String,
                            drtQuality: String,
@@ -17,7 +16,7 @@ case class UserFeedbackRow(email: String,
                            drtImprovements: Option[String],
                            participationInterest: Boolean,
                            abVersion: Option[String]) {
-  def toUserFeedback = UserFeedback(email, createdAt.getTime, closeBanner, feedbackType, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest, abVersion)
+  def toUserFeedback = UserFeedback(email, createdAt.getTime, feedbackType, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest, abVersion)
 }
 
 
@@ -26,8 +25,6 @@ class UserFeedbackTable(tag: Tag) extends Table[UserFeedbackRow](tag, "user_feed
   def email = column[String]("email")
 
   def createdAt = column[java.sql.Timestamp]("created_at")
-
-  def closeBanner = column[Boolean]("close_banner")
 
   def feedbackType = column[Option[String]]("feedback_type")
 
@@ -45,7 +42,7 @@ class UserFeedbackTable(tag: Tag) extends Table[UserFeedbackRow](tag, "user_feed
 
   val pk = primaryKey("user_feedback_pkey", (email, createdAt))
 
-  def * : ProvenShape[UserFeedbackRow] = (email, createdAt, closeBanner, feedbackType, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest, abVersion).mapTo[UserFeedbackRow]
+  def * : ProvenShape[UserFeedbackRow] = (email, createdAt, feedbackType, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest, abVersion).mapTo[UserFeedbackRow]
 }
 
 trait IUserFeedbackDao {
