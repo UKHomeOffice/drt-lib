@@ -49,6 +49,12 @@ case class PaxSource(feedSource: FeedSource, passengers: Passengers) {
 
 case class Predictions(lastChecked: Long, predictions: Map[String, Int])
 
+object Predictions {
+  val empty: Predictions = Predictions(0L, Map.empty)
+
+  implicit val predictionsRw: ReadWriter[Predictions] = macroRW
+}
+
 case class Arrival(Operator: Option[Operator],
                    CarrierCode: CarrierCode,
                    VoyageNumber: VoyageNumber,
