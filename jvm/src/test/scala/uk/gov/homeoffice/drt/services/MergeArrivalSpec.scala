@@ -1,7 +1,7 @@
 package uk.gov.homeoffice.drt.services
 
 import org.specs2.mutable.Specification
-import uk.gov.homeoffice.drt.arrivals.{Arrival, ArrivalStatus, CarrierCode, FlightCodeSuffix, ForecastArrival, Operator, Passengers, Predictions, VoyageNumber}
+import uk.gov.homeoffice.drt.arrivals.{MergedArrival, ArrivalStatus, CarrierCode, FlightCodeSuffix, ForecastArrival, Operator, Passengers, Predictions, VoyageNumber}
 import uk.gov.homeoffice.drt.ports.{FeedSource, PortCode}
 import uk.gov.homeoffice.drt.ports.Terminals.{T3, Terminal}
 import uk.gov.homeoffice.drt.time.SDate
@@ -21,7 +21,7 @@ class MergeArrivalSpec extends Specification {
         transPax = Option(10),
         maxPax = Option(250)
       )
-      val arrival = Arrival(
+      val arrival = MergedArrival(
         Operator = None,
         CarrierCode = CarrierCode("BA"),
         VoyageNumber = VoyageNumber(58),

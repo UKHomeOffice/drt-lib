@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.drt.actor.state
 
-import uk.gov.homeoffice.drt.arrivals.{Arrival, UniqueArrival}
+import uk.gov.homeoffice.drt.arrivals.{MergedArrival, Arrival, UniqueArrival}
 import uk.gov.homeoffice.drt.feeds.{FeedSourceStatuses, FeedStateLike}
 import uk.gov.homeoffice.drt.ports.FeedSource
 
@@ -13,11 +13,11 @@ case class ArrivalsState(arrivals: SortedMap[UniqueArrival, Arrival],
     copy(arrivals = SortedMap(), maybeSourceStatuses = None)
   }
 
-  def ++(incoming: Iterable[Arrival]): ArrivalsState = {
+  def ++(incoming: Iterable[MergedArrival]): ArrivalsState = {
     copy(arrivals = arrivals ++ incoming.map(a => (a.unique, arrivals.get(a.unique).map(_.update(a)).getOrElse(a))))
   }
 
-  def ++(incoming: Iterable[Arrival], statuses: Option[FeedSourceStatuses]): ArrivalsState =
+  def ++(incoming: Iterable[MergedArrival], statuses: Option[FeedSourceStatuses]): ArrivalsState =
     ++(incoming).copy(maybeSourceStatuses = statuses)
 }
 

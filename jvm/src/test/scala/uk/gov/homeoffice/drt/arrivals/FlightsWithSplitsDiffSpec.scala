@@ -6,12 +6,12 @@ import uk.gov.homeoffice.drt.time.{SDate, SDateLike}
 
 class FlightsWithSplitsDiffSpec extends Specification {
 
-  val arrival: Arrival = ArrivalGenerator.arrival()
+  val arrival: MergedArrival = ArrivalGenerator.arrival()
 
   val arrivalWithSplits: ApiFlightWithSplits = ApiFlightWithSplits(arrival, Set(), None)
 
-  def arrivalForDate(date: SDateLike): Arrival = ArrivalGenerator.arrival(sch = date.millisSinceEpoch)
-  def arrivalForDateAndTerminal(date: SDateLike, terminal: Terminal): Arrival =
+  def arrivalForDate(date: SDateLike): MergedArrival = ArrivalGenerator.arrival(sch = date.millisSinceEpoch)
+  def arrivalForDateAndTerminal(date: SDateLike, terminal: Terminal): MergedArrival =
     ArrivalGenerator.arrival(sch = date.millisSinceEpoch, terminal = terminal)
 
   "Given a FlightsWithSplitsDiff with no updates and no removals then isEmpty should be true" >> {

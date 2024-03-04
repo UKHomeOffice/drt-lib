@@ -101,7 +101,7 @@ object FlightMessageConversion {
     case s: FeedStatusFailure => FeedStatusMessage(Option(s.date), None, Option(s.message))
   }
 
-  def restoreArrivalsFromSnapshot(restorer: ArrivalsRestorer[Arrival],
+  def restoreArrivalsFromSnapshot(restorer: ArrivalsRestorer[MergedArrival],
                                   snMessage: FlightStateSnapshotMessage): Unit = {
     restorer.applyUpdates(snMessage.flightMessages.map(flightMessageToApiFlight))
   }
@@ -201,7 +201,7 @@ object FlightMessageConversion {
     )
   }
 
-  def apiFlightToFlightMessage(apiFlight: Arrival): FlightMessage = {
+  def apiFlightToFlightMessage(apiFlight: MergedArrival): FlightMessage = {
     val maybePredictionsMessage = Option(PredictionsMessage(
       Option(apiFlight.Predictions.lastChecked),
       apiFlight.Predictions.predictions.map(p => PredictionIntMessage(Option(p._1), Option(p._2))).toList
@@ -268,7 +268,7 @@ object FlightMessageConversion {
         Predictions(predictions.updatedAt.getOrElse(0L), modelPredictions.toMap)
     }
 
-  def flightMessageToApiFlight(flightMessage: FlightMessage): Arrival = Arrival(
+  def flightMessageToApiFlight(flightMessage: FlightMessage): MergedArrival = MergedArrival(
     Operator = flightMessage.operator.map(Operator),
     Status = ArrivalStatus(flightMessage.status.getOrElse("")),
     Estimated = flightMessage.estimated,

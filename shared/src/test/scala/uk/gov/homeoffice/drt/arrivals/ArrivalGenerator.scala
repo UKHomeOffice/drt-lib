@@ -26,8 +26,8 @@ object ArrivalGenerator {
               feedSources: Set[FeedSource] = Set(),
               pcpTime: Option[Long] = None,
               passengerSources: Map[FeedSource, Passengers] = Map.empty
-             ): Arrival =
-    Arrival(
+             ): MergedArrival =
+    MergedArrival(
       Operator = operator,
       Status = status,
       Predictions = predictions,
@@ -55,6 +55,6 @@ object ArrivalGenerator {
     arrival(sch = date.millisSinceEpoch, terminal = terminal), Set(), Option(date.millisSinceEpoch)
   )
 
-  def arrivalForDayAndTerminal(date: SDateLike, terminal: Terminal = T1): Arrival =
+  def arrivalForDayAndTerminal(date: SDateLike, terminal: Terminal = T1): MergedArrival =
     arrival(sch = date.millisSinceEpoch, terminal = terminal)
 }

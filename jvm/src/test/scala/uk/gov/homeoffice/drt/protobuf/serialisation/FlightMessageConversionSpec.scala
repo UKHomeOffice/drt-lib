@@ -14,7 +14,7 @@ import uk.gov.homeoffice.drt.time.SDate
 
 class FlightMessageConversionSpec extends Specification {
 
-  val arrival: Arrival = Arrival(
+  val arrival: MergedArrival = MergedArrival(
     Operator = Option(Operator("British Airways")),
     CarrierCode = CarrierCode("BA"),
     VoyageNumber = VoyageNumber(1),

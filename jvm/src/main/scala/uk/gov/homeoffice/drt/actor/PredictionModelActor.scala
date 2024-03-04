@@ -7,7 +7,7 @@ import org.slf4j.{Logger, LoggerFactory}
 import scalapb.GeneratedMessage
 import uk.gov.homeoffice.drt.actor.PredictionModelActor.{Models, RemoveModel, WithId}
 import uk.gov.homeoffice.drt.actor.commands.Commands.GetState
-import uk.gov.homeoffice.drt.arrivals.Arrival
+import uk.gov.homeoffice.drt.arrivals.MergedArrival
 import uk.gov.homeoffice.drt.prediction.{FeaturesWithOneToManyValues, ModelAndFeatures, ModelCategory, RegressionModel}
 import uk.gov.homeoffice.drt.protobuf.messages.ModelAndFeatures.{ModelAndFeaturesMessage, ModelsAndFeaturesMessage, RemoveModelMessage}
 import uk.gov.homeoffice.drt.time.{LocalDate, SDate, SDateLike}
@@ -40,7 +40,7 @@ object PredictionModelActor {
   }
 
   object Terminal {
-    val fromArrival: Arrival => Option[Terminal] = (arrival: Arrival) =>
+    val fromArrival: MergedArrival => Option[Terminal] = (arrival: MergedArrival) =>
       Option(Terminal(arrival.Terminal.toString))
   }
 
@@ -49,7 +49,7 @@ object PredictionModelActor {
   }
 
   object TerminalCarrier {
-    val fromArrival: Arrival => Option[TerminalCarrier] = (arrival: Arrival) =>
+    val fromArrival: MergedArrival => Option[TerminalCarrier] = (arrival: MergedArrival) =>
       Option(TerminalCarrier(arrival.Terminal.toString, arrival.CarrierCode.code))
   }
 
@@ -58,7 +58,7 @@ object PredictionModelActor {
   }
 
   object TerminalOrigin {
-    val fromArrival: Arrival => Option[TerminalOrigin] = (arrival: Arrival) =>
+    val fromArrival: MergedArrival => Option[TerminalOrigin] = (arrival: MergedArrival) =>
       Option(TerminalOrigin(arrival.Terminal.toString, arrival.Origin.iata))
   }
 
@@ -67,7 +67,7 @@ object PredictionModelActor {
   }
 
   object TerminalFlightNumberOrigin {
-    val fromArrival: Arrival => Option[WithId] = (arrival: Arrival) => {
+    val fromArrival: MergedArrival => Option[WithId] = (arrival: MergedArrival) => {
       val flightNumber = arrival.flightCode.voyageNumberLike.numeric
       Option(TerminalFlightNumberOrigin(arrival.Terminal.toString, flightNumber, arrival.Origin.iata))
     }
@@ -78,7 +78,7 @@ object PredictionModelActor {
   }
 
   object TerminalCarrierOrigin {
-    val fromArrival: Arrival => Option[TerminalCarrierOrigin] = (arrival: Arrival) => {
+    val fromArrival: MergedArrival => Option[TerminalCarrierOrigin] = (arrival: MergedArrival) => {
       val carrierCode = arrival.flightCode.carrierCode.code
       Option(TerminalCarrierOrigin(arrival.Terminal.toString, carrierCode, arrival.Origin.iata))
     }

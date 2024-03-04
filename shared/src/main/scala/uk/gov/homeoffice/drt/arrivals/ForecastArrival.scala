@@ -13,7 +13,7 @@ case class ForecastArrival(carrierCode: CarrierCode,
                            totalPax: Option[Int],
                            transPax: Option[Int],
                            maxPax: Option[Int],
-                          ) extends ArrivalLike {
+                          ) extends Arrival {
   override def Operator: Option[Operator] = None
   override def CarrierCode: CarrierCode = carrierCode
   override def VoyageNumber: VoyageNumber = flightNumber

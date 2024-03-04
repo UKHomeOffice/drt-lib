@@ -1,12 +1,12 @@
 package uk.gov.homeoffice.drt.prediction.arrival
 
-import uk.gov.homeoffice.drt.arrivals.Arrival
+import uk.gov.homeoffice.drt.arrivals.MergedArrival
 import uk.gov.homeoffice.drt.prediction.ModelAndFeatures
 import uk.gov.homeoffice.drt.time.SDateLike
 
 
 trait ArrivalModelAndFeatures extends ModelAndFeatures {
-  def maybePrediction(arrival: Arrival, minimumImprovementPctThreshold: Int, upperValueThreshold: Option[Int]): Option[Int] =
+  def maybePrediction(arrival: MergedArrival, minimumImprovementPctThreshold: Int, upperValueThreshold: Option[Int]): Option[Int] =
     if (improvementPct > minimumImprovementPctThreshold) {
       for {
         valueThreshold <- upperValueThreshold
@@ -23,7 +23,7 @@ trait ArrivalModelAndFeatures extends ModelAndFeatures {
       None
     }
 
-  def prediction(arrival: Arrival): Option[Int] = {
+  def prediction(arrival: MergedArrival): Option[Int] = {
     val maybeMaybePrediction = for {
       oneToManyValues <- ArrivalFeatureValuesExtractor.oneToManyFeatureValues(arrival, features.features)
       singleValues <- ArrivalFeatureValuesExtractor.singleFeatureValues(arrival, features.features)
@@ -41,7 +41,7 @@ trait ArrivalModelAndFeatures extends ModelAndFeatures {
     maybeMaybePrediction.flatten
   }
 
-  def updatePrediction(arrival: Arrival, minimumImprovementPctThreshold: Int, upperThreshold: Option[Int], now: SDateLike): Arrival = {
+  def updatePrediction(arrival: MergedArrival, minimumImprovementPctThreshold: Int, upperThreshold: Option[Int], now: SDateLike): MergedArrival = {
     val updatedPredictions: Map[String, Int] = maybePrediction(arrival, minimumImprovementPctThreshold, upperThreshold) match {
       case None => arrival.Predictions.predictions.removed(targetName)
       case Some(update) => arrival.Predictions.predictions.updated(targetName, update)

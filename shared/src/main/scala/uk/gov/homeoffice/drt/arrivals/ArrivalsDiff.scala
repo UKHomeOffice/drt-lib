@@ -14,13 +14,13 @@ object ArrivalsDiff {
 
   val empty: ArrivalsDiff = ArrivalsDiff(Seq(), Seq())
 
-  def apply(toUpdate: Iterable[Arrival], toRemove: Iterable[UniqueArrival]): ArrivalsDiff = ArrivalsDiff(
-    SortedMap[UniqueArrival, Arrival]() ++ toUpdate.map(a => (a.unique, a)), toRemove
+  def apply(toUpdate: Iterable[MergedArrival], toRemove: Iterable[UniqueArrival]): ArrivalsDiff = ArrivalsDiff(
+    SortedMap[UniqueArrival, MergedArrival]() ++ toUpdate.map(a => (a.unique, a)), toRemove
   )
 }
 
-case class ArrivalsDiff(toUpdate: SortedMap[UniqueArrival, Arrival], toRemove: Iterable[UniqueArrival]) extends FlightUpdates {
-  def diff(arrivals: Map[UniqueArrival, Arrival]): ArrivalsDiff = {
+case class ArrivalsDiff(toUpdate: SortedMap[UniqueArrival, MergedArrival], toRemove: Iterable[UniqueArrival]) extends FlightUpdates {
+  def diff(arrivals: Map[UniqueArrival, MergedArrival]): ArrivalsDiff = {
     val updatedFlights = toUpdate
       .map {
         case (key, incomingArrival) =>

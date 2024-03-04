@@ -138,19 +138,19 @@ class ArrivalSpec extends Specification {
 
   "isInRange" >> {
     "should return true when the needle is equal to the start of the range" >> {
-      Arrival.isInRange(1, 10)(1) === true
+      MergedArrival.isInRange(1, 10)(1) === true
     }
     "should return true when the needle is equal to the end of the range" >> {
-      Arrival.isInRange(1, 10)(10) === true
+      MergedArrival.isInRange(1, 10)(10) === true
     }
     "should return true when the needle is between the start and end of the range" >> {
-      Arrival.isInRange(1, 10)(5) === true
+      MergedArrival.isInRange(1, 10)(5) === true
     }
     "should return false when the needle is lower than the start of the range" >> {
-      Arrival.isInRange(1, 10)(0) === false
+      MergedArrival.isInRange(1, 10)(0) === false
     }
     "should return false when the needle is higher than the end of the range" >> {
-      Arrival.isInRange(1, 10)(11) === false
+      MergedArrival.isInRange(1, 10)(11) === false
     }
   }
 

@@ -2,7 +2,7 @@ package uk.gov.homeoffice.drt.prediction.arrival
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.homeoffice.drt.arrivals.{Arrival, ArrivalGenerator}
+import uk.gov.homeoffice.drt.arrivals.{MergedArrival, ArrivalGenerator}
 import uk.gov.homeoffice.drt.prediction.arrival.features.{FeatureColumnsV1, FeatureColumnsV2, OneToManyFeature}
 import uk.gov.homeoffice.drt.time.{LocalDate, SDate, SDateLike}
 
@@ -10,7 +10,7 @@ case class TestHolidayV1()
                         (implicit
                        val sDateTs: Long => SDateLike,
                        val sDateLocalDate: LocalDate => SDateLike,
-                      ) extends OneToManyFeature[Arrival] with FeatureColumnsV1.HolidayLike {
+                      ) extends OneToManyFeature[MergedArrival] with FeatureColumnsV1.HolidayLike {
   override val label: String = "testHoliday"
   override val prefix: String = "th"
   override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -23,7 +23,7 @@ case class TestHolidayV2()
                         (implicit
                        val sDateTs: Long => SDateLike,
                        val sDateLocalDate: LocalDate => SDateLike,
-                      ) extends OneToManyFeature[Arrival] with FeatureColumnsV2.HolidayLike {
+                      ) extends OneToManyFeature[MergedArrival] with FeatureColumnsV2.HolidayLike {
   override val label: String = "testHoliday"
   override val prefix: String = "th"
   override val hols: Seq[(LocalDate, LocalDate)] = Seq(

@@ -1,7 +1,7 @@
 package uk.gov.homeoffice.drt.prediction.arrival
 
 import cats.implicits.toTraverseOps
-import uk.gov.homeoffice.drt.arrivals.{Arrival, ArrivalStatus, Passengers}
+import uk.gov.homeoffice.drt.arrivals.{MergedArrival, ArrivalStatus, Passengers}
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 import uk.gov.homeoffice.drt.ports.{ApiFeedSource, LiveFeedSource}
 import uk.gov.homeoffice.drt.prediction.arrival.features.{Feature, OneToManyFeature, SingleFeature}
@@ -20,7 +20,7 @@ object ArrivalFeatureValuesExtractor {
       case feature: SingleFeature[T] => feature.value(arrival)
     }.traverse(identity)
 
-  val minutesOffSchedule: Seq[Feature[Arrival]] => Arrival => Option[(Double, Seq[String], Seq[Double], String)] = features => {
+  val minutesOffSchedule: Seq[Feature[MergedArrival]] => MergedArrival => Option[(Double, Seq[String], Seq[Double], String)] = features => {
     arrival =>
       for {
         touchdown <- arrival.Actual
@@ -32,7 +32,7 @@ object ArrivalFeatureValuesExtractor {
       }
   }
 
-  val minutesToChox: Seq[Feature[Arrival]] => Arrival => Option[(Double, Seq[String], Seq[Double], String)] = features => {
+  val minutesToChox: Seq[Feature[MergedArrival]] => MergedArrival => Option[(Double, Seq[String], Seq[Double], String)] = features => {
     arrival =>
       for {
         touchdown <- arrival.Actual
@@ -46,7 +46,7 @@ object ArrivalFeatureValuesExtractor {
   }
 
   def walkTimeMinutes(walkTimeProvider: (Terminal, String, String) => Option[Int],
-                     ): Seq[Feature[Arrival]] => Arrival => Option[(Double, Seq[String], Seq[Double], String)] = features => {
+                     ): Seq[Feature[MergedArrival]] => MergedArrival => Option[(Double, Seq[String], Seq[Double], String)] = features => {
     arrival =>
       for {
         walkTimeMinutes <- walkTimeProvider(arrival.Terminal, arrival.Gate.getOrElse(""), arrival.Stand.getOrElse(""))
@@ -57,13 +57,13 @@ object ArrivalFeatureValuesExtractor {
       }
   }
 
-  private def noReliablePaxCount(arrival: Arrival): Boolean = {
+  private def noReliablePaxCount(arrival: MergedArrival): Boolean = {
     !arrival.PassengerSources.exists {
       case (feedSource, Passengers(maybePax, _)) => List(ApiFeedSource, LiveFeedSource).contains(feedSource) && maybePax.nonEmpty
     }
   }
 
-  val percentCapacity: Seq[Feature[Arrival]] => Arrival => Option[(Double, Seq[String], Seq[Double], String)] = features => {
+  val percentCapacity: Seq[Feature[MergedArrival]] => MergedArrival => Option[(Double, Seq[String], Seq[Double], String)] = features => {
     case arrival if arrival.MaxPax.isEmpty => None
     case arrival if noReliablePaxCount(arrival) => None
     case arrival if arrival.Status == ArrivalStatus("Cancelled") => None
