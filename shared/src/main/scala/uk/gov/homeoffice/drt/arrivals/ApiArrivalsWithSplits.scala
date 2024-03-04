@@ -3,7 +3,6 @@ package uk.gov.homeoffice.drt.arrivals
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages
 import uk.gov.homeoffice.drt.ports._
-import uk.gov.homeoffice.drt.time.SDateLike
 import upickle.default.{ReadWriter, macroRW}
 
 
@@ -14,10 +13,10 @@ trait WithLastUpdated {
 object ApiFlightWithSplits {
   implicit val rw: ReadWriter[ApiFlightWithSplits] = macroRW
 
-  def fromArrival(arrival: Arrival): ApiFlightWithSplits = ApiFlightWithSplits(arrival, Set())
+  def fromArrival(arrival: ArrivalLike): ApiFlightWithSplits = ApiFlightWithSplits(arrival, Set())
 }
 
-case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpdated: Option[Long] = None)
+case class ApiFlightWithSplits(apiFlight: ArrivalLike, splits: Set[Splits], lastUpdated: Option[Long] = None)
   extends WithUnique[UniqueArrival]
     with Updatable[ApiFlightWithSplits]
     with WithLastUpdated {

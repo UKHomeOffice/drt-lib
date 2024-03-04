@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+package uk.gov.homeoffice.drt.protobuf.messages;
+
+import "Prediction.proto";
+import "FlightsMessage.proto";
+
+message ForecastFlightStateSnapshotMessage {
+    repeated ForecastFlightMessage flightMessages = 1;
+    optional FeedStatusesMessage statuses = 2;
+}
+
+message ForecastFlightMessage {
+    optional string CarrierCode = 1;
+    optional int32 VoyageNumber = 2;
+    optional string FlightCodeSuffix = 3;
+    optional string Origin = 4;
+    optional string Terminal = 5;
+    optional int64 Scheduled = 6;
+    optional int32 TotalPax = 7;
+    optional int32 TransitPax = 8;
+    optional int32 MaxPax = 9;
+}
+
+message ForecastFlightsDiffMessage {
+    optional int64 createdAt = 1;
+    repeated UniqueArrivalMessage removals = 2;
+    repeated ForecastFlightMessage updates = 3;
+}

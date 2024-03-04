@@ -12,7 +12,7 @@ class MergeArrivalSpec extends Specification {
     "Take a forecast arrival and produce an arrival" in {
       val forecastArrival = ForecastArrival(
         carrierCode = CarrierCode("BA"),
-        flightNumber = VoyageNumber(58),
+        voyageNumber = VoyageNumber(58),
         maybeFlightCodeSuffix = Option(FlightCodeSuffix("A")),
         origin = PortCode("CPT"),
         terminal = T3,
