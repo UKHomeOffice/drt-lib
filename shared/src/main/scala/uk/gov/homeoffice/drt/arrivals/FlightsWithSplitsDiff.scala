@@ -51,7 +51,7 @@ class ArrivalsWithSplitsRestorer {
 
   def applyUpdates(updates: Iterable[ApiFlightWithSplits]): Unit = updates.foreach { update =>
     val updated = arrivals.get(update.unique).map { existing =>
-      update.copy(apiFlight = ArrivalMerger.merge(existing.apiFlight, update.apiFlight))
+      update.copy(apiFlight = ArrivalMerger.merge(existing.apiFlight, update.apiFlight).toMergedArrival)
     }.getOrElse(update)
     arrivals = arrivals + ((update.unique, updated))
   }

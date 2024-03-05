@@ -70,6 +70,8 @@ case class MergedArrival(Operator: Option[Operator],
                         )
   extends Arrival {
   override def withoutPcpTime: MergedArrival = copy(PcpTime = None)
+
+  override def toMergedArrival: MergedArrival = this
 }
 
 object MergedArrival {

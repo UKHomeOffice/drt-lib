@@ -45,6 +45,8 @@ trait Arrival extends WithUnique[UniqueArrival] {
   def RedListPax: Option[Int]
   def PassengerSources: Map[FeedSource, Passengers]
 
+  def toMergedArrival: MergedArrival
+
 
   lazy val differenceFromScheduled: Option[FiniteDuration] = Actual.map(a => (a - Scheduled).milliseconds)
 

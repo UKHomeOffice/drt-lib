@@ -83,9 +83,9 @@ case class ArrivalsDiff(toUpdate: SortedMap[UniqueArrival, Arrival], toRemove: I
       case (acc, (key, arrival)) =>
         acc.get(key) match {
           case Some(fws) =>
-            acc + (key -> fws.copy(apiFlight = arrival, lastUpdated = Option(nowMillis)))
+            acc + (key -> fws.copy(apiFlight = arrival.toMergedArrival, lastUpdated = Option(nowMillis)))
           case None =>
-            acc + (key -> ApiFlightWithSplits(arrival, Set(), Option(nowMillis)))
+            acc + (key -> ApiFlightWithSplits(arrival.toMergedArrival, Set(), Option(nowMillis)))
         }
     }
 

@@ -24,6 +24,6 @@ object ArrivalMerger {
 
   def merge(flight1: ApiFlightWithSplits, flight2: ApiFlightWithSplits): ApiFlightWithSplits = {
     val mergedArrival = merge(flight1.apiFlight, flight2.apiFlight)
-    flight2.copy(apiFlight = mergedArrival)
+    flight2.copy(apiFlight = mergedArrival.toMergedArrival)
   }
 }
