@@ -12,7 +12,7 @@ object SplitsForArrivals {
 
   val empty: SplitsForArrivals = SplitsForArrivals(Map())
 
-  def updateSplits(existing: Set[Splits], incoming: Set[Splits]): Set[Splits] =
+  private def updateSplits(existing: Set[Splits], incoming: Set[Splits]): Set[Splits] =
     (existing.map(s => (s.source, s)).toMap ++ incoming.map(s => (s.source, s)).toMap).values.toSet
 
   def updateFlightWithSplits(flightWithSplits: ApiFlightWithSplits, splits: Set[Splits], nowMillis: Long): ApiFlightWithSplits = {
@@ -24,7 +24,11 @@ object SplitsForArrivals {
         val transPax: Int = Math.round(liveSplit.totalPax - liveSplit.totalExcludingTransferPax).toInt
         val sources = flightWithSplits.apiFlight.FeedSources + ApiFeedSource
         val totalPaxSources = flightWithSplits.apiFlight.PassengerSources.updated(ApiFeedSource, Passengers(Some(totalPax), Option(transPax)))
-        flightWithSplits.apiFlight.copy(
+        val arrival = flightWithSplits.apiFlight match {
+          case f: ForecastArrival => f.toArrival
+          case a: MergedArrival => a
+        }
+        arrival.copy(
           FeedSources = sources,
           PassengerSources = totalPaxSources
         )

@@ -1,0 +1,41 @@
+syntax = "proto2";
+
+package uk.gov.homeoffice.drt.protobuf.messages;
+
+import "Prediction.proto";
+import "FlightsMessage.proto";
+
+message LiveFlightStateSnapshotMessage {
+    repeated LiveFlightMessage flightMessages = 1;
+    optional FeedStatusesMessage statuses = 2;
+}
+
+message LiveFlightMessage {
+    optional string Operator = 1;
+    optional string CarrierCode = 2;
+    optional int32 VoyageNumber = 3;
+    optional string FlightCodeSuffix = 4;
+    optional string Status = 5;
+    optional int64 Scheduled = 6;
+    optional int64 Estimated = 7;
+    optional int64 Touchdown = 8;
+    optional int64 EstimatedChox = 9;
+    optional int64 ActualChox = 10;
+    optional string Gate = 11;
+    optional string Stand = 12;
+    optional int32 TotalPax = 13;
+    optional int32 TransitPax = 14;
+    optional int32 MaxPax = 15;
+    optional string RunwayID = 16;
+    optional string BaggageReclaimId = 17;
+    optional string Terminal = 18;
+    optional string Origin = 19;
+    optional int64 ScheduledDeparture = 20;
+    optional string FeedSource = 21;
+}
+
+message LiveFlightsDiffMessage {
+    optional int64 createdAt = 1;
+    repeated UniqueArrivalMessage removals = 2;
+    repeated LiveFlightMessage updates = 3;
+}

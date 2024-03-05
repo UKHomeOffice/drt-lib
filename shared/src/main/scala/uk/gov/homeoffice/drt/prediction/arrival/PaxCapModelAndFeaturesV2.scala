@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.drt.prediction.arrival
 
-import uk.gov.homeoffice.drt.arrivals.{Arrival, Passengers}
+import uk.gov.homeoffice.drt.arrivals.{MergedArrival, Passengers}
 import uk.gov.homeoffice.drt.ports.MlFeedSource
 import uk.gov.homeoffice.drt.prediction.{FeaturesWithOneToManyValues, RegressionModel}
 import uk.gov.homeoffice.drt.time.SDateLike
@@ -20,7 +20,7 @@ case class PaxCapModelAndFeaturesV2(model: RegressionModel,
 
   private val fallback: Int = 175
 
-  override def updatePrediction(arrival: Arrival, minimumImprovementPctThreshold: Int, upperThreshold: Option[Int], now: SDateLike): Arrival = {
+  override def updatePrediction(arrival: MergedArrival, minimumImprovementPctThreshold: Int, upperThreshold: Option[Int], now: SDateLike): MergedArrival = {
     val updatedPassengers = maybePrediction(arrival, minimumImprovementPctThreshold, upperThreshold) match {
       case None =>
         arrival.PassengerSources.removed(MlFeedSource)

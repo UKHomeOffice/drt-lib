@@ -3,6 +3,7 @@ package uk.gov.homeoffice.drt.arrivals
 import uk.gov.homeoffice.drt.DataUpdates.FlightUpdates
 import uk.gov.homeoffice.drt.ports.FeedSource
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
+import uk.gov.homeoffice.drt.services.ArrivalMerger
 import uk.gov.homeoffice.drt.time.{SDateLike, UtcDate}
 import upickle.default.{macroRW, _}
 
@@ -14,19 +15,19 @@ object ArrivalsDiff {
 
   val empty: ArrivalsDiff = ArrivalsDiff(Seq(), Seq())
 
-  def apply(toUpdate: Iterable[ArrivalLike], toRemove: Iterable[UniqueArrival]): ArrivalsDiff = ArrivalsDiff(
-    SortedMap[UniqueArrival, ArrivalLike]() ++ toUpdate.map(a => (a.unique, a)), toRemove
+  def apply(toUpdate: Iterable[Arrival], toRemove: Iterable[UniqueArrival]): ArrivalsDiff = ArrivalsDiff(
+    SortedMap[UniqueArrival, Arrival]() ++ toUpdate.map(a => (a.unique, a)), toRemove
   )
 }
 
-case class ArrivalsDiff(toUpdate: SortedMap[UniqueArrival, ArrivalLike], toRemove: Iterable[UniqueArrival]) extends FlightUpdates {
-  def diff(arrivals: Map[UniqueArrival, ArrivalLike]): ArrivalsDiff = {
+case class ArrivalsDiff(toUpdate: SortedMap[UniqueArrival, Arrival], toRemove: Iterable[UniqueArrival]) extends FlightUpdates {
+  def diff(arrivals: Map[UniqueArrival, Arrival]): ArrivalsDiff = {
     val updatedFlights = toUpdate
       .map {
         case (key, incomingArrival) =>
           arrivals.get(key) match {
             case Some(existingArrival) =>
-              val updatedArrival = existingArrival.update(incomingArrival)
+              val updatedArrival = ArrivalMerger.merge(existingArrival, incomingArrival)
               if (updatedArrival.isEqualTo(existingArrival))
                 None
               else

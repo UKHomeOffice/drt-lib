@@ -1,8 +1,8 @@
 package uk.gov.homeoffice.drt.services
 
 import org.specs2.mutable.Specification
-import uk.gov.homeoffice.drt.arrivals.{Arrival, ArrivalStatus, CarrierCode, FlightCodeSuffix, ForecastArrival, Operator, Passengers, Predictions, VoyageNumber}
-import uk.gov.homeoffice.drt.ports.{FeedSource, PortCode}
+import uk.gov.homeoffice.drt.arrivals.{MergedArrival, Arrival, ArrivalStatus, CarrierCode, FlightCodeSuffix, ForecastArrival, Operator, Passengers, Predictions, VoyageNumber}
+import uk.gov.homeoffice.drt.ports.{FeedSource, ForecastFeedSource, LiveFeedSource, PortCode}
 import uk.gov.homeoffice.drt.ports.Terminals.{T3, Terminal}
 import uk.gov.homeoffice.drt.time.SDate
 
@@ -21,7 +21,7 @@ class MergeArrivalSpec extends Specification {
         transPax = Option(10),
         maxPax = Option(250)
       )
-      val arrival = Arrival(
+      val liveArrival = MergedArrival(
         Operator = None,
         CarrierCode = CarrierCode("BA"),
         VoyageNumber = VoyageNumber(58),
@@ -34,10 +34,9 @@ class MergeArrivalSpec extends Specification {
         ActualChox = None,
         Gate = None,
         Stand = None,
-        MaxPax = Option(250),
+        MaxPax = Option(225),
         RunwayID = None,
         BaggageReclaimId = None,
-        AirportID = PortCode("CPT"),
         Terminal = T3,
         Origin = PortCode("CPT"),
         Scheduled = SDate("2024-05-01T10:30").millisSinceEpoch,
@@ -46,9 +45,11 @@ class MergeArrivalSpec extends Specification {
         CarrierScheduled = None,
         ScheduledDeparture = None,
         RedListPax = None,
-        PassengerSources = Map(ForecastFeedSource -> Passengers(Option(200), Option(10)))
+        PassengerSources = Map(LiveFeedSource -> Passengers(Option(195), Option(15)))
       )
-
+      ArrivalMerger.merge(Seq(forecastArrival, liveArrival)) === liveArrival.copy(
+        PassengerSources = forecastArrival.PassengerSources ++ liveArrival.PassengerSources
+      )
     }
   }
 }

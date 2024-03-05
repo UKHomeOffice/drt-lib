@@ -1,14 +1,14 @@
 package uk.gov.homeoffice.drt.prediction.arrival
 
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.homeoffice.drt.arrivals.{Arrival, ArrivalGenerator}
+import uk.gov.homeoffice.drt.arrivals.{MergedArrival, ArrivalGenerator}
 import uk.gov.homeoffice.drt.prediction.arrival.features.FeatureColumnsV1.{DayOfWeek, OneToMany, PartOfDay}
 import uk.gov.homeoffice.drt.prediction.arrival.features.OneToManyFeature
 import uk.gov.homeoffice.drt.time.{SDate, SDateLike}
 
 class ArrivalFeatureValuesExtractorSpec extends AnyWordSpec {
   implicit val sdateProvider: Long => SDateLike = (ts: Long) => SDate(ts)
-  val features: Seq[OneToManyFeature[Arrival]] = Seq(DayOfWeek(), PartOfDay())
+  val features: Seq[OneToManyFeature[MergedArrival]] = Seq(DayOfWeek(), PartOfDay())
 
   val scheduled: SDateLike = SDate("2023-01-01T00:00")
   val scheduledDt: Long = scheduled.millisSinceEpoch

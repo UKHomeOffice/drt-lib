@@ -3,6 +3,7 @@ package uk.gov.homeoffice.drt.arrivals
 import uk.gov.homeoffice.drt.DataUpdates.FlightUpdates
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 import uk.gov.homeoffice.drt.ports._
+import uk.gov.homeoffice.drt.services.ArrivalMerger
 
 import scala.util.Try
 
@@ -19,17 +20,43 @@ object ArrivalsRemoval {
   }
 }
 
-class ArrivalsRestorer[A <: WithUnique[UniqueArrival] with Updatable[A]] {
-  var arrivals: Map[UniqueArrival, A] = Map()
+class ArrivalsRestorer {
+  var arrivals: Map[UniqueArrival, Arrival] = Map()
 
   def removeHashLegacies(removals: Iterable[Int]): Unit = removals.foreach(keyToRemove => arrivals = arrivals.filterKeys(_.legacyUniqueId != keyToRemove).toMap)
 
-  def applyUpdates(updates: Iterable[A]): Unit = updates.foreach { update =>
-    val updated = arrivals.get(update.unique).map(_.update(update)).getOrElse(update)
+  def applyUpdates(updates: Iterable[Arrival]): Unit = updates.foreach { update =>
+    val updated = arrivals.get(update.unique).map(existing => ArrivalMerger.merge(existing, update)).getOrElse(update)
     arrivals = arrivals + ((update.unique, updated))
   }
 
-  def applyUpdates[B](updates: Map[UniqueArrival, B], update: (Option[A], B) => Option[A]): Unit =
+  def applyUpdates(updates: Map[UniqueArrival, Arrival], update: (Option[Arrival], Arrival) => Option[Arrival]): Unit =
+    updates.foreach {
+      case (key, incoming) =>
+        update(arrivals.get(key), incoming).foreach { updated =>
+          arrivals = arrivals + ((key, updated))
+        }
+    }
+
+  def remove(removals: Iterable[UniqueArrivalLike]): Unit =
+    arrivals = ArrivalsRemoval.removeArrivals(removals, arrivals)
+
+  def finish(): Unit = arrivals = Map()
+}
+
+class ArrivalsWithSplitsRestorer {
+  var arrivals: Map[UniqueArrival, ApiFlightWithSplits] = Map()
+
+  def removeHashLegacies(removals: Iterable[Int]): Unit = removals.foreach(keyToRemove => arrivals = arrivals.filterKeys(_.legacyUniqueId != keyToRemove).toMap)
+
+  def applyUpdates(updates: Iterable[ApiFlightWithSplits]): Unit = updates.foreach { update =>
+    val updated = arrivals.get(update.unique).map { existing =>
+      update.copy(apiFlight = ArrivalMerger.merge(existing.apiFlight, update.apiFlight))
+    }.getOrElse(update)
+    arrivals = arrivals + ((update.unique, updated))
+  }
+
+  def applyUpdates(updates: Map[UniqueArrival, ApiFlightWithSplits], update: (Option[ApiFlightWithSplits], ApiFlightWithSplits) => Option[ApiFlightWithSplits]): Unit =
     updates.foreach {
       case (key, incoming) =>
         update(arrivals.get(key), incoming).foreach { updated =>

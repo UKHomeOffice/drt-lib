@@ -14,7 +14,7 @@ import uk.gov.homeoffice.drt.time.SDate
 
 class FlightMessageConversionSpec extends Specification {
 
-  val arrival: Arrival = Arrival(
+  val arrival: MergedArrival = MergedArrival(
     Operator = Option(Operator("British Airways")),
     CarrierCode = CarrierCode("BA"),
     VoyageNumber = VoyageNumber(1),
@@ -30,7 +30,6 @@ class FlightMessageConversionSpec extends Specification {
     MaxPax = Option(101),
     RunwayID = Option("1"),
     BaggageReclaimId = Option("abc"),
-    AirportID = PortCode("LHR"),
     Terminal = T1,
     Origin = PortCode("CDG"),
     Scheduled = 5L,
@@ -50,11 +49,19 @@ class FlightMessageConversionSpec extends Specification {
     )
   )
 
+  "FlightMessageConversion" should {
+    "serialise and deserialise a Arrival without loss" in {
+      val msg = FlightMessageConversion.apiFlightToFlightMessage(arrival)
+      val deserialised = FlightMessageConversion.apiFlightFromMessage(msg)
+
+      deserialised should ===(arrival)
+    }
+  }
 
   "Given an Arrival with no suffix" >> {
     "When I convert it to a protobuf message and then back to an Arrival" >> {
       val arrivalMessage = FlightMessageConversion.apiFlightToFlightMessage(arrival)
-      val restoredArrival = FlightMessageConversion.flightMessageToApiFlight(arrivalMessage)
+      val restoredArrival = FlightMessageConversion.apiFlightFromMessage(arrivalMessage)
       "Then the converted Arrival should match the original" >> {
         restoredArrival === arrival
       }
@@ -65,7 +72,7 @@ class FlightMessageConversionSpec extends Specification {
     val arrivalWithSuffix = arrival.copy(FlightCodeSuffix = Option(FlightCodeSuffix("P")))
     "When I convert it to a protobuf message and then back to an Arrival" >> {
       val arrivalMessage: FlightMessage = FlightMessageConversion.apiFlightToFlightMessage(arrivalWithSuffix)
-      val restoredArrival = FlightMessageConversion.flightMessageToApiFlight(arrivalMessage)
+      val restoredArrival = FlightMessageConversion.apiFlightFromMessage(arrivalMessage)
       "Then the converted Arrival should match the original" >> {
         restoredArrival === arrivalWithSuffix
       }
@@ -76,7 +83,7 @@ class FlightMessageConversionSpec extends Specification {
     val arrivalWith0Pax = arrival.copy(MaxPax = Option(0))
     "When I convert it to a protobuf message and then back to an Arrival" >> {
       val arrivalMessage = FlightMessageConversion.apiFlightToFlightMessage(arrivalWith0Pax)
-      val restoredArrival = FlightMessageConversion.flightMessageToApiFlight(arrivalMessage)
+      val restoredArrival = FlightMessageConversion.apiFlightFromMessage(arrivalMessage)
       "Then the converted Arrival should match the original" >> {
         restoredArrival === arrivalWith0Pax
       }

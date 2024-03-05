@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.drt.prediction.arrival.features
 
-import uk.gov.homeoffice.drt.arrivals.Arrival
+import uk.gov.homeoffice.drt.arrivals.MergedArrival
 import uk.gov.homeoffice.drt.ports.{ApiFeedSource, LiveFeedSource}
 import uk.gov.homeoffice.drt.time.{LocalDate, SDateLike}
 
@@ -14,10 +14,10 @@ object FeatureColumnsV1 {
     }
   }
 
-  case object BestPax extends SingleFeature[Arrival] {
+  case object BestPax extends SingleFeature[MergedArrival] {
     override val label: String = "bestPax"
     override val prefix: String = "bestpax"
-    override val value: Arrival => Option[Double] = _.bestPaxEstimate(List(ApiFeedSource, LiveFeedSource)).passengers.getPcpPax.map(_.toDouble)
+    override val value: MergedArrival => Option[Double] = _.bestPaxEstimate(List(ApiFeedSource, LiveFeedSource)).passengers.getPcpPax.map(_.toDouble)
   }
 
   object OneToMany {
@@ -53,11 +53,11 @@ object FeatureColumnsV1 {
     }
   }
 
-  case class MonthOfYear()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[Arrival] {
+  case class MonthOfYear()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[MergedArrival] {
     override val label: String = MonthOfYear.label
     override val prefix: String = "moy"
-    override val value: Arrival => Option[String] =
-      (a: Arrival) => Option(sDateProvider(a.Scheduled).getMonth.toString)
+    override val value: MergedArrival => Option[String] =
+      (a: MergedArrival) => Option(sDateProvider(a.Scheduled).getMonth.toString)
   }
 
   object MonthOfYear {
@@ -68,29 +68,29 @@ object FeatureColumnsV1 {
     val label: String = "dayOfMonth"
   }
 
-  case class DayOfMonth()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[Arrival] {
+  case class DayOfMonth()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[MergedArrival] {
     override val label: String = DayOfMonth.label
     override val prefix: String = "dom"
-    override val value: Arrival => Option[String] =
-      (a: Arrival) => Option(sDateProvider(a.Scheduled).getDate.toString)
+    override val value: MergedArrival => Option[String] =
+      (a: MergedArrival) => Option(sDateProvider(a.Scheduled).getDate.toString)
   }
 
   object Year {
     val label: String = "year"
   }
 
-  case class Year()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[Arrival] {
+  case class Year()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[MergedArrival] {
     override val label: String = Year.label
     override val prefix: String = "year"
-    override val value: Arrival => Option[String] =
-      (a: Arrival) => Option(sDateProvider(a.Scheduled).getFullYear.toString)
+    override val value: MergedArrival => Option[String] =
+      (a: MergedArrival) => Option(sDateProvider(a.Scheduled).getFullYear.toString)
   }
 
-  case class DayOfWeek()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[Arrival] {
+  case class DayOfWeek()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[MergedArrival] {
     override val label: String = DayOfWeek.label
     override val prefix: String = "dow"
-    override val value: Arrival => Option[String] =
-      (a: Arrival) => Option(sDateProvider(a.Scheduled).getDayOfWeek.toString)
+    override val value: MergedArrival => Option[String] =
+      (a: MergedArrival) => Option(sDateProvider(a.Scheduled).getDayOfWeek.toString)
   }
 
   object DayOfWeek {
@@ -98,11 +98,11 @@ object FeatureColumnsV1 {
   }
 
   case class PostPandemicRecovery(recoveryDate: SDateLike)
-                                 (implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[Arrival] {
+                                 (implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[MergedArrival] {
     override val label: String = PostPandemicRecovery.label
     override val prefix: String = "pdr"
-    override val value: Arrival => Option[String] =
-      (a: Arrival) => {
+    override val value: MergedArrival => Option[String] =
+      (a: MergedArrival) => {
         val isPre = if (sDateProvider(a.Scheduled) < recoveryDate) "y" else "n"
         Option(isPre)
       }
@@ -112,11 +112,11 @@ object FeatureColumnsV1 {
     val label: String = "postPanRecovery"
   }
 
-  case class ChristmasDay()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[Arrival] {
+  case class ChristmasDay()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[MergedArrival] {
     override val label: String = ChristmasDay.label
     override val prefix: String = "xmas"
-    override val value: Arrival => Option[String] =
-      (a: Arrival) => {
+    override val value: MergedArrival => Option[String] =
+      (a: MergedArrival) => {
         val date = sDateProvider(a.Scheduled).toLocalDate
         val xmas = date.month == 12 && date.day == 25
         Option(if (xmas) "1" else "0")
@@ -131,7 +131,7 @@ object FeatureColumnsV1 {
                    (implicit
                     val sDateTs: Long => SDateLike,
                     val sDateLocalDate: LocalDate => SDateLike,
-                   ) extends OneToManyFeature[Arrival] with HolidayLike {
+                   ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = Term1a.label
     override val prefix: String = "term1a"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -149,7 +149,7 @@ object FeatureColumnsV1 {
                             (implicit
                              val sDateTs: Long => SDateLike,
                              val sDateLocalDate: LocalDate => SDateLike,
-                            ) extends OneToManyFeature[Arrival] with HolidayLike {
+                            ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = OctoberHalfTerm.label
     override val prefix: String = "octht"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -167,7 +167,7 @@ object FeatureColumnsV1 {
                    (implicit
                     val sDateTs: Long => SDateLike,
                     val sDateLocalDate: LocalDate => SDateLike,
-                   ) extends OneToManyFeature[Arrival] with HolidayLike {
+                   ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = Term1b.label
     override val prefix: String = "term1b"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -185,7 +185,7 @@ object FeatureColumnsV1 {
                              (implicit
                               val sDateTs: Long => SDateLike,
                               val sDateLocalDate: LocalDate => SDateLike,
-                             ) extends OneToManyFeature[Arrival] with HolidayLike {
+                             ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = ChristmasHoliday.label
     override val prefix: String = "xmas"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -203,7 +203,7 @@ object FeatureColumnsV1 {
                    (implicit
                     val sDateTs: Long => SDateLike,
                     val sDateLocalDate: LocalDate => SDateLike,
-                   ) extends OneToManyFeature[Arrival] with HolidayLike {
+                   ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = Term2a.label
     override val prefix: String = "term2a"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -222,7 +222,7 @@ object FeatureColumnsV1 {
                            (implicit
                             val sDateTs: Long => SDateLike,
                             val sDateLocalDate: LocalDate => SDateLike,
-                           ) extends OneToManyFeature[Arrival] with HolidayLike {
+                           ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = SpringHalfTerm.label
     override val prefix: String = "sprht"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -241,7 +241,7 @@ object FeatureColumnsV1 {
                    (implicit
                     val sDateTs: Long => SDateLike,
                     val sDateLocalDate: LocalDate => SDateLike,
-                   ) extends OneToManyFeature[Arrival] with HolidayLike {
+                   ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = Term2b.label
     override val prefix: String = "term2b"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -260,7 +260,7 @@ object FeatureColumnsV1 {
                           (implicit
                            val sDateTs: Long => SDateLike,
                            val sDateLocalDate: LocalDate => SDateLike,
-                          ) extends OneToManyFeature[Arrival] with HolidayLike {
+                          ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = EasterHoliday.label
     override val prefix: String = "easter"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -279,7 +279,7 @@ object FeatureColumnsV1 {
                    (implicit
                     val sDateTs: Long => SDateLike,
                     val sDateLocalDate: LocalDate => SDateLike,
-                   ) extends OneToManyFeature[Arrival] with HolidayLike {
+                   ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = Term3a.label
     override val prefix: String = "term3a"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -298,7 +298,7 @@ object FeatureColumnsV1 {
                            (implicit
                             val sDateTs: Long => SDateLike,
                             val sDateLocalDate: LocalDate => SDateLike,
-                           ) extends OneToManyFeature[Arrival] with HolidayLike {
+                           ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = SummerHalfTerm.label
     override val prefix: String = "sumht"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -317,7 +317,7 @@ object FeatureColumnsV1 {
                    (implicit
                     val sDateTs: Long => SDateLike,
                     val sDateLocalDate: LocalDate => SDateLike,
-                   ) extends OneToManyFeature[Arrival] with HolidayLike {
+                   ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = Term3b.label
     override val prefix: String = "term3b"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -340,7 +340,7 @@ object FeatureColumnsV1 {
                              (implicit
                               val sDateTs: Long => SDateLike,
                               val sDateLocalDate: LocalDate => SDateLike,
-                             ) extends OneToManyFeature[Arrival] with HolidayLike {
+                             ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = PreSummerHoliday.label
     override val prefix: String = "psumhol"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -362,7 +362,7 @@ object FeatureColumnsV1 {
                           (implicit
                            val sDateTs: Long => SDateLike,
                            val sDateLocalDate: LocalDate => SDateLike,
-                          ) extends OneToManyFeature[Arrival] with HolidayLike {
+                          ) extends OneToManyFeature[MergedArrival] with HolidayLike {
     override val label: String = SummerHoliday.label
     override val prefix: String = "sumhol"
     override val hols: Seq[(LocalDate, LocalDate)] = Seq(
@@ -382,7 +382,7 @@ object FeatureColumnsV1 {
 
     val sDateTs: Long => SDateLike
     implicit val sDateLocalDate: LocalDate => SDateLike
-    val value: Arrival => Option[String] = (a: Arrival) => dayOfHoliday(sDateTs(a.Scheduled).toLocalDate)
+    val value: MergedArrival => Option[String] = (a: MergedArrival) => dayOfHoliday(sDateTs(a.Scheduled).toLocalDate)
 
     def localDateRange(start: LocalDate, end: LocalDate)
                       (implicit sdate: LocalDate => SDateLike): Seq[LocalDate] = {
@@ -417,11 +417,11 @@ object FeatureColumnsV1 {
     }
   }
 
-  case class WeekendDay()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[Arrival] {
+  case class WeekendDay()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[MergedArrival] {
     override val label: String = WeekendDay.label
     override val prefix: String = "wkd"
-    override val value: Arrival => Option[String] =
-      (a: Arrival) => {
+    override val value: MergedArrival => Option[String] =
+      (a: MergedArrival) => {
         val isWeekend = List(6, 7).contains(sDateProvider(a.Scheduled).getDayOfWeek)
         Option(if (isWeekend) "1" else "0")
       }
@@ -431,32 +431,32 @@ object FeatureColumnsV1 {
     val label: String = "weekendDay"
   }
 
-  case class PartOfDay()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[Arrival] {
+  case class PartOfDay()(implicit sDateProvider: Long => SDateLike) extends OneToManyFeature[MergedArrival] {
     override val label: String = PartOfDay.label
     override val prefix: String = "pod"
-    override val value: Arrival => Option[String] =
-      (a: Arrival) => Option((sDateProvider(a.Scheduled).getHours / 12).toString)
+    override val value: MergedArrival => Option[String] =
+      (a: MergedArrival) => Option((sDateProvider(a.Scheduled).getHours / 12).toString)
   }
 
   object PartOfDay {
     val label: String = "partOfDay"
   }
 
-  case object Carrier extends OneToManyFeature[Arrival] {
+  case object Carrier extends OneToManyFeature[MergedArrival] {
     override val label: String = "carrier"
     override val prefix: String = "car"
-    override val value: Arrival => Option[String] = (a: Arrival) => Option(a.flightCode.carrierCode.code)
+    override val value: MergedArrival => Option[String] = (a: MergedArrival) => Option(a.flightCode.carrierCode.code)
   }
 
-  case object Origin extends OneToManyFeature[Arrival] {
+  case object Origin extends OneToManyFeature[MergedArrival] {
     override val label: String = "origin"
     override val prefix: String = "ori"
-    override val value: Arrival => Option[String] = (a: Arrival) => Option(a.Origin.iata)
+    override val value: MergedArrival => Option[String] = (a: MergedArrival) => Option(a.Origin.iata)
   }
 
-  case object FlightNumber extends OneToManyFeature[Arrival] {
+  case object FlightNumber extends OneToManyFeature[MergedArrival] {
     override val label: String = "flightNumber"
     override val prefix: String = "fln"
-    override val value: Arrival => Option[String] = (a: Arrival) => Option(a.flightCode.voyageNumberLike.numeric.toString)
+    override val value: MergedArrival => Option[String] = (a: MergedArrival) => Option(a.flightCode.voyageNumberLike.numeric.toString)
   }
 }

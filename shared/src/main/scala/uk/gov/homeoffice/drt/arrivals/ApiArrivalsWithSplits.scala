@@ -13,12 +13,11 @@ trait WithLastUpdated {
 object ApiFlightWithSplits {
   implicit val rw: ReadWriter[ApiFlightWithSplits] = macroRW
 
-  def fromArrival(arrival: ArrivalLike): ApiFlightWithSplits = ApiFlightWithSplits(arrival, Set())
+  def fromArrival(arrival: Arrival): ApiFlightWithSplits = ApiFlightWithSplits(arrival, Set())
 }
 
-case class ApiFlightWithSplits(apiFlight: ArrivalLike, splits: Set[Splits], lastUpdated: Option[Long] = None)
+case class ApiFlightWithSplits(apiFlight: Arrival, splits: Set[Splits], lastUpdated: Option[Long] = None)
   extends WithUnique[UniqueArrival]
-    with Updatable[ApiFlightWithSplits]
     with WithLastUpdated {
 
   def paxFromApi: Option[PaxSource] = splits.collectFirst {
@@ -75,7 +74,4 @@ case class ApiFlightWithSplits(apiFlight: ArrivalLike, splits: Set[Splits], last
   }
 
   override val unique: UniqueArrival = apiFlight.unique
-
-  override def update(incoming: ApiFlightWithSplits): ApiFlightWithSplits =
-    incoming.copy(apiFlight = apiFlight.update(incoming.apiFlight))
 }

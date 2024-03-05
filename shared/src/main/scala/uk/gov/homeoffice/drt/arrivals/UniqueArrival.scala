@@ -61,7 +61,7 @@ case class UniqueArrival(number: Int, terminal: Terminal, scheduled: Long, origi
 object UniqueArrival {
   implicit val rw: ReadWriter[UniqueArrival] = macroRW
 
-  def apply(arrival: Arrival): UniqueArrival = UniqueArrival(arrival.VoyageNumber.numeric, arrival.Terminal, arrival.Scheduled, arrival.Origin)
+  def apply(arrival: MergedArrival): UniqueArrival = UniqueArrival(arrival.VoyageNumber.numeric, arrival.Terminal, arrival.Scheduled, arrival.Origin)
 
   def apply(number: Int,
             terminalName: String,

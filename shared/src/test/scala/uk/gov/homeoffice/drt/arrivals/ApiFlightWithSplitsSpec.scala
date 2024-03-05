@@ -176,7 +176,7 @@ class ApiFlightWithSplitsSpec extends Specification {
                                         passengerSources: Map[FeedSource, Passengers],
                                         scheduled: Long,
                                        ): ApiFlightWithSplits = {
-    val flight: Arrival = ArrivalGenerator.arrival(
+    val flight: MergedArrival = ArrivalGenerator.arrival(
       feedSources = sources,
       passengerSources = passengerSources + (ApiFeedSource -> Passengers(Option(splitsDirect), Option(splitsTransfer))),
       sch = scheduled)
@@ -185,7 +185,7 @@ class ApiFlightWithSplitsSpec extends Specification {
   }
 
   private def flightWithPaxAndHistoricSplits(splitsDirect: Int, splitsTransfer: Int, sources: Set[FeedSource], passengerSources: Map[FeedSource, Passengers]): ApiFlightWithSplits = {
-    val flight: Arrival = ArrivalGenerator
+    val flight: MergedArrival = ArrivalGenerator
       .arrival(feedSources = sources,passengerSources = passengerSources)
 
     ApiFlightWithSplits(flight, Set(splitsForPax(directPax = splitsDirect, transferPax = splitsTransfer, Historical)))

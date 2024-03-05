@@ -11,7 +11,7 @@ object ForecastArrival {
   implicit val portCodeRw: ReadWriter[PortCode] = macroRW
   implicit val rw: ReadWriter[ForecastArrival] = macroRW
 
-  def apply(arrival: ArrivalLike): ForecastArrival = arrival match {
+  def apply(arrival: Arrival): ForecastArrival = arrival match {
     case a: ForecastArrival => a
     case other => throw new IllegalArgumentException(s"Cannot convert ${other.getClass} to a ForecastArrival")
   }
@@ -26,34 +26,34 @@ case class ForecastArrival(carrierCode: CarrierCode,
                            totalPax: Option[Int],
                            transPax: Option[Int],
                            maxPax: Option[Int],
-                          ) extends ArrivalLike {
-  def Operator: Option[Operator] = None
-  def CarrierCode: CarrierCode = carrierCode
-  def VoyageNumber: VoyageNumber = voyageNumber
-  def FlightCodeSuffix: Option[FlightCodeSuffix] = maybeFlightCodeSuffix
-  def Status: ArrivalStatus = ArrivalStatus("Scheduled")
-  def Estimated: Option[Long] = None
-  def Actual: Option[Long] = None
-  def Predictions: Predictions = Preds.empty
-  def EstimatedChox: Option[Long] = None
-  def ActualChox: Option[Long] = None
-  def Gate: Option[String] = None
-  def Stand: Option[String] = None
-  def MaxPax: Option[Int] = maxPax
-  def RunwayID: Option[String] = None
-  def BaggageReclaimId: Option[String] = None
-  def AirportID: PortCode = origin
-  def Terminal: Terminal = terminal
-  def Origin: PortCode = origin
-  def Scheduled: Long = scheduled
-  def PcpTime: Option[Long] = None
-  def FeedSources: Set[FeedSource] = Set(ForecastFeedSource)
-  def CarrierScheduled: Option[Long] = None
-  def ScheduledDeparture: Option[Long] = None
-  def RedListPax: Option[Int] = None
-  def PassengerSources: Map[FeedSource, Passengers] = Map(ForecastFeedSource -> Passengers(totalPax, transPax))
+                          ) extends Arrival {
+  override def Operator: Option[Operator] = None
+  override def CarrierCode: CarrierCode = carrierCode
+  override def VoyageNumber: VoyageNumber = voyageNumber
+  override def FlightCodeSuffix: Option[FlightCodeSuffix] = maybeFlightCodeSuffix
+  override def Status: ArrivalStatus = ArrivalStatus("Scheduled")
+  override def Estimated: Option[Long] = None
+  override def Actual: Option[Long] = None
+  override def Predictions: Predictions = Preds.empty
+  override def EstimatedChox: Option[Long] = None
+  override def ActualChox: Option[Long] = None
+  override def Gate: Option[String] = None
+  override def Stand: Option[String] = None
+  override def MaxPax: Option[Int] = maxPax
+  override def RunwayID: Option[String] = None
+  override def BaggageReclaimId: Option[String] = None
+  override def Terminal: Terminal = terminal
+  override def Origin: PortCode = origin
+  override def Scheduled: Long = scheduled
+  override def PcpTime: Option[Long] = None
+  override def FeedSources: Set[FeedSource] = Set(ForecastFeedSource)
+  override def CarrierScheduled: Option[Long] = None
+  override def ScheduledDeparture: Option[Long] = None
+  override def RedListPax: Option[Int] = None
+  override def PassengerSources: Map[FeedSource, Passengers] = Map(ForecastFeedSource -> Passengers(totalPax, transPax))
+  override def withoutPcpTime: Arrival = this
 
-  def toArrival: Arrival = Arrival(
+  def toArrival: MergedArrival = MergedArrival(
     Operator = Operator,
     CarrierCode = CarrierCode,
     VoyageNumber = VoyageNumber,
@@ -69,7 +69,6 @@ case class ForecastArrival(carrierCode: CarrierCode,
     MaxPax = MaxPax,
     RunwayID = RunwayID,
     BaggageReclaimId = BaggageReclaimId,
-    AirportID = AirportID,
     Terminal = Terminal,
     Origin = Origin,
     Scheduled = Scheduled,
@@ -80,17 +79,4 @@ case class ForecastArrival(carrierCode: CarrierCode,
     RedListPax = RedListPax,
     PassengerSources = PassengerSources,
   )
-
-  override def withoutPcpTime: ArrivalLike = this
-
-  override def update(incoming: ArrivalLike): ArrivalLike = incoming match {
-    case a: ForecastArrival => a.toArrival
-    case a: Arrival => a.copy(
-      BaggageReclaimId = if (incoming.BaggageReclaimId.exists(_.nonEmpty)) incoming.BaggageReclaimId else this.BaggageReclaimId,
-      Stand = if (incoming.Stand.exists(_.nonEmpty)) incoming.Stand else this.Stand,
-      Gate = if (incoming.Gate.exists(_.nonEmpty)) incoming.Gate else this.Gate,
-      RedListPax = if (incoming.RedListPax.nonEmpty) incoming.RedListPax else this.RedListPax,
-      MaxPax = if (incoming.MaxPax.nonEmpty) incoming.MaxPax else this.MaxPax,
-    )
-  }
 }

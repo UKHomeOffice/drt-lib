@@ -33,7 +33,7 @@ object ForecastFlightMessageConversion {
 
   def arrivalsDiffFromMessage(flightsDiffMessage: ForecastFlightsDiffMessage): ArrivalsDiff =
     ArrivalsDiff(
-      toUpdate = flightsDiffMessage.updates.map(flightMessageToForecastFlight),
+      toUpdate = flightsDiffMessage.updates.map(forecastFlightFromMessage),
       toRemove = flightsDiffMessage.removals.map(uniqueArrivalFromMessage)
     )
 
@@ -48,7 +48,7 @@ object ForecastFlightMessageConversion {
 
   def arrivalsStateFromSnapshotMessage(snapshotMessage: ForecastFlightStateSnapshotMessage, feedSource: FeedSource): ArrivalsState = {
     val maybeFeedStatuses = snapshotMessage.statuses.map(s => FeedSourceStatuses(feedSource, feedStatusesFromFeedStatusesMessage(s)))
-    val arrivals = SortedMap.empty[UniqueArrival, ForecastArrival] ++ snapshotMessage.flightMessages.map(flightMessageToForecastFlight).map(f => f.unique -> f)
+    val arrivals = SortedMap.empty[UniqueArrival, ForecastArrival] ++ snapshotMessage.flightMessages.map(forecastFlightFromMessage).map(f => f.unique -> f)
     ArrivalsState(arrivals, feedSource, maybeFeedStatuses)
   }
 
@@ -66,7 +66,7 @@ object ForecastFlightMessageConversion {
     )
   }
 
-  def flightMessageToForecastFlight(flightMessage: ForecastFlightMessage): ForecastArrival = ForecastArrival(
+  def forecastFlightFromMessage(flightMessage: ForecastFlightMessage): ForecastArrival = ForecastArrival(
     carrierCode = flightMessage.carrierCode.map(CarrierCode(_)).getOrElse(throw new Exception("Missing carrier code")),
     voyageNumber = flightMessage.voyageNumber.map(VoyageNumber(_)).getOrElse(throw new Exception("Missing voyage number")),
     maybeFlightCodeSuffix = flightMessage.flightCodeSuffix.map(FlightCodeSuffix),

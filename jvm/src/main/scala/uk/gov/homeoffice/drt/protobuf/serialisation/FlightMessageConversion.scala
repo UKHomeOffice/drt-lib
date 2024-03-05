@@ -51,7 +51,7 @@ object FlightMessageConversion {
 
   def arrivalsDiffFromMessage(flightsDiffMessage: FlightsDiffMessage): ArrivalsDiff =
     ArrivalsDiff(
-      toUpdate = flightsDiffMessage.updates.map(flightMessageToApiFlight),
+      toUpdate = flightsDiffMessage.updates.map(apiFlightFromMessage),
       toRemove = flightsDiffMessage.removals.map(uniqueArrivalFromMessage)
     )
 
@@ -101,9 +101,9 @@ object FlightMessageConversion {
     case s: FeedStatusFailure => FeedStatusMessage(Option(s.date), None, Option(s.message))
   }
 
-  def restoreArrivalsFromSnapshot(restorer: ArrivalsRestorer[Arrival],
+  def restoreArrivalsFromSnapshot(restorer: ArrivalsRestorer,
                                   snMessage: FlightStateSnapshotMessage): Unit = {
-    restorer.applyUpdates(snMessage.flightMessages.map(flightMessageToApiFlight))
+    restorer.applyUpdates(snMessage.flightMessages.map(apiFlightFromMessage))
   }
 
   def feedStatusesFromSnapshotMessage(snMessage: FlightStateSnapshotMessage): Option[FeedStatuses] = {
@@ -132,7 +132,7 @@ object FlightMessageConversion {
   }
 
   def flightWithSplitsFromMessage(fm: FlightWithSplitsMessage): ApiFlightWithSplits = ApiFlightWithSplits(
-    FlightMessageConversion.flightMessageToApiFlight(fm.flight.get),
+    FlightMessageConversion.apiFlightFromMessage(fm.flight.get),
     fm.splits.map(sm => splitMessageToApiSplits(sm)).toSet,
     lastUpdated = fm.lastUpdated
   )
@@ -215,7 +215,6 @@ object FlightMessageConversion {
       maxPax = apiFlight.MaxPax,
       runwayID = apiFlight.RunwayID,
       baggageReclaimId = apiFlight.BaggageReclaimId,
-      airportID = Option(apiFlight.AirportID.iata),
       terminal = Option(apiFlight.Terminal.toString),
       iCAO = Option(apiFlight.flightCodeString),
       iATA = Option(apiFlight.flightCodeString),
@@ -268,7 +267,7 @@ object FlightMessageConversion {
         Predictions(predictions.updatedAt.getOrElse(0L), modelPredictions.toMap)
     }
 
-  def flightMessageToApiFlight(flightMessage: FlightMessage): Arrival = Arrival(
+  def apiFlightFromMessage(flightMessage: FlightMessage): MergedArrival = MergedArrival(
     Operator = flightMessage.operator.map(Operator),
     Status = ArrivalStatus(flightMessage.status.getOrElse("")),
     Estimated = flightMessage.estimated,
@@ -281,7 +280,6 @@ object FlightMessageConversion {
     MaxPax = flightMessage.maxPax,
     RunwayID = flightMessage.runwayID,
     BaggageReclaimId = flightMessage.baggageReclaimId,
-    AirportID = PortCode(flightMessage.airportID.getOrElse("")),
     Terminal = Terminal(flightMessage.terminal.getOrElse("")),
     rawICAO = flightMessage.iCAO.getOrElse(""),
     rawIATA = flightMessage.iATA.getOrElse(""),

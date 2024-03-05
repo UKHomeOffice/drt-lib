@@ -13,7 +13,7 @@ class FlightMessagePassengersConversionSpec extends Specification {
           actPaxOLD = Option(95),
           tranPaxOLD = Option(10),
         )
-        val arrival = FlightMessageConversion.flightMessageToApiFlight(v1Message)
+        val arrival = FlightMessageConversion.apiFlightFromMessage(v1Message)
         arrival.PassengerSources === Map(
           UnknownFeedSource -> Passengers(Option(95), Option(10)),
         )
@@ -26,7 +26,7 @@ class FlightMessagePassengersConversionSpec extends Specification {
           tranPaxOLD = Option(10),
           actualChox = Option(1234L)
         )
-        val arrival = FlightMessageConversion.flightMessageToApiFlight(v1Message)
+        val arrival = FlightMessageConversion.apiFlightFromMessage(v1Message)
         arrival.PassengerSources === Map(
           LiveFeedSource -> Passengers(Option(95), Option(10)),
         )
@@ -40,7 +40,7 @@ class FlightMessagePassengersConversionSpec extends Specification {
           apiPaxOLD = Option(101),
           actualChox = Option(1234L)
         )
-        val arrival = FlightMessageConversion.flightMessageToApiFlight(v1Message)
+        val arrival = FlightMessageConversion.apiFlightFromMessage(v1Message)
         arrival.PassengerSources === Map(
           ApiFeedSource -> Passengers(Option(101), Option(10)),
           LiveFeedSource -> Passengers(Option(95), Option(10)),
@@ -57,7 +57,7 @@ class FlightMessagePassengersConversionSpec extends Specification {
           tranPaxOLD = Option(10),
           feedSources = Seq(ForecastFeedSource.toString, AclFeedSource.toString),
         )
-        val arrival = FlightMessageConversion.flightMessageToApiFlight(v1Message)
+        val arrival = FlightMessageConversion.apiFlightFromMessage(v1Message)
         arrival.PassengerSources === Map(
           ForecastFeedSource -> Passengers(Option(95), Option(10)),
           AclFeedSource -> Passengers(None, None),
@@ -72,7 +72,7 @@ class FlightMessagePassengersConversionSpec extends Specification {
           feedSources = Seq(LiveFeedSource.toString, ForecastFeedSource.toString),
           apiPaxOLD = Option(101),
         )
-        val arrival = FlightMessageConversion.flightMessageToApiFlight(v1Message)
+        val arrival = FlightMessageConversion.apiFlightFromMessage(v1Message)
         arrival.PassengerSources === Map(
           LiveFeedSource -> Passengers(Option(95), Option(10)),
           ForecastFeedSource -> Passengers(None, None),
@@ -93,7 +93,7 @@ class FlightMessagePassengersConversionSpec extends Specification {
             TotalPaxSourceMessage(Option(AclFeedSource.toString), None, Option(120)),
           ),
         )
-        val arrival = FlightMessageConversion.flightMessageToApiFlight(v3Message)
+        val arrival = FlightMessageConversion.apiFlightFromMessage(v3Message)
         arrival.PassengerSources === Map(
           ForecastFeedSource -> Passengers(Option(95), Option(10)),
           AclFeedSource -> Passengers(Option(120), None),
@@ -108,7 +108,7 @@ class FlightMessagePassengersConversionSpec extends Specification {
             TotalPaxSourceMessage(Option(AclFeedSource.name), None, Option(120)),
           ),
         )
-        val arrival = FlightMessageConversion.flightMessageToApiFlight(v3Message)
+        val arrival = FlightMessageConversion.apiFlightFromMessage(v3Message)
         arrival.PassengerSources === Map(
           ForecastFeedSource -> Passengers(Option(95), Option(10)),
           AclFeedSource -> Passengers(Option(120), None),
@@ -126,7 +126,7 @@ class FlightMessagePassengersConversionSpec extends Specification {
           ),
           apiPaxOLD = Option(101),
         )
-        val arrival = FlightMessageConversion.flightMessageToApiFlight(v3Message)
+        val arrival = FlightMessageConversion.apiFlightFromMessage(v3Message)
         arrival.PassengerSources === Map(
           ForecastFeedSource -> Passengers(Option(95), Option(10)),
           AclFeedSource -> Passengers(Option(120), None),
@@ -147,7 +147,7 @@ class FlightMessagePassengersConversionSpec extends Specification {
           TotalPaxSourceMessage(Option(ApiFeedSource.toString), Option(PassengersMessage(Option(99), Option(11))), None),
         ),
       )
-      val arrival = FlightMessageConversion.flightMessageToApiFlight(v4Message)
+      val arrival = FlightMessageConversion.apiFlightFromMessage(v4Message)
       arrival.PassengerSources === Map(
         ForecastFeedSource -> Passengers(Option(100), Option(10)),
         AclFeedSource -> Passengers(Option(120), None),
