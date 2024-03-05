@@ -1,13 +1,14 @@
 package uk.gov.homeoffice.drt.services
 
-import uk.gov.homeoffice.drt.arrivals.{ApiFlightWithSplits, Arrival, ForecastArrival, MergedArrival}
+import uk.gov.homeoffice.drt.arrivals.{ApiFlightWithSplits, Arrival, ForecastArrival, LiveArrival, MergedArrival}
 
 object ArrivalMerger {
   def merge(arrivals: Seq[Arrival]): Arrival = arrivals.reduce((a1, a2) => merge(a1, a2))
 
   def merge(arrival1: Arrival, arrival2: Arrival): Arrival = {
     val arrival = arrival2 match {
-      case a: ForecastArrival => a.toArrival
+      case a: ForecastArrival => a.toMergedArrival
+      case a: LiveArrival => a.toMergedArrival
       case a: MergedArrival => a
     }
     arrival.copy(

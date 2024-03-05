@@ -69,4 +69,32 @@ case class LiveArrival(operator: Option[Operator],
   override def RedListPax: Option[Int] = None
   override def PassengerSources: Map[FeedSource, Passengers] = Map(feedSource -> Passengers(totalPax, transPax))
   override def withoutPcpTime: Arrival = this
+
+  def toMergedArrival: MergedArrival = MergedArrival(
+    Operator = Operator,
+    CarrierCode = CarrierCode,
+    VoyageNumber = VoyageNumber,
+    FlightCodeSuffix = FlightCodeSuffix,
+    Status = Status,
+    Estimated = Estimated,
+    Predictions = Predictions,
+    Actual = Actual,
+    EstimatedChox = EstimatedChox,
+    ActualChox = ActualChox,
+    Gate = Gate,
+    Stand = Stand,
+    MaxPax = MaxPax,
+    RunwayID = RunwayID,
+    BaggageReclaimId = BaggageReclaimId,
+    Terminal = Terminal,
+    Origin = Origin,
+    Scheduled = Scheduled,
+    PcpTime = PcpTime,
+    FeedSources = FeedSources,
+    CarrierScheduled = CarrierScheduled,
+    ScheduledDeparture = ScheduledDeparture,
+    RedListPax = RedListPax,
+    PassengerSources = PassengerSources,
+  )
+
 }

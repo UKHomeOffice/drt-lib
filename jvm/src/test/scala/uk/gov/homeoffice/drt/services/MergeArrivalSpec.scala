@@ -1,15 +1,15 @@
 package uk.gov.homeoffice.drt.services
 
 import org.specs2.mutable.Specification
-import uk.gov.homeoffice.drt.arrivals.{MergedArrival, Arrival, ArrivalStatus, CarrierCode, FlightCodeSuffix, ForecastArrival, Operator, Passengers, Predictions, VoyageNumber}
-import uk.gov.homeoffice.drt.ports.{FeedSource, ForecastFeedSource, LiveFeedSource, PortCode}
-import uk.gov.homeoffice.drt.ports.Terminals.{T3, Terminal}
+import uk.gov.homeoffice.drt.arrivals._
+import uk.gov.homeoffice.drt.ports.Terminals.T3
+import uk.gov.homeoffice.drt.ports.{ForecastFeedSource, LiveBaseFeedSource, LiveFeedSource, PortCode}
 import uk.gov.homeoffice.drt.time.SDate
 
 
 class MergeArrivalSpec extends Specification {
   "MergeArrival" should {
-    "Take a forecast arrival and produce an arrival" in {
+    "merge a forecast arrival with a live arrival" in {
       val forecastArrival = ForecastArrival(
         carrierCode = CarrierCode("BA"),
         voyageNumber = VoyageNumber(58),
@@ -21,7 +21,47 @@ class MergeArrivalSpec extends Specification {
         transPax = Option(10),
         maxPax = Option(250)
       )
-      val liveArrival = MergedArrival(
+      val liveArrival = LiveArrival(
+        operator = None,
+        carrierCode = CarrierCode("BA"),
+        voyageNumber = VoyageNumber(58),
+        maybeFlightCodeSuffix = Option(FlightCodeSuffix("A")),
+        status = ArrivalStatus("Scheduled"),
+        estimated = None,
+        actual = None,
+        estimatedChox = None,
+        actualChox = None,
+        gate = None,
+        stand = None,
+        maxPax = Option(225),
+        runwayID = None,
+        baggageReclaimId = None,
+        terminal = T3,
+        origin = PortCode("CPT"),
+        scheduled = SDate("2024-05-01T10:30").millisSinceEpoch,
+        feedSource = LiveBaseFeedSource,
+        totalPax = Option(195),
+        transPax = Option(15),
+        scheduledDeparture = Option(2L),
+      )
+      ArrivalMerger.merge(Seq(forecastArrival, liveArrival)) === liveArrival.toMergedArrival.copy(
+        FeedSources = forecastArrival.FeedSources ++ liveArrival.FeedSources,
+        PassengerSources = forecastArrival.PassengerSources ++ liveArrival.PassengerSources
+      )
+    }
+    "merge the relevant parts of a merged arrival with a forecast arrival" in {
+      val forecastArrival = ForecastArrival(
+        carrierCode = CarrierCode("BA"),
+        voyageNumber = VoyageNumber(58),
+        maybeFlightCodeSuffix = Option(FlightCodeSuffix("A")),
+        origin = PortCode("CPT"),
+        terminal = T3,
+        scheduled = SDate("2024-05-01T10:30").millisSinceEpoch,
+        totalPax = Option(200),
+        transPax = Option(10),
+        maxPax = Option(250)
+      )
+      val mergedArrival = MergedArrival(
         Operator = None,
         CarrierCode = CarrierCode("BA"),
         VoyageNumber = VoyageNumber(58),
@@ -47,8 +87,8 @@ class MergeArrivalSpec extends Specification {
         RedListPax = None,
         PassengerSources = Map(LiveFeedSource -> Passengers(Option(195), Option(15)))
       )
-      ArrivalMerger.merge(Seq(forecastArrival, liveArrival)) === liveArrival.copy(
-        PassengerSources = forecastArrival.PassengerSources ++ liveArrival.PassengerSources
+      ArrivalMerger.merge(Seq(forecastArrival, mergedArrival)) === mergedArrival.copy(
+        PassengerSources = forecastArrival.PassengerSources ++ mergedArrival.PassengerSources
       )
     }
   }

@@ -53,7 +53,7 @@ case class ForecastArrival(carrierCode: CarrierCode,
   override def PassengerSources: Map[FeedSource, Passengers] = Map(ForecastFeedSource -> Passengers(totalPax, transPax))
   override def withoutPcpTime: Arrival = this
 
-  def toArrival: MergedArrival = MergedArrival(
+  def toMergedArrival: MergedArrival = MergedArrival(
     Operator = Operator,
     CarrierCode = CarrierCode,
     VoyageNumber = VoyageNumber,

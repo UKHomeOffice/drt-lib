@@ -25,7 +25,7 @@ object SplitsForArrivals {
         val sources = flightWithSplits.apiFlight.FeedSources + ApiFeedSource
         val totalPaxSources = flightWithSplits.apiFlight.PassengerSources.updated(ApiFeedSource, Passengers(Some(totalPax), Option(transPax)))
         val arrival = flightWithSplits.apiFlight match {
-          case f: ForecastArrival => f.toArrival
+          case f: ForecastArrival => f.toMergedArrival
           case a: MergedArrival => a
         }
         arrival.copy(
