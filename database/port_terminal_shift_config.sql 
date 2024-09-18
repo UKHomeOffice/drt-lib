@@ -1,0 +1,14 @@
+CREATE TABLE port_terminal_shift_config
+(   port                   varchar(3) NOT NULL,
+    terminal               varchar(3) NOT NULL,
+    shift_name			   varchar(50) NOT NULL,
+    start_at			   timestamp NOT NULL,
+    period_in_minutes      int,
+    end_at 				   timestamp,
+    frequency			   varchar(50),
+    actual_staff		   int,
+    minimum_rostered_staff int,
+    updated_at             timestamp NOT NULL,
+    email		   		   timestamp NOT NULL,
+    PRIMARY KEY (port, terminal, start_at)
+);
