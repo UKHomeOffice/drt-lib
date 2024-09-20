@@ -9,6 +9,6 @@ CREATE TABLE port_terminal_shift_config
     actual_staff		   int,
     minimum_rostered_staff int,
     updated_at             timestamp NOT NULL,
-    email		   		   timestamp NOT NULL,
+    email		   		   varchar(50),
     PRIMARY KEY (port, terminal, start_at)
 );
