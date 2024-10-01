@@ -3,6 +3,7 @@ package uk.gov.homeoffice.drt.arrivals
 import uk.gov.homeoffice.drt.DataUpdates.FlightUpdates
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 import uk.gov.homeoffice.drt.ports._
+import upickle.default.{macroRW, ReadWriter}
 
 import scala.util.Try
 
@@ -102,5 +103,6 @@ case class FlightsWithSplitsDiff(flightsToUpdate: Iterable[ApiFlightWithSplits],
 }
 
 object FlightsWithSplitsDiff {
+  implicit val rw: ReadWriter[FlightsWithSplitsDiff] = macroRW
   val empty: FlightsWithSplitsDiff = FlightsWithSplitsDiff(List(), List())
 }
