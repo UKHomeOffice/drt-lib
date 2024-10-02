@@ -2,12 +2,16 @@ package uk.gov.homeoffice.drt.arrivals
 
 import uk.gov.homeoffice.drt.ports.PortCode
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import upickle.default.{ReadWriter, macroRW}
+import upickle.default._
 
 sealed trait UniqueArrivalLike {
   val number: Int
   val terminal: Terminal
   val scheduled: Long
+}
+
+object UniqueArrivalLike {
+  implicit val rw: ReadWriter[UniqueArrivalLike] = ReadWriter.merge(UniqueArrival.rw, LegacyUniqueArrival.rw)
 }
 
 trait WithTerminal[A] extends Ordered[A] {
@@ -21,6 +25,7 @@ trait WithTimeAccessor {
 case class LegacyUniqueArrival(number: Int, terminal: Terminal, scheduled: Long) extends UniqueArrivalLike
 
 object LegacyUniqueArrival {
+  implicit val rw: ReadWriter[LegacyUniqueArrival] = macroRW
   def apply(number: Int,
             terminalName: String,
             scheduled: Long): LegacyUniqueArrival = LegacyUniqueArrival(number, Terminal(terminalName), scheduled)
