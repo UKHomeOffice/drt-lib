@@ -68,10 +68,11 @@ lazy val cross = crossProject(JVMPlatform, JSPlatform)
     Compile / PB.protoSources := Seq(file("proto/src/main/protobuf")),
     Compile / PB.protocExecutable := {
       val osName = System.getProperty("os.name").toLowerCase
+      val defaultExecutable = PB.protocExecutable.value // Retrieve the default value outside the if-else
       if (osName.contains("mac")) {
         file("/opt/homebrew/bin/protoc") // Custom path for macOS
       } else {
-        PB.protocExecutable.value // Use the default path for other OSes
+        defaultExecutable// Use the default path for other OSes
       }
     },
     publishTo := Some("release" at artifactory + "artifactory/libs-release")
