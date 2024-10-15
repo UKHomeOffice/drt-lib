@@ -69,12 +69,9 @@ lazy val cross = crossProject(JVMPlatform, JSPlatform)
     Compile / PB.protocExecutable := {
       val osName = System.getProperty("os.name").toLowerCase
       if (osName.contains("mac")) {
-        file("/opt/homebrew/bin/protoc") // Path for macOS
-      } else if (osName.contains("linux")) {
-        file("/usr/local/bin/protoc") // Path for Linux, adjust if needed
+        file("/opt/homebrew/bin/protoc") // Custom path for macOS
       } else {
-        // Fallback to default protoc or specify other OS-specific paths
-        file("/usr/bin/protoc")
+        PB.protocExecutable.value // Use the default path for other OSes
       }
     },
     publishTo := Some("release" at artifactory + "artifactory/libs-release")
