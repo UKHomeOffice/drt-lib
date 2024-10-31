@@ -17,8 +17,6 @@ case class KeyCloakClient(token: String, keyCloakUrl: String, sendHttpRequest: H
                          (implicit val ec: ExecutionContext, mat: Materializer)
   extends KeyCloakUserParserProtocol {
 
-//  import KeyCloakUserFormatParser._
-
   def log: Logger = LoggerFactory.getLogger(getClass)
 
   implicit val timeout: Timeout = Timeout(1 minute)
