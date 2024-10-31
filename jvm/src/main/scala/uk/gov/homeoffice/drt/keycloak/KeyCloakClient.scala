@@ -17,7 +17,7 @@ case class KeyCloakClient(token: String, keyCloakUrl: String, sendHttpRequest: H
                          (implicit val ec: ExecutionContext, mat: Materializer)
   extends KeyCloakUserParserProtocol {
 
-  import KeyCloakUserFormatParser._
+//  import KeyCloakUserFormatParser._
 
   def log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -127,30 +127,7 @@ case class KeyCloakClient(token: String, keyCloakUrl: String, sendHttpRequest: H
 
 trait KeyCloakUserParserProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
-  implicit object KeyCloakUserFormatParser extends RootJsonFormat[KeyCloakUser] {
-    override def write(obj: KeyCloakUser): JsValue = JsObject(
-      "id" -> JsString(obj.id),
-      "username" -> JsString(obj.username),
-      "enabled" -> JsBoolean(obj.enabled),
-      "emailVerified" -> JsBoolean(obj.emailVerified),
-      "firstName" -> JsString(obj.firstName),
-      "lastName" -> JsString(obj.lastName),
-      "email" -> JsString(obj.email)
-    )
-
-    override def read(json: JsValue): KeyCloakUser = json match {
-      case JsObject(fields) =>
-        KeyCloakUser(
-          fields.get("id").map(_.convertTo[String]).getOrElse(""),
-          fields.get("username").map(_.convertTo[String]).getOrElse(""),
-          fields.get("enabled").exists(_.convertTo[Boolean]),
-          fields.get("emailVerified").exists(_.convertTo[Boolean]),
-          fields.get("firstName").map(_.convertTo[String]).getOrElse(""),
-          fields.get("lastName").map(_.convertTo[String]).getOrElse(""),
-          fields.get("email").map(_.convertTo[String]).getOrElse("")
-        )
-    }
-  }
+  implicit val keyCloakUserFormatParser: RootJsonFormat[KeyCloakUser] = jsonFormat7(KeyCloakUser)
 
   implicit val keyCloakGroupFormat: RootJsonFormat[KeyCloakGroup] = jsonFormat3(KeyCloakGroup)
 }
