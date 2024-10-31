@@ -7,7 +7,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import akka.util.Timeout
 import org.slf4j.{Logger, LoggerFactory}
-import spray.json.{DefaultJsonProtocol, JsObject, JsValue, RootJsonFormat}
+import spray.json.{DefaultJsonProtocol, JsBoolean, JsObject, JsString, JsValue, RootJsonFormat}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -128,7 +128,15 @@ case class KeyCloakClient(token: String, keyCloakUrl: String, sendHttpRequest: H
 trait KeyCloakUserParserProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
   implicit object KeyCloakUserFormatParser extends RootJsonFormat[KeyCloakUser] {
-    override def write(obj: KeyCloakUser): JsValue = throw new Exception("KeyCloakUser writer not implemented")
+    override def write(obj: KeyCloakUser): JsValue = JsObject(
+      "id" -> JsString(obj.id),
+      "username" -> JsString(obj.username),
+      "enabled" -> JsBoolean(obj.enabled),
+      "emailVerified" -> JsBoolean(obj.emailVerified),
+      "firstName" -> JsString(obj.firstName),
+      "lastName" -> JsString(obj.lastName),
+      "email" -> JsString(obj.email)
+    )
 
     override def read(json: JsValue): KeyCloakUser = json match {
       case JsObject(fields) =>
