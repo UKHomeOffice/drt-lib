@@ -9,5 +9,11 @@ class SDateSpec extends Specification {
             date.`dayOfWeek-DD-MMM-YYYY` == "Friday 01 Nov 2024"
           }
         }
+        "When I ask for the date including day of week short format" >> {
+          "I should get Fri 01 Nov 2024" >> {
+            val date = SDate("2024-11-01T01:00:00+01:00")
+            date.`shortDayOfWeek-DD-MMM-YYYY` == "Fri 01 Nov 2024"
+          }
+        }
       }
 }
