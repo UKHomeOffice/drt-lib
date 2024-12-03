@@ -8,9 +8,11 @@ import scala.concurrent.Future
 trait IStaffShiftsDao {
   def insertOrUpdate(staffShiftRow: StaffShiftRow): Future[Int]
 
-  def getStaffShifts: Future[Seq[StaffShiftRow]]
-
   def getStaffShiftsByPort(port: String): Future[Seq[StaffShiftRow]]
+
+  def getStaffShiftsByPortAndTerminal(port: String, terminal: String): Future[Seq[StaffShiftRow]]
+
+  def getStaffShiftByPortAndTerminalAndShiftName(port: String, terminal: String, shiftName: String): Future[Seq[StaffShiftRow]]
 
   def deleteStaffShift(port: String, terminal: String, shiftName: String): Future[Int]
 }
@@ -18,19 +20,19 @@ trait IStaffShiftsDao {
 case class StaffShiftsDao(db: Database) extends IStaffShiftsDao {
   val staffShiftsTable: TableQuery[StaffShiftsTable] = TableQuery[StaffShiftsTable]
 
-  override def insertOrUpdate(staffShiftRow: StaffShiftRow): Future[Int] = {
+  override def insertOrUpdate(staffShiftRow: StaffShiftRow): Future[Int] =
     db.run(staffShiftsTable.insertOrUpdate(staffShiftRow))
-  }
 
-  override def getStaffShifts: Future[Seq[StaffShiftRow]] = {
-    db.run(staffShiftsTable.result)
-  }
-
-  override def getStaffShiftsByPort(port: String): Future[Seq[StaffShiftRow]] = {
+  override def getStaffShiftsByPort(port: String): Future[Seq[StaffShiftRow]] =
     db.run(staffShiftsTable.filter(_.port === port).result)
-  }
 
-  override def deleteStaffShift(port: String, terminal: String, shiftName: String): Future[Int] = {
+  override def getStaffShiftsByPortAndTerminal(port: String, terminal: String): Future[Seq[StaffShiftRow]] =
+    db.run(staffShiftsTable.filter(s => s.port === port && s.terminal === terminal).result)
+
+  override def getStaffShiftByPortAndTerminalAndShiftName(port: String, terminal: String, shiftName: String): Future[Seq[StaffShiftRow]] =
+    db.run(staffShiftsTable.filter(s => s.port === port && s.terminal === terminal && s.shiftName.toLowerCase === shiftName.toLowerCase).result)
+
+  override def deleteStaffShift(port: String, terminal: String, shiftName: String): Future[Int] =
     db.run(staffShiftsTable.filter(row => row.port === port && row.terminal === terminal && row.shiftName === shiftName).delete)
-  }
+
 }
