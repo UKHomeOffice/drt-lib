@@ -47,7 +47,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
       val insertResult = Await.result(staffShiftsDao.insertOrUpdate(staffShiftRow), 1.second)
       insertResult === 1
 
-      val selectResult = Await.result(staffShiftsDao.getStaffShifts, 1.second)
+      val selectResult = Await.result(staffShiftsDao.getStaffShiftsByPortAndTerminal("LHR","T5"), 1.second)
       selectResult.size === 1
       selectResult.head === staffShiftRow
     }
@@ -72,7 +72,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
       val deleteResult = Await.result(staffShiftsDao.deleteStaffShift("LHR", "T5", "Morning"), 1.second)
       deleteResult === 1
 
-      val selectResult = Await.result(staffShiftsDao.getStaffShifts, 1.second)
+      val selectResult = Await.result(staffShiftsDao.getStaffShiftsByPortAndTerminal("LHR","T5"), 1.second)
       selectResult.isEmpty === true
     }
   }
