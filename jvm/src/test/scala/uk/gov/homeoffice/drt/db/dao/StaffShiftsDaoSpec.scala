@@ -33,6 +33,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
       shiftName = "Morning",
       startTime = "08:00",
       endTime = "16:00",
+      staffNumber = 10,
       createdBy = Some("test@drt.com"),
       frequency = Some("Daily"),
       createdAt = new Timestamp(Instant.now().toEpochMilli)

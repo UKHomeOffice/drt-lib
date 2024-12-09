@@ -10,6 +10,7 @@ case class StaffShiftRow(
                           shiftName: String,
                           startTime: String,
                           endTime: String,
+                          staffNumber: Int,
                           createdBy: Option[String],
                           frequency: Option[String],
                           createdAt: Timestamp
@@ -26,6 +27,8 @@ class StaffShiftsTable(tag: Tag) extends Table[StaffShiftRow](tag, "staff_shifts
 
   def endTime: Rep[String] = column[String]("end_time")
 
+  def staffNumber: Rep[Int] = column[Int]("staff_number")
+
   def createdBy: Rep[Option[String]] = column[Option[String]]("created_by")
 
   def frequency: Rep[Option[String]] = column[Option[String]]("frequency")
@@ -40,6 +43,7 @@ class StaffShiftsTable(tag: Tag) extends Table[StaffShiftRow](tag, "staff_shifts
     shiftName,
     startTime,
     endTime,
+    staffNumber,
     createdBy,
     frequency,
     createdAt
