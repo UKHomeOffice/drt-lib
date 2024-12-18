@@ -7,8 +7,9 @@ import slick.jdbc.PostgresProfile.api._
 import uk.gov.homeoffice.drt.db.TestDatabase
 import uk.gov.homeoffice.drt.db.TestDatabase.profile
 import uk.gov.homeoffice.drt.db.tables.StaffShiftRow
+import uk.gov.homeoffice.drt.time.SDate
 
-import java.sql.Timestamp
+import java.sql.{Date, Timestamp}
 import java.time.Instant
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
@@ -31,8 +32,10 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
       port = "LHR",
       terminal = "T5",
       shiftName = "Morning",
+      startDate = new Date(SDate("2021-01-01").millisSinceEpoch),
       startTime = "08:00",
       endTime = "16:00",
+      endDate = None,
       staffNumber = 10,
       createdBy = Some("test@drt.com"),
       frequency = Some("Daily"),

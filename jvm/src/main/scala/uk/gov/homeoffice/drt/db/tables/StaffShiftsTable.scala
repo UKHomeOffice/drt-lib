@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.drt.db.tables
 
-import java.sql.Timestamp
+import java.sql.{Date, Timestamp}
 import slick.lifted.Tag
 import uk.gov.homeoffice.drt.db.Db.slickProfile.api._
 
@@ -8,8 +8,10 @@ case class StaffShiftRow(
                           port: String,
                           terminal: String,
                           shiftName: String,
+                          startDate: Date,
                           startTime: String,
                           endTime: String,
+                          endDate: Option[Date],
                           staffNumber: Int,
                           createdBy: Option[String],
                           frequency: Option[String],
@@ -21,11 +23,15 @@ class StaffShiftsTable(tag: Tag) extends Table[StaffShiftRow](tag, "staff_shifts
 
   def terminal: Rep[String] = column[String]("terminal")
 
+  def startDate: Rep[Date] = column[Date]("start_date")
+
   def shiftName: Rep[String] = column[String]("shift_name")
 
   def startTime: Rep[String] = column[String]("start_time")
 
   def endTime: Rep[String] = column[String]("end_time")
+
+  def endDate: Rep[Option[Date]] = column[Option[Date]]("end_date")
 
   def staffNumber: Rep[Int] = column[Int]("staff_number")
 
@@ -41,8 +47,10 @@ class StaffShiftsTable(tag: Tag) extends Table[StaffShiftRow](tag, "staff_shifts
     port,
     terminal,
     shiftName,
+    startDate,
     startTime,
     endTime,
+    endDate,
     staffNumber,
     createdBy,
     frequency,
