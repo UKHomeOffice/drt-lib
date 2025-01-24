@@ -18,12 +18,12 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
   sequential
 
   lazy val db: profile.backend.Database = TestDatabase.db
-
+  val dao: StaffShiftsDao = StaffShiftsDao(db)
   override def before: Unit = {
     Await.result(
       db.run(DBIO.seq(
-        TestDatabase.staffShiftsTable.schema.dropIfExists,
-        TestDatabase.staffShiftsTable.schema.createIfNotExists)
+        dao.staffShiftsTable.schema.dropIfExists,
+        dao.staffShiftsTable.schema.createIfNotExists)
       ), 2.second)
   }
 
@@ -52,8 +52,8 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
       insertResult === 1
 
       val selectResult = Await.result(staffShiftsDao.getStaffShiftsByPortAndTerminal("LHR","T5"), 1.second)
-      selectResult.size === 1
-      selectResult.head === staffShiftRow
+
+      selectResult === Seq(staffShiftRow)
     }
 
     "retrieve staff shifts by port" in {

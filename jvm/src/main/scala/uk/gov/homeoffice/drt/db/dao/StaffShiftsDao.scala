@@ -12,7 +12,7 @@ trait IStaffShiftsDao {
 
   def getStaffShiftsByPortAndTerminal(port: String, terminal: String): Future[Seq[StaffShiftRow]]
 
-  def getStaffShiftByPortAndTerminalAndShiftName(port: String, terminal: String, shiftName: String): Future[Seq[StaffShiftRow]]
+  def getStaffShiftByPortAndTerminalAndShiftName(port: String, terminal: String, shiftName: String): Future[Option[StaffShiftRow]]
 
   def deleteStaffShift(port: String, terminal: String, shiftName: String): Future[Int]
 }
@@ -29,8 +29,8 @@ case class StaffShiftsDao(db: Database) extends IStaffShiftsDao {
   override def getStaffShiftsByPortAndTerminal(port: String, terminal: String): Future[Seq[StaffShiftRow]] =
     db.run(staffShiftsTable.filter(s => s.port === port && s.terminal === terminal).result)
 
-  override def getStaffShiftByPortAndTerminalAndShiftName(port: String, terminal: String, shiftName: String): Future[Seq[StaffShiftRow]] =
-    db.run(staffShiftsTable.filter(s => s.port === port && s.terminal === terminal && s.shiftName.toLowerCase === shiftName.toLowerCase).result)
+  override def getStaffShiftByPortAndTerminalAndShiftName(port: String, terminal: String, shiftName: String): Future[Option[StaffShiftRow]] =
+    db.run(staffShiftsTable.filter(s => s.port === port && s.terminal === terminal && s.shiftName.toLowerCase === shiftName.toLowerCase).result.headOption)
 
   override def deleteStaffShift(port: String, terminal: String, shiftName: String): Future[Int] =
     db.run(staffShiftsTable.filter(row => row.port === port && row.terminal === terminal && row.shiftName === shiftName).delete)
