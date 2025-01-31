@@ -41,7 +41,7 @@ class StaffShiftsTable(tag: Tag) extends Table[StaffShiftRow](tag, "staff_shifts
 
   def createdAt: Rep[Timestamp] = column[Timestamp]("created_at")
 
-  val pk = primaryKey("staff_shifts_pkey", (port, terminal, shiftName))
+  val pk = primaryKey("staff_shifts_pkey", (port, terminal, shiftName, startDate, startTime))
 
   def * = (
     port,

@@ -11,3 +11,6 @@ create table staff_shifts (
       frequency   text,
       created_at timestamp NOT NULL
 );
+
+alter table staff_shifts
+    add constraint staff_shifts_pkey primary key (port, terminal, shift_name, start_date, start_time);
