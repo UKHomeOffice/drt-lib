@@ -3,7 +3,6 @@ package uk.gov.homeoffice.drt.db.dao
 import org.specs2.mutable.Specification
 import org.specs2.specification.BeforeEach
 import slick.dbio.DBIO
-import slick.jdbc.PostgresProfile.api._
 import uk.gov.homeoffice.drt.db.TestDatabase
 import uk.gov.homeoffice.drt.db.TestDatabase.profile
 import uk.gov.homeoffice.drt.db.tables.StaffShiftRow
@@ -13,15 +12,15 @@ import java.sql.{Date, Timestamp}
 import java.time.Instant
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
+import TestDatabase.profile.api._
 
 class StaffShiftsDaoSpec extends Specification with BeforeEach {
   sequential
 
-  lazy val db: profile.backend.Database = TestDatabase.db
-  val dao: StaffShiftsDao = StaffShiftsDao(db)
+  val dao: StaffShiftsDao = StaffShiftsDao(TestDatabase)
   override def before: Unit = {
     Await.result(
-      db.run(DBIO.seq(
+      TestDatabase.run(DBIO.seq(
         dao.staffShiftsTable.schema.dropIfExists,
         dao.staffShiftsTable.schema.createIfNotExists)
       ), 2.second)
@@ -45,7 +44,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
 
   "StaffShiftsDao" should {
     "insert or update a staff shift" in {
-      val staffShiftsDao = StaffShiftsDao(TestDatabase.db)
+      val staffShiftsDao = StaffShiftsDao(TestDatabase)
       val staffShiftRow = getStaffShiftRow
 
       val insertResult = Await.result(staffShiftsDao.insertOrUpdate(staffShiftRow), 1.second)
@@ -57,7 +56,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
     }
 
     "retrieve staff shifts by port" in {
-      val staffShiftsDao = StaffShiftsDao(TestDatabase.db)
+      val staffShiftsDao = StaffShiftsDao(TestDatabase)
       val staffShiftRow = getStaffShiftRow
 
       Await.result(staffShiftsDao.insertOrUpdate(staffShiftRow), 1.second)
@@ -68,7 +67,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
     }
 
     "delete a staff shift" in {
-      val staffShiftsDao = StaffShiftsDao(TestDatabase.db)
+      val staffShiftsDao = StaffShiftsDao(TestDatabase)
       val staffShiftRow = getStaffShiftRow
 
       Await.result(staffShiftsDao.insertOrUpdate(staffShiftRow), 1.second)

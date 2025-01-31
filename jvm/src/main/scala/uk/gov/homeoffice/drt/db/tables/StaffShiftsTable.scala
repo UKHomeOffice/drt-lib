@@ -2,7 +2,7 @@ package uk.gov.homeoffice.drt.db.tables
 
 import java.sql.{Date, Timestamp}
 import slick.lifted.Tag
-import uk.gov.homeoffice.drt.db.Db.slickProfile.api._
+import slick.jdbc.PostgresProfile.api._
 
 case class StaffShiftRow(
                           port: String,

@@ -2,7 +2,9 @@ package uk.gov.homeoffice.drt.db.dao
 
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.TableQuery
+import uk.gov.homeoffice.drt.db.CentralDatabase
 import uk.gov.homeoffice.drt.db.tables.{StaffShiftRow, StaffShiftsTable}
+
 import scala.concurrent.Future
 
 trait IStaffShiftsDao {
@@ -17,7 +19,7 @@ trait IStaffShiftsDao {
   def deleteStaffShift(port: String, terminal: String, shiftName: String): Future[Int]
 }
 
-case class StaffShiftsDao(db: Database) extends IStaffShiftsDao {
+case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
   val staffShiftsTable: TableQuery[StaffShiftsTable] = TableQuery[StaffShiftsTable]
 
   override def insertOrUpdate(staffShiftRow: StaffShiftRow): Future[Int] =
