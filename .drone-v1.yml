@@ -13,8 +13,8 @@ steps:
     image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
     commands:
       - /root/entrypoint.sh
-      - sbt -v update
-      - sbt Dcoursier.log.level=debug +compile
+      - sbt -Dcoursier.log.level=debug update
+      - sbt -Dcoursier.log.level=debug +compile
     environment:
       ARTIFACTORY_PASSWORD:
         from_secret: ARTIFACTORY_PASSWORD
