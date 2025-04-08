@@ -39,5 +39,5 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
   override def deleteStaffShift(port: String, terminal: String, shiftName: String): Future[Int] =
     db.run(staffShiftsTable.filter(row => row.port === port && row.terminal === terminal && row.shiftName === shiftName).delete)
 
-  override def deleteStaffShifts(): Future[Int] = db.run(staffShiftsTable.delete) // Deletes all staff shifts from the table
+  override def deleteStaffShifts(): Future[Int] = db.run(staffShiftsTable.delete)
 }
