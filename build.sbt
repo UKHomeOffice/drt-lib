@@ -23,7 +23,7 @@ lazy val pekkoVersion = "1.1.3"
 lazy val pekkoHttpVersion = "1.1.0"
 lazy val slickVersion = "3.5.2"
 
-lazy val jodaVersion = "2.12.7"
+lazy val jodaVersion = "2.14.0"
 lazy val upickleVersion = "3.1.5"
 lazy val sparkMlLibVersion = "3.5.4"
 lazy val scalaTestVersion = "3.2.19"
