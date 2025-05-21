@@ -20,7 +20,7 @@ lazy val root = project.in(file(".")).
   )
 
 lazy val pekkoVersion = "1.1.3"
-lazy val pekkoHttpVersion = "1.1.0"
+lazy val pekkoHttpVersion = "1.2.0"
 lazy val slickVersion = "3.5.2"
 
 lazy val jodaVersion = "2.12.7"
