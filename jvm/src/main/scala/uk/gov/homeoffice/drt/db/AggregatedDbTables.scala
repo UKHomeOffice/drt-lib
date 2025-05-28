@@ -105,7 +105,7 @@ trait AggregatedDbTables extends CentralDatabase {
     val hide_pax_data_source_description = column[Option[Boolean]]("hide_pax_data_source_description")
     val show_staffing_shift_view = column[Option[Boolean]]("show_staffing_shift_view")
     val desks_and_queues_interval_minutes = column[Option[Int]]("desks_and_queues_interval_minutes")
-    val port_dashboard_interval_minutes = column[Option[Int]]("port_dashboard_interval_minutes")
+    val port_dashboard_interval_minutes = column[Option[String]]("port_dashboard_interval_minutes")
     val port_dashboard_terminals = column[Option[String]]("port_dashboard_terminals")
     val pk = primaryKey("user_pkey", (id))
 
