@@ -7,7 +7,15 @@ case class UserPreferences(userSelectedPlanningTimePeriod: Int,
                            showStaffingShiftView: Boolean,
                            desksAndQueuesIntervalMinutes: Int,
                            portDashboardIntervalMinutes: Map[String, Int],
-                           portDashboardTerminals: Map[String, Set[String]])
+                           portDashboardTerminals: Map[String, Set[String]]) {
+  val serializedPortDashboardIntervalMinutes: String = portDashboardIntervalMinutes.map {
+    case (port, value) => s"$port:$value"
+  }.mkString(";")
+
+  val serializedPortDashboardTerminals: String = portDashboardTerminals.map {
+    case (key, values) => s"$key:${values.mkString(",")}"
+  }.mkString(";")
+}
 
 object UserPreferences {
   implicit val rw: ReadWriter[UserPreferences] = macroRW
@@ -27,4 +35,5 @@ object UserPreferences {
         case Array(key, values) => key -> values.split(",").toSet
       }).toMap
     )
+
 }

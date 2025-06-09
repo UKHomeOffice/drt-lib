@@ -47,5 +47,35 @@ class UserPreferencesSpec extends Specification {
       val deserialized = read[Map[String, Int]](input)(UserPreferences.portDashboardIntervalMinutesRW)
       deserialized mustEqual expected
     }
+
+    "serialize portDashboardIntervalMinutes correctly" in {
+      val input = Map("port1" -> 10, "port2" -> 20)
+      val userPreferences = UserPreferences(
+        userSelectedPlanningTimePeriod = 30,
+        hidePaxDataSourceDescription = true,
+        showStaffingShiftView = false,
+        desksAndQueuesIntervalMinutes = 15,
+        portDashboardIntervalMinutes = input,
+        portDashboardTerminals = Map.empty
+      )
+
+      val expected = "port1:10;port2:20"
+      userPreferences.serializedPortDashboardIntervalMinutes mustEqual expected
+    }
+
+    "serialize portDashboardTerminals correctly" in {
+      val input = Map("lhr" -> Set("t2", "t3"), "bhx" -> Set("t2"))
+      val userPreferences = UserPreferences(
+        userSelectedPlanningTimePeriod = 30,
+        hidePaxDataSourceDescription = true,
+        showStaffingShiftView = false,
+        desksAndQueuesIntervalMinutes = 15,
+        portDashboardIntervalMinutes = Map.empty,
+        portDashboardTerminals = input
+      )
+
+      val expected = "lhr:t2,t3;bhx:t2"
+      userPreferences.serializedPortDashboardTerminals mustEqual expected
+    }
   }
 }

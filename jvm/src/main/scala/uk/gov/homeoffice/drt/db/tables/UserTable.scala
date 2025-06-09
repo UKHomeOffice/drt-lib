@@ -113,13 +113,7 @@ case class UserTable(tables: AggregatedDbTables) extends UserTableLike {
   }
 
   override def updateUserPreferences(email: String, userPreferences: UserPreferences)(implicit ec: ExecutionContext): Future[Int] = {
-    val serializedPortDashboardIntervalMinutes: String = userPreferences.portDashboardIntervalMinutes.map {
-      case (port, value) => s"$port:$value"
-    }.mkString(";")
 
-    val serializedPortDashboardTerminals: String = userPreferences.portDashboardTerminals.map {
-      case (key, values) => s"$key:${values.mkString(",")}"
-    }.mkString(";")
 
     val query = userTableQuery.filter(_.email === email)
       .map(f => (
@@ -135,8 +129,8 @@ case class UserTable(tables: AggregatedDbTables) extends UserTableLike {
         Option(userPreferences.hidePaxDataSourceDescription),
         Option(userPreferences.showStaffingShiftView),
         Option(userPreferences.desksAndQueuesIntervalMinutes),
-        Option(serializedPortDashboardIntervalMinutes),
-        Option(serializedPortDashboardTerminals)
+        Option(userPreferences.serializedPortDashboardIntervalMinutes),
+        Option(userPreferences.serializedPortDashboardTerminals)
       ))
 
     tables.run(query).recover {
