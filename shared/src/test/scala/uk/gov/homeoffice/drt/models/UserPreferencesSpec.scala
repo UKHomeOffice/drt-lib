@@ -1,7 +1,8 @@
 package uk.gov.homeoffice.drt.models
 
 import org.specs2.mutable.Specification
-import upickle.default._
+import uk.gov.homeoffice.drt.db.serialisers.UserPreferencesSerialisation
+
 
 class UserPreferencesSpec extends Specification {
 
@@ -9,17 +10,16 @@ class UserPreferencesSpec extends Specification {
 
     "serialize and deserialize portDashboardIntervalMinutes correctly" in {
       val input = Map("port1" -> 10, "port2" -> 20)
-      val serialized = write(input)(UserPreferences.portDashboardIntervalMinutesRW)
-      val deserialized = read[Map[String, Int]](serialized)(UserPreferences.portDashboardIntervalMinutesRW)
+      val serialized = UserPreferencesSerialisation.serializePortDashboardIntervalMinutes(input)
+      val deserialized = UserPreferencesSerialisation.deserializePortDashboardIntervalMinutes(Option(serialized))
       deserialized mustEqual input
     }
 
     "serialize and deserialize portDashboardTerminals correctly" in {
       val input = Map("lhr" -> Set("t2", "t3"), "bhx" -> Set("t2"))
-      val serialized = write(input)(UserPreferences.portDashboardTerminalsRW)
+      val serialized = UserPreferencesSerialisation.serializePortDashboardTerminals(input)
 
-      println(s"serialized portDashboardTerminals: $serialized")
-      val deserialized = read[Map[String, Set[String]]](serialized)(UserPreferences.portDashboardTerminalsRW)
+      val deserialized = UserPreferencesSerialisation.deserializePortDashboardTerminals(Option(serialized))
       deserialized mustEqual input
     }
 
@@ -33,18 +33,18 @@ class UserPreferencesSpec extends Specification {
         portDashboardTerminals = Map("lhr" -> Set("t2", "t3"), "lgw" -> Set("N"))
       )
 
-      val serialized = write(userPreferences)
+      val serialized = UserPreferencesSerialisation.toUserPreferencesJson(userPreferences)
       println(s"serialized UserPreferences: $serialized")
-      val deserialized = read[UserPreferences](serialized)
+      val deserialized = UserPreferencesSerialisation.fromJson(serialized)
 
       deserialized mustEqual userPreferences
     }
 
     "deserialize 'lhr:30' to Map[String, Int]" in {
-      val input = "\"lhr:30;bhx:60\""
+      val input = "lhr:30;bhx:60"
       val expected = Map("lhr" -> 30, "bhx" -> 60)
 
-      val deserialized = read[Map[String, Int]](input)(UserPreferences.portDashboardIntervalMinutesRW)
+      val deserialized = UserPreferencesSerialisation.deserializePortDashboardIntervalMinutes(Some(input))
       deserialized mustEqual expected
     }
 
