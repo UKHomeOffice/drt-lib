@@ -13,12 +13,12 @@ object UserPreferencesSerialisation extends DefaultJsonProtocol {
 
   def deserializeMap[K, V](data: Option[String], keyParser: String => K, valueParser: String => V): Map[K, V] = {
     data match {
-      case Some(s) =>
+      case Some(s) if s.nonEmpty =>
         s.split(";").map(_.split(":") match {
           case Array(key, value) => keyParser(key) -> valueParser(value)
           case _ => throw new IllegalArgumentException(s"Invalid format: $s")
         }).toMap
-      case None => Map.empty[K, V]
+      case _ => Map.empty[K, V]
     }
   }
 
