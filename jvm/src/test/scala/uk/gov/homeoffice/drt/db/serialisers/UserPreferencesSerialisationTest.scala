@@ -105,4 +105,40 @@ class UserPreferencesSerialisationTest extends AnyFlatSpec with Matchers {
     result shouldEqual expectedJson
   }
 
+  "UserPreferences" should "serialize and deserialize portDashboardIntervalMinutes correctly" in {
+    val input = Map("port1" -> 10, "port2" -> 20)
+    val serialized = UserPreferencesSerialisation.serializePortDashboardIntervalMinutes(input)
+    val deserialized = UserPreferencesSerialisation.deserializePortDashboardIntervalMinutes(Option(serialized))
+    deserialized shouldEqual input
+  }
+
+  it should "serialize and deserialize portDashboardTerminals correctly" in {
+    val input = Map("lhr" -> Set("t2", "t3"), "bhx" -> Set("t2"))
+    val serialized = UserPreferencesSerialisation.serializePortDashboardTerminals(input)
+    val deserialized = UserPreferencesSerialisation.deserializePortDashboardTerminals(Option(serialized))
+    deserialized shouldEqual input
+  }
+
+  it should "serialize and deserialize UserPreferences correctly" in {
+    val userPreferences = UserPreferences(
+      userSelectedPlanningTimePeriod = 30,
+      hidePaxDataSourceDescription = true,
+      showStaffingShiftView = false,
+      desksAndQueuesIntervalMinutes = 15,
+      portDashboardIntervalMinutes = Map("port1" -> 10, "port2" -> 20),
+      portDashboardTerminals = Map("lhr" -> Set("t2", "t3"), "lgw" -> Set("N"))
+    )
+
+    val serialized = UserPreferencesSerialisation.toUserPreferencesJson(userPreferences)
+    val deserialized = UserPreferencesSerialisation.fromJson(serialized)
+    deserialized shouldEqual userPreferences
+  }
+
+  it should "deserialize 'lhr:30' to Map[String, Int]" in {
+    val input = "lhr:30;bhx:60"
+    val expected = Map("lhr" -> 30, "bhx" -> 60)
+    val result = UserPreferencesSerialisation.deserializePortDashboardIntervalMinutes(Some(input))
+    result shouldEqual expected
+  }
+
 }
