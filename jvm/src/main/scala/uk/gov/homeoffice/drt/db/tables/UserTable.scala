@@ -4,6 +4,7 @@ import org.slf4j.{Logger, LoggerFactory}
 import uk.gov.homeoffice.drt.db.AggregatedDbTables
 import uk.gov.homeoffice.drt.models.UserPreferences
 import slick.jdbc.PostgresProfile.api._
+import uk.gov.homeoffice.drt.models.UserPreferences.serializeMap
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -113,8 +114,6 @@ case class UserTable(tables: AggregatedDbTables) extends UserTableLike {
   }
 
   override def updateUserPreferences(email: String, userPreferences: UserPreferences)(implicit ec: ExecutionContext): Future[Int] = {
-
-
     val query = userTableQuery.filter(_.email === email)
       .map(f => (
         f.staff_planning_interval_minutes,
@@ -129,8 +128,8 @@ case class UserTable(tables: AggregatedDbTables) extends UserTableLike {
         Option(userPreferences.hidePaxDataSourceDescription),
         Option(userPreferences.showStaffingShiftView),
         Option(userPreferences.desksAndQueuesIntervalMinutes),
-        Option(userPreferences.serializedPortDashboardIntervalMinutes),
-        Option(userPreferences.serializedPortDashboardTerminals)
+        Option(serializeMap(userPreferences.portDashboardIntervalMinutes, (value: Int) => value.toString)),
+        Option(serializeMap(userPreferences.portDashboardTerminals, (values: Set[String]) => values.mkString(",")))
       ))
 
     tables.run(query).recover {
