@@ -1,11 +1,10 @@
-package uk.gov.homeoffice.drt.db.serialisers
+package uk.gov.homeoffice.drt.jsonformats
 
 import spray.json._
 import uk.gov.homeoffice.drt.models.UserPreferences
 import uk.gov.homeoffice.drt.models.UserPreferences.{deserializeMap, serializeMap}
 
-object UserPreferencesSerialisation extends DefaultJsonProtocol {
-
+object UserPreferencesJsonFormat extends DefaultJsonProtocol {
   implicit val userPreferencesFormat: RootJsonFormat[UserPreferences] = new RootJsonFormat[UserPreferences] {
     def write(obj: UserPreferences): JsValue = JsObject(
       "userSelectedPlanningTimePeriod" -> JsNumber(obj.userSelectedPlanningTimePeriod),
@@ -42,9 +41,5 @@ object UserPreferencesSerialisation extends DefaultJsonProtocol {
         )
       case _ => throw DeserializationException("Invalid UserPreferences JSON format")
     }
-  }
-
-  def fromJson(json: String): UserPreferences = {
-    json.parseJson.convertTo[UserPreferences]
   }
 }
