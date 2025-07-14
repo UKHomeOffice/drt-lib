@@ -19,6 +19,10 @@ trait IStaffShiftsDao {
 
   def getStaffShiftByPortAndTerminalAndShiftName(port: String, terminal: String, shiftName: String): Future[Option[StaffShiftRow]]
 
+  def getOverlappingStaffShifts(port: String, terminal: String, shift: StaffShiftRow): Future[Seq[StaffShiftRow]]
+
+  def getStaffShiftByPortAndTerminal(port: String, terminal: String, shiftName: String, startDate: Date): Future[Option[StaffShiftRow]]
+
   def deleteStaffShift(port: String, terminal: String, shiftName: String): Future[Int]
 
   def deleteStaffShifts(): Future[Int]
@@ -51,10 +55,10 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
   }
 
   override def getStaffShiftsByPort(port: String): Future[Seq[StaffShiftRow]] =
-    db.run(staffShiftsTable.filter(_.port === port).result)
+    db.run(staffShiftsTable.filter(_.port === port).sortBy(_.startDate.desc).result)
 
   override def getStaffShiftsByPortAndTerminal(port: String, terminal: String): Future[Seq[StaffShiftRow]] =
-    db.run(staffShiftsTable.filter(s => s.port === port && s.terminal === terminal).result)
+    db.run(staffShiftsTable.filter(s => s.port === port && s.terminal === terminal).sortBy(_.startDate.desc).result)
 
   override def getStaffShiftByPortAndTerminalAndShiftName(port: String, terminal: String, shiftName: String): Future[Option[StaffShiftRow]] =
     db.run(staffShiftsTable.filter(s => s.port === port && s.terminal === terminal && s.shiftName.toLowerCase === shiftName.toLowerCase).result.headOption)
@@ -63,4 +67,24 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
     db.run(staffShiftsTable.filter(row => row.port === port && row.terminal === terminal && row.shiftName === shiftName).delete)
 
   override def deleteStaffShifts(): Future[Int] = db.run(staffShiftsTable.delete)
+
+  override def getStaffShiftByPortAndTerminal(port: String, terminal: String, shiftName: String, startDate: Date): Future[Option[StaffShiftRow]] =
+    db.run(staffShiftsTable.filter(s => s.port === port && s.terminal === terminal && s.shiftName.toLowerCase === shiftName.toLowerCase &&
+      (s.startDate === startDate || s.startDate <= startDate && (s.endDate >= startDate || s.endDate.isEmpty))
+    ).sortBy(_.startDate.desc).result.headOption)
+
+  override def getOverlappingStaffShifts(port: String, terminal: String, shift: StaffShiftRow): Future[Seq[StaffShiftRow]] =
+    db.run(
+      staffShiftsTable.filter(s =>
+        s.port === port &&
+          s.terminal === terminal &&
+          s.startDate <= shift.startDate &&
+          (s.endDate >= shift.startDate || s.endDate.isEmpty) &&
+          (
+            (s.startTime < shift.endTime && s.endTime > shift.startTime) ||
+              (s.startTime < shift.startTime && s.endTime > shift.startTime) ||
+              (s.startTime < shift.endTime && s.endTime > shift.endTime)
+            )
+      ).sortBy(_.startDate.desc).result
+    )
 }
