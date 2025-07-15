@@ -79,11 +79,11 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
         s.port === port &&
           s.terminal === terminal &&
           s.startDate <= shift.startDate &&
-          (s.endDate >= shift.startDate || s.endDate.isEmpty) &&
+          (s.endDate.isEmpty || s.endDate >= shift.startDate) &&
           (
             (s.startTime < shift.endTime && s.endTime > shift.startTime) ||
-              (s.startTime < shift.startTime && s.endTime > shift.startTime) ||
-              (s.startTime < shift.endTime && s.endTime > shift.endTime)
+              (s.startTime <= shift.startTime && s.endTime > shift.startTime) ||
+              (s.startTime < shift.endTime && s.endTime >= shift.endTime)
             )
       ).sortBy(_.startDate.desc).result
     )
