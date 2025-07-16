@@ -73,18 +73,30 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
       (s.startDate === startDate || s.startDate <= startDate && (s.endDate >= startDate || s.endDate.isEmpty))
     ).sortBy(_.startDate.desc).result.headOption)
 
+//  override def getOverlappingStaffShifts(port: String, terminal: String, shift: StaffShiftRow): Future[Seq[StaffShiftRow]] =
   override def getOverlappingStaffShifts(port: String, terminal: String, shift: StaffShiftRow): Future[Seq[StaffShiftRow]] =
     db.run(
-      staffShiftsTable.filter(s =>
+      staffShiftsTable.filter { s =>
         s.port === port &&
           s.terminal === terminal &&
           s.startDate <= shift.startDate &&
           (s.endDate.isEmpty || s.endDate >= shift.startDate) &&
           (
-            (s.startTime < shift.endTime && s.endTime > shift.startTime) ||
-              (s.startTime <= shift.startTime && s.endTime > shift.startTime) ||
-              (s.startTime < shift.endTime && s.endTime >= shift.endTime)
+            // Both shifts are overnight
+            ((s.endTime <= s.startTime) && (shift.endTime <= shift.startTime) &&
+              ((s.startTime <= shift.endTime) || (LiteralColumn(shift.startTime) <= s.endTime))) ||
+
+              // Only s is overnight
+              ((s.endTime <= s.startTime) && (shift.endTime > shift.startTime) &&
+                ((LiteralColumn(shift.startTime) < s.endTime) || (LiteralColumn(shift.endTime) > s.startTime))) ||
+
+              // Only shift is overnight
+              ((s.endTime > s.startTime) && (shift.endTime <= shift.startTime) &&
+                ((s.startTime < shift.endTime) || (s.endTime > shift.startTime))) ||
+
+              // Neither is overnight
+              ((s.startTime < shift.endTime) && (s.endTime > shift.startTime))
             )
-      ).sortBy(_.startDate.desc).result
+      }.sortBy(_.startDate.desc).result
     )
 }

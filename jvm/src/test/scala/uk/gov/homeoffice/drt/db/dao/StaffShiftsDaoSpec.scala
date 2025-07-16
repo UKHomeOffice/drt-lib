@@ -479,6 +479,28 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
         
         result.size === 0
       }
+
+      "return overlapping overnight shifts" in {
+        val searchShift = getStaffShiftRow.copy(
+          startTime = "21:00",
+          endTime = "23:00"
+        )
+        val overnightShift = searchShift.copy(
+          shiftName = "Overnight",
+          startTime = "20:00",
+          endTime = "06:00"
+        )
+
+        Await.result(dao.insertOrUpdate(overnightShift), 1.second)
+        val result = Await.result(
+          dao.getOverlappingStaffShifts(searchShift.port, searchShift.terminal, searchShift),
+          1.second
+        )
+
+        result.size === 1
+        result.head.shiftName === "Overnight"
+      }
+
     }
 
   }
