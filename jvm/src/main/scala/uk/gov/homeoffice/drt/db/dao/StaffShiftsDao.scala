@@ -46,8 +46,7 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
 
     val insertAction = staffShiftsTable += staffShiftRow
 
-    if (staffShiftRow.startDate.getTime > new Date(System.currentTimeMillis()).getTime) {
-      // If the new shift is in the future, we can just insert it
+    if (staffShiftRow.startDate.getTime > new Date(System.currentTimeMillis()).getTime && previousStaffShiftRow.startDate.getTime < new Date(System.currentTimeMillis()).getTime) {
       db.run(staffShiftsTable.insertOrUpdate(previousStaffShiftRow.copy(endDate = Option(staffShiftRow.startDate))).andThen(insertAction))
     } else {
       db.run(deleteAction.andThen(insertAction))
