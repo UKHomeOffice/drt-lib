@@ -298,7 +298,8 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
         val nonOverlappingShift = searchShift.copy(
           shiftName = "NonOverlapping1",
           startTime = "08:00",
-          endTime = "10:00"
+          endTime = "10:00",
+          startDate = new Date(SDate("2021-03-01").millisSinceEpoch)
         )
         
         Await.result(dao.insertOrUpdate(nonOverlappingShift), 1.second)
@@ -308,6 +309,35 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
         )
         
         result.size === 0
+      }
+
+      "not return shifts that start date previous" in {
+        val searchShift = getStaffShiftRow.copy(
+          startTime = "10:00",
+          endTime = "14:00",
+          startDate = new Date(SDate("2021-03-01").millisSinceEpoch)
+        )
+        val nonOverlappingShift = searchShift.copy(
+          shiftName = "NonOverlapping1",
+          startTime = "08:00",
+          endTime = "10:00",
+          endDate = Some(new Date(SDate("2021-02-28").millisSinceEpoch))
+        )
+
+        val OverlappingShift = searchShift.copy(
+          shiftName = "NonOverlapping1",
+          startTime = "08:00",
+          endTime = "10:00",
+        )
+
+        Await.result(dao.insertOrUpdate(nonOverlappingShift), 1.second)
+        Await.result(dao.insertOrUpdate(OverlappingShift), 1.second)
+        val result = Await.result(
+          dao.getOverlappingStaffShifts(searchShift.port, searchShift.terminal, searchShift),
+          1.second
+        )
+
+        result.size === 1
       }
 
       "not return shifts that start exactly when search shift ends" in {
@@ -327,7 +357,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
           1.second
         )
         
-        result.size === 0
+        result.size === 1
       }
 
       "not return shifts that are completely before the search shift" in {
@@ -347,7 +377,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
           1.second
         )
         
-        result.size === 0
+        result.size === 1
       }
 
       "not return shifts that are completely after the search shift" in {
@@ -367,7 +397,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
           1.second
         )
         
-        result.size === 0
+        result.size === 1
       }
 
       "only return shifts for the same port and terminal" in {

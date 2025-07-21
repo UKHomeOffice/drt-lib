@@ -44,10 +44,13 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
           row.startTime === previousStaffShiftRow.startTime
       ).delete
 
-    val insertAction = staffShiftsTable += staffShiftRow
+    val updatesStaffShiftRow = if (previousStaffShiftRow.endDate.isDefined) staffShiftRow.copy(endDate = previousStaffShiftRow.endDate) else staffShiftRow.copy(endDate = None)
 
-    if (staffShiftRow.startDate.getTime > new Date(System.currentTimeMillis()).getTime && previousStaffShiftRow.startDate.getTime < new Date(System.currentTimeMillis()).getTime) {
-      db.run(staffShiftsTable.insertOrUpdate(previousStaffShiftRow.copy(endDate = Option(staffShiftRow.startDate))).andThen(insertAction))
+    val insertAction = staffShiftsTable += updatesStaffShiftRow
+
+    if (staffShiftRow.startDate.getTime > new Date(System.currentTimeMillis()).getTime && previousStaffShiftRow.startDate.getTime < new Date(System.currentTimeMillis()).getTime && previousStaffShiftRow.endDate.isEmpty) {
+      val endDateADayBefore = new java.sql.Date(staffShiftRow.startDate.getTime - 24L * 60 * 60 * 1000)
+      db.run(staffShiftsTable.insertOrUpdate(previousStaffShiftRow.copy(endDate = Option(endDateADayBefore))).andThen(insertAction))
     } else {
       db.run(deleteAction.andThen(insertAction))
     }
@@ -72,30 +75,13 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
       (s.startDate === startDate || s.startDate <= startDate && (s.endDate >= startDate || s.endDate.isEmpty))
     ).sortBy(_.startDate.desc).result.headOption)
 
-//  override def getOverlappingStaffShifts(port: String, terminal: String, shift: StaffShiftRow): Future[Seq[StaffShiftRow]] =
   override def getOverlappingStaffShifts(port: String, terminal: String, shift: StaffShiftRow): Future[Seq[StaffShiftRow]] =
     db.run(
       staffShiftsTable.filter { s =>
         s.port === port &&
           s.terminal === terminal &&
           s.startDate <= shift.startDate &&
-          (s.endDate.isEmpty || s.endDate >= shift.startDate) &&
-          (
-            // Both shifts are overnight
-            ((s.endTime <= s.startTime) && (shift.endTime <= shift.startTime) &&
-              ((s.startTime <= shift.endTime) || (LiteralColumn(shift.startTime) <= s.endTime))) ||
-
-              // Only s is overnight
-              ((s.endTime <= s.startTime) && (shift.endTime > shift.startTime) &&
-                ((LiteralColumn(shift.startTime) < s.endTime) || (LiteralColumn(shift.endTime) > s.startTime))) ||
-
-              // Only shift is overnight
-              ((s.endTime > s.startTime) && (shift.endTime <= shift.startTime) &&
-                ((s.startTime < shift.endTime) || (s.endTime > shift.startTime))) ||
-
-              // Neither is overnight
-              ((s.startTime < shift.endTime) && (s.endTime > shift.startTime))
-            )
+          (s.endDate.isEmpty || s.endDate.map(_ > shift.startDate).getOrElse(false))
       }.sortBy(_.startDate.desc).result
     )
 }
