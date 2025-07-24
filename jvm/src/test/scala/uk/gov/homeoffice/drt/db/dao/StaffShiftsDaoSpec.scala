@@ -98,7 +98,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
       retrievedShift.port === staffShift.port
       retrievedShift.terminal === staffShift.terminal
       retrievedShift.shiftName === staffShift.shiftName
-      retrievedShift.startDate.toString === staffShift.startDate.toString()
+      retrievedShift.startDate.toString === staffShift.startDate.toString
       retrievedShift.startTime === staffShift.startTime
       retrievedShift.endTime === staffShift.endTime
       retrievedShift.endDate === staffShift.endDate
