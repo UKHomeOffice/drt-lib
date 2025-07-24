@@ -86,8 +86,8 @@ steps:
     when:
       event:
         - push
-#      branch:
-#        - master
+      branch:
+        - master
     depends_on:
       - Unit tests
 
@@ -129,7 +129,7 @@ steps:
 #      branch:
 #        - master
     depends_on:
-      - Scapegoat
+      - Unit tests
 
   - name: Sonar scanner
     pull: if-not-exists
