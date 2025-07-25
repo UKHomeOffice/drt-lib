@@ -28,6 +28,7 @@ steps:
     commands:
       - /root/entrypoint.sh
       - sbt --error +test
+      - sbt -Dlog4j2.level=info dependencyCheck
     environment:
       JAVA_OPTS: -Xmx2g
       ARTIFACTORY_PASSWORD:
