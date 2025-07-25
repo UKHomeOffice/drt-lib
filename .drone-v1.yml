@@ -28,7 +28,6 @@ steps:
     commands:
       - /root/entrypoint.sh
       - sbt --error +test
-      - sbt -Dlog4j2.level=info dependencyCheck
     environment:
       JAVA_OPTS: -Xmx2g
       ARTIFACTORY_PASSWORD:
@@ -116,7 +115,6 @@ steps:
     image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
     commands:
       - /root/entrypoint.sh
-      - echo NVD_API_KEY = ${NVD_API_KEY}
       - sbt -Dlog4j2.level=info dependencyCheck
     environment:
       NVD_API_KEY:
@@ -139,8 +137,8 @@ steps:
     environment:
       DRONE_BUILD_NUMBER: ${DRONE_BUILD_NUMBER}
     when:
-#      branch:
-#        - master
+      #      branch:
+      #        - master
       event:
         - push
     depends_on:
