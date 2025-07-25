@@ -36,7 +36,6 @@ lazy val scribeSlf4jVersion = "3.16.0"
 lazy val h2Version = "2.3.232"
 lazy val sslConfigCoreVersion = "0.6.1"
 
-val nvdAPIKey = sys.env.getOrElse("NVD_API_KEY", "")
 
 lazy val cross = crossProject(JVMPlatform, JSPlatform)
   .in(file("."))
@@ -55,7 +54,7 @@ lazy val cross = crossProject(JVMPlatform, JSPlatform)
       "Artifactory Snapshot Realm" at "https://artifactory.digital.homeoffice.gov.uk/artifactory/libs-snapshot/",
       "Artifactory Release Realm" at "https://artifactory.digital.homeoffice.gov.uk/artifactory/libs-release/"
     ),
-    dependencyCheckNvdApi := NvdApiSettings(nvdAPIKey)
+    dependencyCheckNvdApi := NvdApiSettings(sys.env.getOrElse("NVD_API_KEY", ""))
   ).
   jvmSettings(
     libraryDependencies ++= Seq(
@@ -88,5 +87,3 @@ lazy val cross = crossProject(JVMPlatform, JSPlatform)
   jsSettings(
     publishTo := Some("release" at artifactory + "artifactory/libs-release")
   )
-
-
