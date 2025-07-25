@@ -1,3 +1,4 @@
+import net.nmoncho.sbt.dependencycheck.Keys.dependencyCheckNvdApi
 import sbt.Keys.libraryDependencies
 import net.nmoncho.sbt.dependencycheck.settings.NvdApiSettings
 
@@ -53,7 +54,8 @@ lazy val cross = crossProject(JVMPlatform, JSPlatform)
     resolvers ++= Seq(
       "Artifactory Snapshot Realm" at "https://artifactory.digital.homeoffice.gov.uk/artifactory/libs-snapshot/",
       "Artifactory Release Realm" at "https://artifactory.digital.homeoffice.gov.uk/artifactory/libs-release/"
-    )
+    ),
+    dependencyCheckNvdApi := NvdApiSettings(nvdAPIKey)
   ).
   jvmSettings(
     libraryDependencies ++= Seq(
@@ -87,5 +89,4 @@ lazy val cross = crossProject(JVMPlatform, JSPlatform)
     publishTo := Some("release" at artifactory + "artifactory/libs-release")
   )
 
-dependencyCheckNvdApi := NvdApiSettings(nvdAPIKey)
 
