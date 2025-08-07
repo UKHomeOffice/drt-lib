@@ -22,7 +22,7 @@ trait IStaffShiftsDao {
 
   def getOverlappingStaffShifts(port: String, terminal: String, shift: Shift)(implicit ec: ExecutionContext): Future[Seq[Shift]]
 
-  def getStaffShift(port: String, terminal: String, shiftName: String, startDate: LocalDate)(implicit ec: ExecutionContext): Future[Option[Shift]]
+  def searchStaffShift(port: String, terminal: String, shiftName: String, startDate: LocalDate)(implicit ec: ExecutionContext): Future[Option[Shift]]
 
   def deleteStaffShift(port: String, terminal: String, shiftName: String): Future[Int]
 
@@ -71,7 +71,7 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
 
   override def deleteStaffShifts(): Future[Int] = db.run(staffShiftsTable.delete)
 
-  override def getStaffShift(port: String, terminal: String, shiftName: String, startDate: LocalDate)(implicit ec: ExecutionContext): Future[Option[Shift]] = {
+  override def searchStaffShift(port: String, terminal: String, shiftName: String, startDate: LocalDate)(implicit ec: ExecutionContext): Future[Option[Shift]] = {
     val startDateSql = Date.valueOf(startDate.toString)
     db.run(staffShiftsTable.filter(s => s.port === port && s.terminal === terminal && s.shiftName.toLowerCase === shiftName.toLowerCase &&
       (s.startDate === startDateSql || s.startDate <= startDateSql && (s.endDate >= startDateSql || s.endDate.isEmpty))

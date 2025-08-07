@@ -95,7 +95,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
 
       Await.result(dao.insertOrUpdate(staffShift), 1.second)
       val result = Await.result(
-        dao.getStaffShift(port, terminal, shiftName, currentDate),
+        dao.searchStaffShift(port, terminal, shiftName, currentDate),
         1.second
       )
       result.isDefined === true
@@ -116,7 +116,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
       val staffShiftRow = getStaffShiftRow
       Await.result(dao.insertOrUpdate(staffShiftRow), 1.second)
       val result = Await.result(
-        dao.getStaffShift(
+        dao.searchStaffShift(
           staffShiftRow.port,
           staffShiftRow.terminal,
           staffShiftRow.shiftName,
@@ -244,7 +244,7 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
 
       Await.result(dao.insertOrUpdate(prevShift), 1.second)
       val result = Await.result(dao.updateStaffShift(prevShift, newShift), 1.second)
-      val updatedPrev = Await.result(dao.getStaffShift(prevShift.port, prevShift.terminal, prevShift.shiftName, prevShift.startDate), 1.second)
+      val updatedPrev = Await.result(dao.searchStaffShift(prevShift.port, prevShift.terminal, prevShift.shiftName, prevShift.startDate), 1.second)
 
       result === 1
       val expectedEndDate = localDateAddDays(localDateAddMonth(today, 1), -1)
@@ -258,27 +258,33 @@ class StaffShiftsDaoSpec extends Specification with BeforeEach {
 
       Await.result(dao.insertOrUpdate(prevShift), 1.second)
       val result = Await.result(dao.updateStaffShift(prevShift, newShift), 1.second)
-      val old = Await.result(dao.getStaffShift(prevShift.port, prevShift.terminal, prevShift.shiftName, prevShift.startDate), 1.second)
-      val inserted = Await.result(dao.getStaffShift(newShift.port, newShift.terminal, newShift.shiftName, newShift.startDate), 1.second)
+      val old = Await.result(dao.searchStaffShift(prevShift.port, prevShift.terminal, prevShift.shiftName, prevShift.startDate), 1.second)
+      val inserted = Await.result(dao.searchStaffShift(newShift.port, newShift.terminal, newShift.shiftName, newShift.startDate), 1.second)
 
       result === 1
       old must beNone
       inserted.isDefined === true
     }
 
-    "updateStaffShift should update previous shift endDate to start date minus one day of new shift" in {
-      val prevShift = getStaffShiftRow.copy(startDate = LocalDate(2025, 8, 1), endDate = None)
-      val newShift = getStaffShiftRow.copy(startDate = LocalDate(2025, 10, 1), endDate = None)
+    "updateStaffShift should update previous shift endDate to start date minus one day of new shift and also search shift for different shiftDates" in {
+      val prevShiftInAug = getStaffShiftRow.copy(startDate = LocalDate(2025, 8, 1), endDate = None)
+      val newShiftRequestedWithOctStartDate = getStaffShiftRow.copy(startDate = LocalDate(2025, 10, 1), endDate = None)
+      Await.result(dao.insertOrUpdate(prevShiftInAug), 1.second)
+      val updatedShiftsResults = Await.result(dao.updateStaffShift(prevShiftInAug, newShiftRequestedWithOctStartDate), 1.second)
+      val prevShiftInAugResultAfterUpdates = Await.result(dao.searchStaffShift(prevShiftInAug.port, prevShiftInAug.terminal, prevShiftInAug.shiftName, prevShiftInAug.startDate), 1.second)
+      val newShiftResultWithOctStartDate = Await.result(dao.searchStaffShift(newShiftRequestedWithOctStartDate.port, newShiftRequestedWithOctStartDate.terminal, newShiftRequestedWithOctStartDate.shiftName, newShiftRequestedWithOctStartDate.startDate), 1.second)
 
-      Await.result(dao.insertOrUpdate(prevShift), 1.second)
-      val result = Await.result(dao.updateStaffShift(prevShift, newShift), 1.second)
-      val old = Await.result(dao.getStaffShift(prevShift.port, prevShift.terminal, prevShift.shiftName, prevShift.startDate), 1.second)
-      val inserted = Await.result(dao.getStaffShift(newShift.port, newShift.terminal, newShift.shiftName, newShift.startDate), 1.second)
+      val searchShiftForStartDateInSep = getStaffShiftRow.copy(startDate = LocalDate(2025, 9, 1))
+      val searchResultForStartDateInSep = Await.result(dao.searchStaffShift(searchShiftForStartDateInSep.port, searchShiftForStartDateInSep.terminal , searchShiftForStartDateInSep.shiftName, searchShiftForStartDateInSep.startDate), 1.second)
+      val searchShiftForStartDateInNov = getStaffShiftRow.copy(startDate = LocalDate(2025, 11, 1))
+      val searchResultForStartDateInNov = Await.result(dao.searchStaffShift(searchShiftForStartDateInNov.port, searchShiftForStartDateInNov.terminal , searchShiftForStartDateInNov.shiftName, searchShiftForStartDateInNov.startDate), 1.second)
 
-      result === 1
-      old.get === prevShift.copy(endDate = Some(LocalDate(2025, 9, 30)))
-      inserted.isDefined === true
-      inserted.get === newShift.copy(createdAt = inserted.get.createdAt)
+      updatedShiftsResults === 1
+      prevShiftInAugResultAfterUpdates.get === prevShiftInAug.copy(endDate = Some(LocalDate(2025, 9, 30))) // Has endDate set to the day before new shift start date
+      newShiftResultWithOctStartDate.isDefined === true
+      newShiftResultWithOctStartDate.get === newShiftRequestedWithOctStartDate.copy(createdAt = newShiftResultWithOctStartDate.get.createdAt)
+      searchResultForStartDateInSep.get === prevShiftInAugResultAfterUpdates.get // Should return the updated previous shift with endDate set
+      searchResultForStartDateInNov.get === newShiftResultWithOctStartDate.get // Should return the new shift with startDate in October
     }
   }
 }
