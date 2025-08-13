@@ -14,7 +14,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait IStaffShiftsDao {
   def insertOrUpdate(shift: Shift): Future[Int]
 
-  def updateStaffShift(previousShift: Shift, futureExistingShift:Shift, shiftRow: Shift)(implicit ec: ExecutionContext): Future[Shift]
+  def updateStaffShift(previousShift: Shift, futureExistingShift: Shift, shiftRow: Shift)(implicit ec: ExecutionContext): Future[Shift]
 
   def updateStaffShift(previousShift: Shift, shiftRow: Shift)(implicit ec: ExecutionContext): Future[Shift]
 
@@ -56,9 +56,11 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
           row.startTime === previousStaffShiftRow.startTime
       ).delete
 
-      val updatesStaffShiftRow = if (previousStaffShiftRow.endDate.isDefined) staffShiftRow.copy(endDate = previousStaffShiftRow.endDate) else staffShiftRow.copy(endDate = None)
-      val insertAction = staffShiftsTable += updatesStaffShiftRow
-      db.run(deleteAction.andThen(insertAction)).map(_ => fromStaffShiftRow(updatesStaffShiftRow))
+    val updatesStaffShiftRow = if (previousStaffShiftRow.endDate.isDefined)
+      staffShiftRow.copy(endDate = previousStaffShiftRow.endDate)
+    else staffShiftRow.copy(endDate = None)
+    val insertAction = staffShiftsTable += updatesStaffShiftRow
+    db.run(deleteAction.andThen(insertAction)).map(_ => fromStaffShiftRow(updatesStaffShiftRow))
   }
 
   override def getStaffShiftsByPort(port: String)(implicit ec: ExecutionContext): Future[Seq[Shift]] =
@@ -155,7 +157,7 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
 
   override def updateStaffShift(previousShift: Shift, futureExistingShift: Shift, shiftRow: Shift)(implicit ec: ExecutionContext): Future[Shift] = {
     val previousStaffShiftRow: StaffShiftRow = toStaffShiftRow(previousShift)
-    val futureExistingShiftRow : StaffShiftRow = toStaffShiftRow(futureExistingShift)
+    val futureExistingShiftRow: StaffShiftRow = toStaffShiftRow(futureExistingShift)
     val staffShiftRow: StaffShiftRow = toStaffShiftRow(shiftRow)
 
     val deletePreviousExistingAction = staffShiftsTable
@@ -185,8 +187,12 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
           row.startTime === futureExistingShiftRow.startTime
       ).delete
 
-    db.run(deletePreviousExistingAction.andThen(insertPreviousExitingAction))
-    db.run(deleteFutureExistingAction.andThen(insertFutureExitingAction)).map(_ => fromStaffShiftRow(updateFutureExitingStaffShiftRow))
-
+    val actions = for {
+      _ <- deletePreviousExistingAction
+      _ <- deleteFutureExistingAction
+      _ <- insertPreviousExitingAction
+      _ <- insertFutureExitingAction
+    } yield ()
+    db.run(actions.transactionally).map(_ => fromStaffShiftRow(updateFutureExitingStaffShiftRow))
   }
 }
