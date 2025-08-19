@@ -83,7 +83,7 @@ class UserPreferencesTest extends AnyWordSpec with Matchers {
     prefs.showStaffingShiftView shouldEqual true
     prefs.desksAndQueuesIntervalMinutes shouldEqual 60
     prefs.portDashboardIntervalMinutes shouldEqual Map("lhr" -> 15, "bhx" -> 15)
-    prefs.portDashboardTerminals shouldEqual Map("lhr" -> Set("T2", "T3", "T4", "T5"), "bhx" -> Set("none"))
+    prefs.portDashboardTerminals shouldEqual Map("lhr" -> Set("T2", "T3", "T4", "T5"), "bhx" -> Set())
   }
 
   "deserialize json like data should be deserialized correctly when multiple port has none selected" in {
@@ -110,6 +110,6 @@ class UserPreferencesTest extends AnyWordSpec with Matchers {
     prefs.showStaffingShiftView shouldEqual true
     prefs.desksAndQueuesIntervalMinutes shouldEqual 60
     prefs.portDashboardIntervalMinutes shouldEqual Map("lhr" -> 15, "bhx" -> 15)
-    prefs.portDashboardTerminals shouldEqual Map("lhr" -> Set("none"), "bhx" -> Set("none"))
+    prefs.portDashboardTerminals shouldEqual Map("lhr" -> Set(), "bhx" -> Set())
   }
 }

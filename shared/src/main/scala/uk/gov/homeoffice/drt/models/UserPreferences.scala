@@ -18,7 +18,7 @@ object UserPreferences {
       case Some(s) if s.nonEmpty =>
         s.split(";").map(_.split(":") match {
           case Array(key, value) if key.nonEmpty && value.nonEmpty => key -> valueParser(value)
-          case Array(key) => key -> valueParser("none")
+          case Array(key) => key -> valueParser("")
           case _ => throw new IllegalArgumentException(s"Invalid format: $s")
         }).toMap
       case _ => Map.empty[String, V]
