@@ -25,6 +25,8 @@ object Stn extends AirportConfigLike {
     val egates = 45d
   }
 
+  private val egateUptakePct = 90.34
+
   val config: AirportConfig = AirportConfig(
     portCode = PortCode("STN"),
     portName = "Stansted",
@@ -68,11 +70,13 @@ object Stn extends AirportConfigLike {
       "Referral Officer, 00:00, 23:59, 1",
       "Forgery Officer, 00:00, 23:59, 1"),
     role = STN,
+    assumedAdultsPerChild = 1.71,
     terminalPaxTypeQueueAllocation = Map(
-      T1 -> (defaultQueueRatios + (EeaMachineReadable -> List(
-        EGate -> 0.8084,
-        EeaDesk -> (1.0 - 0.8084)
-      )))
+      T1 -> (defaultQueueRatios ++ Map(
+        GBRNational -> List(EGate -> egateUptakePct, EeaDesk -> (1 - egateUptakePct)),
+        EeaMachineReadable -> List(EGate -> egateUptakePct, EeaDesk -> (1 - egateUptakePct)),
+        B5JPlusNational -> List(EGate -> egateUptakePct, EeaDesk -> (1 - egateUptakePct)),
+      ))
     ),
     flexedQueues = Set(EeaDesk, NonEeaDesk),
     desksByTerminal = Map(T1 -> 22),
