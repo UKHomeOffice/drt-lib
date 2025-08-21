@@ -8,7 +8,7 @@ import uk.gov.homeoffice.drt.ports.Terminals._
 import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.time.LocalDate
 
-import scala.collection.immutable.SortedMap
+import scala.collection.immutable.{List, SortedMap}
 
 object Ltn extends AirportConfigLike {
 
@@ -22,6 +22,8 @@ object Ltn extends AirportConfigLike {
     val vn = 78.0
     val egates = 47d
   }
+
+  private val egateUptakePct = 85.59
 
   val config: AirportConfig = AirportConfig(
     portCode = PortCode("LTN"),
@@ -56,14 +58,16 @@ object Ltn extends AirportConfigLike {
     eGateBankSizes = Map(T1 -> Iterable(10, 5)),
     hasEstChox = false,
     role = LTN,
+    assumedAdultsPerChild = 1.52,
     terminalPaxTypeQueueAllocation = Map(
-      T1 -> (defaultQueueRatios + (EeaMachineReadable -> List(
-        EGate -> 0.7922,
-        EeaDesk -> (1.0 - 0.7922)
-      )))
+      T1 -> (defaultQueueRatios ++ Map(
+        GBRNational -> List(EGate -> egateUptakePct, EeaDesk -> (1 - egateUptakePct)),
+        EeaMachineReadable -> List(EGate -> egateUptakePct, EeaDesk -> (1 - egateUptakePct)),
+        B5JPlusNational -> List(EGate -> egateUptakePct, EeaDesk -> (1 - egateUptakePct)),
+      ))
     ),
     flexedQueues = Set(EeaDesk, NonEeaDesk),
     desksByTerminal = Map(T1 -> 14),
-    feedSources = Seq(ApiFeedSource, LiveBaseFeedSource, LiveFeedSource, AclFeedSource)
+    feedSources = Seq(ApiFeedSource, LiveBaseFeedSource, LiveFeedSource, AclFeedSource),
   )
 }
