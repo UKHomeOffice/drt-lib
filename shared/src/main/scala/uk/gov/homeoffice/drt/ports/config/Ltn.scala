@@ -23,7 +23,7 @@ object Ltn extends AirportConfigLike {
     val egates = 47d
   }
 
-  private val egateUptakePct = 85.59
+  private val egateUptakePct = 0.8559
 
   val config: AirportConfig = AirportConfig(
     portCode = PortCode("LTN"),
