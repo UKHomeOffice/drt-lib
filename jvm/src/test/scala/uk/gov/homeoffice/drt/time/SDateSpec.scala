@@ -17,7 +17,7 @@ class SDateSpec extends Specification {
       }
     }
 
-    "firstDayOfWeek" should "return Monday for any day in the week" >> {
+    "firstDayOfWeek" should "return Monday for any day in the week for UTC timezone" >> {
       val zone = DateTimeZone.UTC
       // 2024-06-05 is a Wednesday
       val wednesday = SDate(2024, 6, 5, 0, 0, zone)
@@ -26,13 +26,32 @@ class SDateSpec extends Specification {
       monday.getDate == 3
     }
 
-    "lastDayOfWeek" should "return Sunday for any day in the week" >> {
+    "lastDayOfWeek" should "return Sunday for any day in the week for UTC timezone" >> {
       val zone = DateTimeZone.UTC
       // 2024-06-05 is a Wednesday
       val wednesday = SDate(2024, 6, 5, 0, 0, zone)
       val sunday = SDate.lastDayOfWeek(wednesday)
       sunday.getDayOfWeek == 7 &&
       sunday.getDate == 9
+    }
+
+
+    "firstDayOfWeek" should "return Monday for any day in the week for Europe/London Timezone" >> {
+      val zone = DateTimeZone.forID("Europe/London")
+      // 2024-06-05 is a Wednesday
+      val wednesday = SDate(2024, 6, 5, 0, 0, zone)
+      val monday = SDate.firstDayOfWeek(wednesday)
+      monday.getDayOfWeek == 1 &&
+        monday.getDate == 3
+    }
+
+    "lastDayOfWeek" should "return Sunday for any day in the week Europe/London Timezone" >> {
+      val zone = DateTimeZone.forID("Europe/London")
+      // 2024-06-05 is a Wednesday
+      val wednesday = SDate(2024, 6, 5, 0, 0, zone)
+      val sunday = SDate.lastDayOfWeek(wednesday)
+      sunday.getDayOfWeek == 7 &&
+        sunday.getDate == 9
     }
   }
 }
