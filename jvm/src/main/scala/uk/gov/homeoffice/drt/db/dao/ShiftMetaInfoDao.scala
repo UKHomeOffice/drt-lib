@@ -1,0 +1,69 @@
+package uk.gov.homeoffice.drt.db.dao
+
+import slick.dbio.Effect
+import slick.lifted.TableQuery
+import uk.gov.homeoffice.drt.ShiftMeta
+import uk.gov.homeoffice.drt.db.CentralDatabase
+import uk.gov.homeoffice.drt.db.tables.{ShiftMetaInfoRow, ShiftMetaInfoTable}
+import slick.jdbc.PostgresProfile.api._
+import slick.sql.SqlAction
+
+import java.sql.Timestamp
+import scala.concurrent.{ExecutionContext, Future}
+
+trait IShiftMetaInfoDaoLike {
+
+  def insertShiftMetaInfo(port: String, terminal: String, shiftAssignmentsMigratedAt: Option[java.sql.Timestamp], latestShiftAppliedAt: Option[java.sql.Timestamp])(implicit ex: ExecutionContext): Future[Int]
+
+  def getShiftMetaInfo(port: String, terminal: String)(implicit ex: ExecutionContext): Future[Option[ShiftMeta]]
+
+  def updateShiftAssignmentsMigratedAt(port: String, terminal: String, shiftAssignmentsMigratedAt: Option[java.sql.Timestamp])(implicit ex: ExecutionContext): Future[Option[ShiftMeta]]
+
+  def updateLastShiftAppliedAt(port: String, terminal: String, latestShiftAppliedAt: java.sql.Timestamp)(implicit ex: ExecutionContext): Future[Option[ShiftMeta]]
+}
+
+case class ShiftMetaInfoDao(db: CentralDatabase) extends IShiftMetaInfoDaoLike {
+  val shiftMetaInfoTable: TableQuery[ShiftMetaInfoTable] = TableQuery[ShiftMetaInfoTable]
+
+  def insertShiftMetaInfo(port: String, terminal: String, shiftAssignmentsMigratedAt: Option[java.sql.Timestamp], latestShiftAppliedAt: Option[java.sql.Timestamp])(implicit ex: ExecutionContext): Future[Int] = {
+    val query = shiftMetaInfoTable += ShiftMetaInfoRow(port, terminal, shiftAssignmentsMigratedAt, latestShiftAppliedAt)
+    db.db.run(query)
+  }
+
+  override def getShiftMetaInfo(port: String, terminal: String)(implicit ex: ExecutionContext): Future[Option[ShiftMeta]] = {
+    val query = shiftMetaInfoTable.filter(row => row.port === port && row.terminal === terminal)
+    val action = query.result.headOption
+    shiftMetaData(action)
+  }
+
+  private def shiftMetaData(action: SqlAction[Option[ShiftMetaInfoRow], NoStream, Effect.Read])(implicit ex: ExecutionContext) = {
+    db.db.run(action).map {
+      case Some(row) => Some(ShiftMeta(row.port, row.terminal, row.shiftAssignmentsMigratedAt, row.latestShiftAppliedAt))
+      case None => None
+    }
+  }
+
+  override def updateShiftAssignmentsMigratedAt(port: String, terminal: String, shiftAssignmentsMigratedAt: Option[java.sql.Timestamp])(implicit ex: ExecutionContext): Future[Option[ShiftMeta]] = {
+    val query = shiftMetaInfoTable.filter(row => row.port === port && row.terminal === terminal)
+      .map(_.shiftAssignmentsMigratedAt)
+      .update(shiftAssignmentsMigratedAt)
+    val action = query.andThen(shiftMetaInfoTable.filter(row => row.port === port && row.terminal === terminal).result.headOption)
+    actionShiftMetaData(action)
+  }
+
+
+  private def actionShiftMetaData(action: DBIOAction[Option[ShiftMetaInfoRow], NoStream, Effect.Write with Effect.Read])(implicit ex: ExecutionContext) = {
+    db.db.run(action).map {
+      case Some(row) => Some(ShiftMeta(row.port, row.terminal, row.shiftAssignmentsMigratedAt, row.latestShiftAppliedAt))
+      case None => None
+    }
+  }
+
+  override def updateLastShiftAppliedAt(port: String, terminal: String, latestShiftAppliedAt: Timestamp)(implicit ex: ExecutionContext): Future[Option[ShiftMeta]] = {
+    val query = shiftMetaInfoTable.filter(row => row.port === port && row.terminal === terminal)
+      .map(_.latestShiftAppliedAt)
+      .update(Some(latestShiftAppliedAt))
+    val action = query.andThen(shiftMetaInfoTable.filter(row => row.port === port && row.terminal === terminal).result.headOption)
+    actionShiftMetaData(action)
+  }
+}
