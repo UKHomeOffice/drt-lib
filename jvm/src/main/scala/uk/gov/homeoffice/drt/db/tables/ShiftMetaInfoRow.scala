@@ -17,7 +17,7 @@ class ShiftMetaInfoTable(_tableTag: Tag) extends Table[ShiftMetaInfoRow](_tableT
 
   def terminal: Rep[String] = column[String]("terminal")
 
-  def shiftAssignmentsMigratedAt: Rep[Option[Timestamp]] = column[Option[Timestamp]]("shift-assignments-migrated-at")
+  def shiftAssignmentsMigratedAt: Rep[Option[Timestamp]] = column[Option[Timestamp]]("shift_assignments_migrated_at")
 
   def latestShiftAppliedAt: Rep[Option[Timestamp]] = column[Option[Timestamp]]("latest_shift_applied_at")
 
