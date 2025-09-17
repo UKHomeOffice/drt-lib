@@ -2,14 +2,15 @@ package uk.gov.homeoffice.drt.db.dao
 
 import org.specs2.mutable.Specification
 import org.specs2.specification.BeforeEach
-import uk.gov.homeoffice.drt.{Shift, ShiftMeta}
+import uk.gov.homeoffice.drt.ShiftMeta
 import uk.gov.homeoffice.drt.db.TestDatabase
+import uk.gov.homeoffice.drt.db.TestDatabase.profile.api._
 import uk.gov.homeoffice.drt.db.tables.ShiftMetaInfoRow
+
 import java.time.Instant
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
-import TestDatabase.profile.api._
+import scala.concurrent.duration.DurationInt
 
 class ShiftMetaInfoDaoSpec extends Specification with BeforeEach {
   sequential
@@ -28,59 +29,37 @@ class ShiftMetaInfoDaoSpec extends Specification with BeforeEach {
 
   val currentTimestamp = new java.sql.Timestamp(currentTimeInMillis)
 
+  def getShiftMeta: ShiftMeta =
+    ShiftMeta(
+      port = "LHR",
+      terminal = "T5",
+      shiftAssignmentsMigratedAt = Some(currentTimeInMillis)
+    )
+
   def getShiftMetaRow: ShiftMetaInfoRow =
     ShiftMetaInfoRow(
       port = "LHR",
       terminal = "T5",
-      shiftAssignmentsMigratedAt = Some(currentTimestamp),
-      latestShiftAppliedAt = None,
+      shiftAssignmentsMigratedAt = Some(currentTimestamp)
     )
 
   "getShiftMetaInfo" should {
     "insert or select a shift meta info " in {
-      val row = getShiftMetaRow
+      val shiftMetaData = getShiftMeta
 
-      val insertResult = Await.result(dao.insertShiftMetaInfo(port = row.port,
-        terminal = row.terminal,
-        shiftAssignmentsMigratedAt = row.shiftAssignmentsMigratedAt,
-        latestShiftAppliedAt = row.latestShiftAppliedAt), 1.second)
+      val insertResult = Await.result(dao.insertShiftMetaInfo(shiftMetaData), 1.second)
 
       insertResult === 1
 
       val selectResult: Option[ShiftMeta] = Await.result(dao.getShiftMetaInfo("LHR", "T5"), 1.second)
 
-      val expectedResultShift = ShiftMeta(row.port, row.terminal, row.shiftAssignmentsMigratedAt, row.latestShiftAppliedAt)
-      selectResult.get === expectedResultShift
-    }
-
-    "update shift meta info latestShiftAppliedAt column" in {
-      val row = getShiftMetaRow
-
-      val insertResult = Await.result(dao.insertShiftMetaInfo(port = row.port,
-        terminal = row.terminal,
-        shiftAssignmentsMigratedAt = row.shiftAssignmentsMigratedAt,
-        latestShiftAppliedAt = row.latestShiftAppliedAt), 1.second)
-
-      insertResult === 1
-
-      val updatedLatestShiftAppliedAt = new java.sql.Timestamp(currentTimeInMillis + 10000)
-
-      val updateResult: Option[ShiftMeta] = Await.result(dao.updateLastShiftAppliedAt("LHR", "T5", updatedLatestShiftAppliedAt), 1.second)
-
-      val expectedResultShift = ShiftMeta(row.port, row.terminal, row.shiftAssignmentsMigratedAt, Some(updatedLatestShiftAppliedAt))
-      updateResult.get === expectedResultShift
-
-      val selectResult: Option[ShiftMeta] = Await.result(dao.getShiftMetaInfo("LHR", "T5"), 1.second)
-      selectResult.get === expectedResultShift
+      selectResult.get === shiftMetaData
     }
 
     "update shift meta info shiftAssignmentsMigratedAt column" in {
-      val row = getShiftMetaRow
+      val shiftMetaData = getShiftMeta
 
-      val insertResult = Await.result(dao.insertShiftMetaInfo(port = row.port,
-        terminal = row.terminal,
-        shiftAssignmentsMigratedAt = row.shiftAssignmentsMigratedAt,
-        latestShiftAppliedAt = row.latestShiftAppliedAt), 1.second)
+      val insertResult = Await.result(dao.insertShiftMetaInfo(shiftMetaData), 1.second)
 
       insertResult === 1
 
@@ -88,11 +67,11 @@ class ShiftMetaInfoDaoSpec extends Specification with BeforeEach {
 
       val updateResult: Option[ShiftMeta] = Await.result(dao.updateShiftAssignmentsMigratedAt("LHR", "T5", Some(updatedShiftAssignmentsMigratedAt)), 1.second)
 
-      val expectedResultShift = ShiftMeta(row.port, row.terminal, Some(updatedShiftAssignmentsMigratedAt), row.latestShiftAppliedAt)
-      updateResult.get === expectedResultShift
+      val expectedUpdatedShiftMetaData = shiftMetaData.copy(shiftAssignmentsMigratedAt = Some(updatedShiftAssignmentsMigratedAt.getTime))
+      updateResult.get === expectedUpdatedShiftMetaData
 
       val selectResult: Option[ShiftMeta] = Await.result(dao.getShiftMetaInfo("LHR", "T5"), 1.second)
-      selectResult.get === expectedResultShift
+      selectResult.get === expectedUpdatedShiftMetaData
     }
   }
 }
