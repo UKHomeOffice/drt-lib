@@ -63,11 +63,11 @@ class ShiftMetaInfoDaoSpec extends Specification with BeforeEach {
 
       insertResult === 1
 
-      val updatedShiftAssignmentsMigratedAt = new java.sql.Timestamp(currentTimeInMillis + 20000)
+      val updatedShiftAssignmentsMigratedAt = currentTimeInMillis + 20000
 
       val updateResult: Option[ShiftMeta] = Await.result(dao.updateShiftAssignmentsMigratedAt("LHR", "T5", Some(updatedShiftAssignmentsMigratedAt)), 1.second)
 
-      val expectedUpdatedShiftMetaData = shiftMetaData.copy(shiftAssignmentsMigratedAt = Some(updatedShiftAssignmentsMigratedAt.getTime))
+      val expectedUpdatedShiftMetaData = shiftMetaData.copy(shiftAssignmentsMigratedAt = Some(updatedShiftAssignmentsMigratedAt))
       updateResult.get === expectedUpdatedShiftMetaData
 
       val selectResult: Option[ShiftMeta] = Await.result(dao.getShiftMetaInfo("LHR", "T5"), 1.second)

@@ -7,6 +7,8 @@ import uk.gov.homeoffice.drt.db.CentralDatabase
 import uk.gov.homeoffice.drt.db.tables.{ShiftMetaInfoRow, ShiftMetaInfoTable}
 import slick.jdbc.PostgresProfile.api._
 import slick.sql.SqlAction
+
+import java.sql.Timestamp
 import scala.concurrent.{ExecutionContext, Future}
 
 trait IShiftMetaInfoDaoLike {
@@ -15,7 +17,7 @@ trait IShiftMetaInfoDaoLike {
 
   def getShiftMetaInfo(port: String, terminal: String)(implicit ex: ExecutionContext): Future[Option[ShiftMeta]]
 
-  def updateShiftAssignmentsMigratedAt(port: String, terminal: String, shiftAssignmentsMigratedAt: Option[java.sql.Timestamp])(implicit ex: ExecutionContext): Future[Option[ShiftMeta]]
+  def updateShiftAssignmentsMigratedAt(port: String, terminal: String, shiftAssignmentsMigratedAt: Option[Long])(implicit ex: ExecutionContext): Future[Option[ShiftMeta]]
 
 }
 
@@ -40,10 +42,10 @@ case class ShiftMetaInfoDao(db: CentralDatabase) extends IShiftMetaInfoDaoLike {
     }
   }
 
-  override def updateShiftAssignmentsMigratedAt(port: String, terminal: String, shiftAssignmentsMigratedAt: Option[java.sql.Timestamp])(implicit ex: ExecutionContext): Future[Option[ShiftMeta]] = {
+  override def updateShiftAssignmentsMigratedAt(port: String, terminal: String, shiftAssignmentsMigratedAt: Option[Long])(implicit ex: ExecutionContext): Future[Option[ShiftMeta]] = {
     val query = shiftMetaInfoTable.filter(row => row.port === port && row.terminal === terminal)
       .map(_.shiftAssignmentsMigratedAt)
-      .update(shiftAssignmentsMigratedAt)
+      .update(shiftAssignmentsMigratedAt.map(new Timestamp(_)))
     val action = query.andThen(shiftMetaInfoTable.filter(row => row.port === port && row.terminal === terminal).result.headOption)
     actionShiftMetaData(action)
   }
