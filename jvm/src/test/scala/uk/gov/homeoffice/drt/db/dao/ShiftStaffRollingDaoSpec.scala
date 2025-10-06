@@ -27,12 +27,12 @@ class ShiftStaffRollingDaoSpec extends Specification with BeforeEach {
       ), 2.second)
   }
 
-  val currentTimeInMillis: Long = Instant.now().toEpochMilli
+  val currentTimeInMillis: Long = SDate.now().millisSinceEpoch
 
   val startDate = SDate("2024-06-01", europeLondonTimeZone).millisSinceEpoch
   val endDate = SDate("2024-06-02", europeLondonTimeZone).millisSinceEpoch
 
-  val currentTimestamp = new java.sql.Timestamp(currentTimeInMillis)
+  //  val currentTimestamp = SDate.
 
   def getShiftStaffRolling: ShiftStaffRolling =
     ShiftStaffRolling(
@@ -50,7 +50,7 @@ class ShiftStaffRollingDaoSpec extends Specification with BeforeEach {
       terminal = "T5",
       rollingStartedDate = new java.sql.Date(startDate),
       rollingEndedDate = new java.sql.Date(endDate),
-      updatedAt = currentTimestamp,
+      updatedAt = new java.sql.Timestamp(currentTimeInMillis),
       appliedBy = "auto-roll"
     )
 
