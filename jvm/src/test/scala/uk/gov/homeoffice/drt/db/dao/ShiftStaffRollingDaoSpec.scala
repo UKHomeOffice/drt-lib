@@ -29,8 +29,8 @@ class ShiftStaffRollingDaoSpec extends Specification with BeforeEach {
 
   val currentTimeInMillis: Long = SDate.now().millisSinceEpoch
 
-  val startDate = SDate("2024-06-01", europeLondonTimeZone).millisSinceEpoch
-  val endDate = SDate("2024-06-02", europeLondonTimeZone).millisSinceEpoch
+  val startDate = SDate("2024-06-01").millisSinceEpoch
+  val endDate = SDate("2024-06-02").millisSinceEpoch
 
   def getShiftStaffRolling: ShiftStaffRolling =
     ShiftStaffRolling(
