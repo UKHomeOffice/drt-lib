@@ -1,9 +1,7 @@
 package uk.gov.homeoffice.drt.db.dao
 
-import slick.dbio.Effect
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.TableQuery
-import slick.sql.FixedSqlStreamingAction
 import uk.gov.homeoffice.drt.ShiftStaffRolling
 import uk.gov.homeoffice.drt.db.CentralDatabase
 import uk.gov.homeoffice.drt.db.tables.{ShiftStaffRollingRow, ShiftStaffRollingTable}
@@ -13,33 +11,23 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 trait IShiftStaffRollingDaoLike {
-  def upsertShiftStaffRolling(shiftStaffRolling: ShiftStaffRolling)(implicit ex: ExecutionContext): Future[Int]
+  def upsertShiftStaffRolling(shiftStaffRolling: ShiftStaffRolling): Future[Int]
 
-  def getShiftStaffRolling(port: String, terminal: String)(implicit ex: ExecutionContext): Future[Seq[ShiftStaffRolling]]
+  def getShiftStaffRolling(port: String, terminal: String): Future[Seq[ShiftStaffRolling]]
 }
 
-case class ShiftStaffRollingDao(central: CentralDatabase) extends IShiftStaffRollingDaoLike {
+case class ShiftStaffRollingDao(central: CentralDatabase)(implicit ex: ExecutionContext) extends IShiftStaffRollingDaoLike {
   val shiftStaffRollingTable: TableQuery[ShiftStaffRollingTable] = TableQuery[ShiftStaffRollingTable]
 
-//  def insertShiftStaffRolling(shiftStaffRolling: ShiftStaffRolling)(implicit ex: ExecutionContext): Future[Int] = {
-//    val query = shiftStaffRollingTable += ShiftStaffRollingRow(shiftStaffRolling.port,
-//      shiftStaffRolling.terminal,
-//      new Date(shiftStaffRolling.rollingStartedDate),
-//      new Date(shiftStaffRolling.rollingEndedDate),
-//      new Timestamp(shiftStaffRolling.updatedAt),
-//      shiftStaffRolling.appliedBy)
-//    central.db.run(query)
-//  }
 
-
-  def upsertShiftStaffRolling(shiftStaffRolling: ShiftStaffRolling)(implicit ex: ExecutionContext): Future[Int] = {
+  def upsertShiftStaffRolling(shiftStaffRolling: ShiftStaffRolling): Future[Int] = {
     val row = ShiftStaffRollingRow(
       shiftStaffRolling.port,
       shiftStaffRolling.terminal,
-      new Date(shiftStaffRolling.rollingStartedDate),
-      new Date(shiftStaffRolling.rollingEndedDate),
+      new Date(shiftStaffRolling.rollingStartDate),
+      new Date(shiftStaffRolling.rollingEndDate),
       new Timestamp(shiftStaffRolling.updatedAt),
-      shiftStaffRolling.appliedBy
+      shiftStaffRolling.triggeredBy
     )
     val insertOrUpdate = shiftStaffRollingTable
       .insertOrUpdate(row)
@@ -47,16 +35,15 @@ case class ShiftStaffRollingDao(central: CentralDatabase) extends IShiftStaffRol
   }
 
 
-  override def getShiftStaffRolling(port: String, terminal: String)(implicit ex: ExecutionContext): Future[Seq[ShiftStaffRolling]] = {
+  override def getShiftStaffRolling(port: String, terminal: String): Future[Seq[ShiftStaffRolling]] = {
     val query = shiftStaffRollingTable.filter(row => row.port === port && row.terminal === terminal)
-    val action: FixedSqlStreamingAction[Seq[ShiftStaffRollingRow], ShiftStaffRollingRow, Effect.Read] = query.result
-    central.db.run(action)
+    central.db.run(query.result)
       .map(rows => rows.map(row => ShiftStaffRolling(
         row.port,
         row.terminal,
-        row.rollingStartedDate.getTime,
-        row.rollingEndedDate.getTime,
+        row.rollingStartDate.getTime,
+        row.rollingEndDate.getTime,
         row.updatedAt.getTime,
-        row.appliedBy)))
+        row.triggeredBy)))
   }
 }

@@ -2,7 +2,7 @@ package uk.gov.homeoffice.drt
 
 case class ShiftStaffRolling(port: String,
                              terminal: String,
-                             rollingStartedDate: Long,
-                             rollingEndedDate: Long,
+                             rollingStartDate: Long,
+                             rollingEndDate: Long,
                              updatedAt: Long,
-                             appliedBy: String)
+                             triggeredBy: String)

@@ -38,20 +38,20 @@ class ShiftStaffRollingDaoSpec extends Specification with BeforeEach {
     ShiftStaffRolling(
       port = "LHR",
       terminal = "T5",
-      rollingStartedDate = startDate,
-      rollingEndedDate = endDate,
+      rollingStartDate = startDate,
+      rollingEndDate = endDate,
       updatedAt = currentTimeInMillis,
-      appliedBy = "auto-roll"
+      triggeredBy = "auto-roll"
     )
 
   def getShiftStaffRollingRow: ShiftStaffRollingRow =
     ShiftStaffRollingRow(
       port = "LHR",
       terminal = "T5",
-      rollingStartedDate = new java.sql.Date(startDate),
-      rollingEndedDate = new java.sql.Date(endDate),
+      rollingStartDate = new java.sql.Date(startDate),
+      rollingEndDate = new java.sql.Date(endDate),
       updatedAt = new java.sql.Timestamp(currentTimeInMillis),
-      appliedBy = "auto-roll"
+      triggeredBy = "auto-roll"
     )
 
   "getShiftMetaInfo" should {
@@ -61,6 +61,21 @@ class ShiftStaffRollingDaoSpec extends Specification with BeforeEach {
       val insertResult = Await.result(dao.upsertShiftStaffRolling(shiftStaffRolling), 1.second)
 
       insertResult === 1
+
+      val selectResult: Seq[ShiftStaffRolling] = Await.result(dao.getShiftStaffRolling("LHR", "T5"), 1.second)
+
+      selectResult.head === shiftStaffRolling
+    }
+
+    "insert multiple port and get for one port" in {
+      val shiftStaffRolling = getShiftStaffRolling
+      val shiftStaffRolling2 = shiftStaffRolling.copy(terminal = "T1", rollingStartDate = Instant.now().toEpochMilli, rollingEndDate = Instant.now().toEpochMilli)
+      val shiftStaffRolling3 = shiftStaffRolling.copy(port = "LGW", terminal = "T1", rollingStartDate = Instant.now().toEpochMilli, rollingEndDate = Instant.now().toEpochMilli)
+      val shiftStaffRolling4 = shiftStaffRolling.copy(port = "LGW", terminal = "T2", rollingStartDate = Instant.now().toEpochMilli, rollingEndDate = Instant.now().toEpochMilli)
+
+      Await.result(dao.upsertShiftStaffRolling(shiftStaffRolling), 1.second)
+      Await.result(dao.upsertShiftStaffRolling(shiftStaffRolling2), 1.second)
+      Await.result(dao.upsertShiftStaffRolling(shiftStaffRolling3), 1.second)
 
       val selectResult: Seq[ShiftStaffRolling] = Await.result(dao.getShiftStaffRolling("LHR", "T5"), 1.second)
 
