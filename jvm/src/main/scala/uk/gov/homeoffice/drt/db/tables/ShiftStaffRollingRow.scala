@@ -18,15 +18,15 @@ class ShiftStaffRollingTable(_tableTag: Tag) extends Table[ShiftStaffRollingRow]
 
   def terminal: Rep[String] = column[String]("terminal")
 
-  def rollingStartedDate: Rep[java.sql.Date] = column[java.sql.Date]("rolling_start_date")
+  def rollingStartDate: Rep[java.sql.Date] = column[java.sql.Date]("rolling_start_date")
 
-  def rollingEndedDate: Rep[java.sql.Date] = column[java.sql.Date]("rolling_end_date")
+  def rollingEndDate: Rep[java.sql.Date] = column[java.sql.Date]("rolling_end_date")
 
   def updatedAt: Rep[java.sql.Timestamp] = column[java.sql.Timestamp]("updated_at")
 
   def triggeredBy: Rep[String] = column[String]("triggered_by")
 
-  val pk = primaryKey("shift_staff_rolling_pkey", (port, terminal, rollingStartedDate))
+  val pk = primaryKey("shift_staff_rolling_pkey", (port, terminal, rollingStartDate))
 
-  override def * : ProvenShape[ShiftStaffRollingRow] = (port, terminal, rollingStartedDate, rollingEndedDate, updatedAt, triggeredBy).mapTo[ShiftStaffRollingRow]
+  override def * : ProvenShape[ShiftStaffRollingRow] = (port, terminal, rollingStartDate, rollingEndDate, updatedAt, triggeredBy).mapTo[ShiftStaffRollingRow]
 }

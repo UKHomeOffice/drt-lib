@@ -32,8 +32,6 @@ class ShiftStaffRollingDaoSpec extends Specification with BeforeEach {
   val startDate = SDate("2024-06-01", europeLondonTimeZone).millisSinceEpoch
   val endDate = SDate("2024-06-02", europeLondonTimeZone).millisSinceEpoch
 
-  //  val currentTimestamp = SDate.
-
   def getShiftStaffRolling: ShiftStaffRolling =
     ShiftStaffRolling(
       port = "LHR",
@@ -76,6 +74,7 @@ class ShiftStaffRollingDaoSpec extends Specification with BeforeEach {
       Await.result(dao.upsertShiftStaffRolling(shiftStaffRolling), 1.second)
       Await.result(dao.upsertShiftStaffRolling(shiftStaffRolling2), 1.second)
       Await.result(dao.upsertShiftStaffRolling(shiftStaffRolling3), 1.second)
+      Await.result(dao.upsertShiftStaffRolling(shiftStaffRolling4), 1.second)
 
       val selectResult: Seq[ShiftStaffRolling] = Await.result(dao.getShiftStaffRolling("LHR", "T5"), 1.second)
 
