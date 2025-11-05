@@ -6,7 +6,7 @@ import uk.gov.homeoffice.drt.Shift
 import uk.gov.homeoffice.drt.db.CentralDatabase
 import uk.gov.homeoffice.drt.db.tables.{StaffShiftRow, StaffShiftsTable}
 import uk.gov.homeoffice.drt.time.LocalDate
-import uk.gov.homeoffice.drt.util.ShiftUtil.{fromStaffShiftRow, toStaffShiftRow}
+import uk.gov.homeoffice.drt.util.ShiftUtil.{convertToSqlDate, fromStaffShiftRow, toStaffShiftRow}
 
 import java.sql.Date
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,7 +34,7 @@ trait IStaffShiftsDao {
 
   def latestShiftAfterStartDateExists(newShift: Shift)(implicit ec: ExecutionContext): Future[Option[Shift]]
 
-  def deleteStaffShift(previousShift: Shift)(implicit ec: ExecutionContext): Future[Shift]
+  def deleteStaffShift(port: String, terminal: String, shiftName: String, shiftStartDate:LocalDate , startTime:String)(implicit ec: ExecutionContext): Future[Option[Shift]]
 
   def deleteStaffShifts(): Future[Int]
 }
@@ -71,19 +71,20 @@ case class StaffShiftsDao(db: CentralDatabase) extends IStaffShiftsDao {
   override def getStaffShiftsByPortAndTerminal(port: String, terminal: String)(implicit ec: ExecutionContext): Future[Seq[Shift]] =
     db.run(staffShiftsTable.filter(s => s.port === port && s.terminal === terminal).sortBy(_.startDate.desc).result).map(_.map(fromStaffShiftRow))
 
-  def deleteStaffShift(previousShift: Shift)(implicit ec: ExecutionContext): Future[Shift] = {
-    val previousStaffShiftRow: StaffShiftRow = toStaffShiftRow(previousShift)
+  def deleteStaffShift(port: String, terminal: String, shiftName: String, shiftStartDate: LocalDate, startTime: String)(implicit ec: ExecutionContext): Future[Option[Shift]] = {
+    val startDate = convertToSqlDate(shiftStartDate)
 
+    val previousShiftOptFut = getStaffShift(port, terminal, shiftName, shiftStartDate, startTime)
     val deleteAction = staffShiftsTable
       .filter(row =>
-        row.port === previousStaffShiftRow.port &&
-          row.terminal === previousStaffShiftRow.terminal &&
-          row.shiftName === previousStaffShiftRow.shiftName &&
-          row.startDate === previousStaffShiftRow.startDate &&
-          row.startTime === previousStaffShiftRow.startTime
+        row.port === port &&
+          row.terminal === terminal &&
+          row.shiftName === shiftName &&
+          row.startDate === startDate &&
+          row.startTime === startTime
       ).delete
 
-    db.run(deleteAction).map(_ => previousShift)
+    db.run(deleteAction).flatMap(_ => previousShiftOptFut)
   }
 
   override def deleteStaffShifts(): Future[Int] = db.run(staffShiftsTable.delete)
