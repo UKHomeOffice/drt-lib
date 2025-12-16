@@ -62,5 +62,5 @@ class SDateSpec extends Specification {
     sunday.getDayOfWeek == 7 &&
       sunday.getDate == 9
   }
-}
+
 }
