@@ -128,8 +128,8 @@ steps:
 #        - master
       event:
         - push
-#    depends_on:
-#      - Code coverage report
+    depends_on:
+      - Code coverage report
 
   - name: Sonar scanner
     pull: if-not-exists
