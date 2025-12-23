@@ -124,12 +124,12 @@ steps:
         from_secret: ARTIFACTORY_PASSWORD
       ARTIFACTORY_USERNAME: drt_ci
     when:
-      branch:
-        - master
-      event:
+#      branch:
+#        - master
+#      event:
         - push
-    depends_on:
-      - Code coverage report
+#    depends_on:
+#      - Code coverage report
 
   - name: Sonar scanner
     pull: if-not-exists
