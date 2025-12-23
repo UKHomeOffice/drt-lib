@@ -126,7 +126,7 @@ steps:
     when:
 #      branch:
 #        - master
-#      event:
+      event:
         - push
 #    depends_on:
 #      - Code coverage report
