@@ -1,3 +1,1 @@
-addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.8")
-
-libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.11.20"
+// Protobuf plugin wiring has been consolidated into project/plugins.sbt.
