@@ -14,9 +14,11 @@ trait SDateLike {
 
   def `dayOfWeek-DD-Month-YYYY`: String = f"$getDayOfWeekString $getDate%d $getMonthString $getFullYear%04d"
 
-  def `dayOfWeek-DD-MMM-YYYY`: String = f"$getDayOfWeekString $getDate%d ${getMonthString.substring(0, 3)} $getFullYear%04d"
+  def `dayOfWeek-DD-MMM-YYYY`: String =
+    f"$getDayOfWeekString $getDate%d ${getMonthString.substring(0, 3)} $getFullYear%04d"
 
-  def `shortDayOfWeek-DD-MMM-YYYY`: String = f"${getDayOfWeekString.substring(0, 3)} $getDate%d ${getMonthString.substring(0, 3)} $getFullYear%04d"
+  def `shortDayOfWeek-DD-MMM-YYYY`: String =
+    f"${getDayOfWeekString.substring(0, 3)} $getDate%d ${getMonthString.substring(0, 3)} $getFullYear%04d"
 
   def <(other: SDateLike): Boolean = millisSinceEpoch < other.millisSinceEpoch
 
@@ -114,7 +116,6 @@ trait SDateLike {
     daysOfWeek(getDayOfWeek - 1)
   }
 
-
   override def toString: String = f"$getFullYear-$getMonth%02d-$getDate%02dT$getHours%02d$getMinutes%02d"
 
   override def equals(obj: scala.Any): Boolean = {
@@ -135,7 +136,8 @@ trait SDateLike {
 
   def >=(compareTo: Long): Boolean = millisSinceEpoch >= compareTo
 
-  def daysBetweenInclusive(that: SDateLike): Int = ((millisSinceEpoch - that.millisSinceEpoch) / oneDayMillis).abs.toInt + 1
+  def daysBetweenInclusive(that: SDateLike): Int =
+    ((millisSinceEpoch - that.millisSinceEpoch) / oneDayMillis).abs.toInt + 1
 
   def isHistoricDate(now: SDateLike): Boolean = millisSinceEpoch < now.getLocalLastMidnight.millisSinceEpoch
 }

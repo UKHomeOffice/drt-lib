@@ -12,13 +12,13 @@ object PassengersSummaries {
   def empty: PassengersSummaries = PassengersSummaries(Seq())
 }
 
-case class PassengersSummary(regionName: String,
-                             portCode: String,
-                             terminalName: Option[String],
-                             totalCapacity: Int,
-                             drtQueueCounts: Map[Queue, Int],
-                             bxQueueCounts: Map[Queue, Int],
-                             maybeDate: Option[LocalDate],
-                             maybeHour: Option[Int],
-                            )
-
+case class PassengersSummary(
+    regionName: String,
+    portCode: String,
+    terminalName: Option[String],
+    totalCapacity: Int,
+    drtQueueCounts: Map[Queue, Int],
+    bxQueueCounts: Map[Queue, Int],
+    maybeDate: Option[LocalDate],
+    maybeHour: Option[Int]
+)

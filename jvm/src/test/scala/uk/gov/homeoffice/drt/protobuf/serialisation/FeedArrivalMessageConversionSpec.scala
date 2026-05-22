@@ -3,8 +3,14 @@ package uk.gov.homeoffice.drt.protobuf.serialisation
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.homeoffice.drt.arrivals.FeedArrivalGenerator
-import uk.gov.homeoffice.drt.protobuf.messages.FeedArrivalsMessage.{ForecastFeedArrivalsDiffMessage, LiveFeedArrivalsDiffMessage}
-import uk.gov.homeoffice.drt.protobuf.serialisation.FeedArrivalMessageConversion.{forecastArrivalToMessage, liveArrivalToMessage}
+import uk.gov.homeoffice.drt.protobuf.messages.FeedArrivalsMessage.{
+  ForecastFeedArrivalsDiffMessage,
+  LiveFeedArrivalsDiffMessage
+}
+import uk.gov.homeoffice.drt.protobuf.serialisation.FeedArrivalMessageConversion.{
+  forecastArrivalToMessage,
+  liveArrivalToMessage
+}
 import uk.gov.homeoffice.drt.protobuf.serialisation.FlightMessageConversion.uniqueArrivalToMessage
 
 class FeedArrivalMessageConversionSpec extends AnyWordSpec with Matchers {
@@ -14,7 +20,7 @@ class FeedArrivalMessageConversionSpec extends AnyWordSpec with Matchers {
       val fa2 = FeedArrivalGenerator.forecast(operator = Some("BA"), voyageNumber = 2)
       val state = Map(
         fa1.unique -> fa1,
-        fa2.unique -> fa2,
+        fa2.unique -> fa2
       )
 
       val snapshotMessage = FeedArrivalMessageConversion.forecastStateToSnapshotMessage(state)
@@ -28,7 +34,7 @@ class FeedArrivalMessageConversionSpec extends AnyWordSpec with Matchers {
       val fa2 = FeedArrivalGenerator.live(operator = Some("BA"), voyageNumber = 2)
       val state = Map(
         fa1.unique -> fa1,
-        fa2.unique -> fa2,
+        fa2.unique -> fa2
       )
 
       val snapshotMessage = FeedArrivalMessageConversion.liveStateToSnapshotMessage(state)
@@ -42,7 +48,7 @@ class FeedArrivalMessageConversionSpec extends AnyWordSpec with Matchers {
       val fa2 = FeedArrivalGenerator.forecast(operator = Some("BA"), voyageNumber = 2)
       val state = Map(
         fa1.unique -> fa1,
-        fa2.unique -> fa2,
+        fa2.unique -> fa2
       )
 
       val fa3 = FeedArrivalGenerator.forecast(operator = Some("BA"), voyageNumber = 3)
@@ -56,7 +62,7 @@ class FeedArrivalMessageConversionSpec extends AnyWordSpec with Matchers {
       updated should be(Map(
         fa2.unique -> fa2,
         fa3.unique -> fa3,
-        fa4.unique -> fa4,
+        fa4.unique -> fa4
       ))
     }
 
@@ -65,7 +71,7 @@ class FeedArrivalMessageConversionSpec extends AnyWordSpec with Matchers {
       val fa2 = FeedArrivalGenerator.live(operator = Some("BA"), voyageNumber = 2)
       val state = Map(
         fa1.unique -> fa1,
-        fa2.unique -> fa2,
+        fa2.unique -> fa2
       )
 
       val fa3 = FeedArrivalGenerator.live(operator = Some("BA"), voyageNumber = 3)
@@ -79,7 +85,7 @@ class FeedArrivalMessageConversionSpec extends AnyWordSpec with Matchers {
       updated should be(Map(
         fa2.unique -> fa2,
         fa3.unique -> fa3,
-        fa4.unique -> fa4,
+        fa4.unique -> fa4
       ))
     }
 
@@ -88,7 +94,8 @@ class FeedArrivalMessageConversionSpec extends AnyWordSpec with Matchers {
       val fa2 = FeedArrivalGenerator.forecast(operator = Some("BA"), voyageNumber = 2)
       val arrivals = Seq(fa1, fa2)
 
-      val maybeMessage = FeedArrivalMessageConversion.forecastArrivalsToMaybeDiffMessage(() => 1L, processRemovals = true)
+      val maybeMessage =
+        FeedArrivalMessageConversion.forecastArrivalsToMaybeDiffMessage(() => 1L, processRemovals = true)
       val maybe = maybeMessage((arrivals, Map.empty))
 
       val expected = ForecastFeedArrivalsDiffMessage(Option(1L), Seq.empty, arrivals.map(forecastArrivalToMessage))
@@ -101,16 +108,21 @@ class FeedArrivalMessageConversionSpec extends AnyWordSpec with Matchers {
       val fa2 = FeedArrivalGenerator.forecast(operator = Some("BA"), voyageNumber = 2)
       val state = Map(
         fa1.unique -> fa1,
-        fa2.unique -> fa2,
+        fa2.unique -> fa2
       )
       val fa3 = FeedArrivalGenerator.forecast(operator = Some("BA"), voyageNumber = 3)
       val fa4 = FeedArrivalGenerator.forecast(operator = Some("BA"), voyageNumber = 4)
       val arrivals = Seq(fa3, fa4)
 
-      val maybeMessage = FeedArrivalMessageConversion.forecastArrivalsToMaybeDiffMessage(() => 1L, processRemovals = true)
+      val maybeMessage =
+        FeedArrivalMessageConversion.forecastArrivalsToMaybeDiffMessage(() => 1L, processRemovals = true)
       val maybe = maybeMessage((arrivals, state))
 
-      val expected = ForecastFeedArrivalsDiffMessage(Option(1L), Seq(uniqueArrivalToMessage(fa1.unique), uniqueArrivalToMessage(fa2.unique)), arrivals.map(forecastArrivalToMessage))
+      val expected = ForecastFeedArrivalsDiffMessage(
+        Option(1L),
+        Seq(uniqueArrivalToMessage(fa1.unique), uniqueArrivalToMessage(fa2.unique)),
+        arrivals.map(forecastArrivalToMessage)
+      )
 
       maybe should be(Some(expected))
     }
@@ -133,7 +145,7 @@ class FeedArrivalMessageConversionSpec extends AnyWordSpec with Matchers {
       val fa2 = FeedArrivalGenerator.live(operator = Some("BA"), voyageNumber = 2)
       val state = Map(
         fa1.unique -> fa1,
-        fa2.unique -> fa2,
+        fa2.unique -> fa2
       )
       val fa3 = FeedArrivalGenerator.live(operator = Some("BA"), voyageNumber = 3)
       val fa4 = FeedArrivalGenerator.live(operator = Some("BA"), voyageNumber = 4)
@@ -142,7 +154,11 @@ class FeedArrivalMessageConversionSpec extends AnyWordSpec with Matchers {
       val maybeMessage = FeedArrivalMessageConversion.liveArrivalsToMaybeDiffMessage(() => 1L, processRemovals = true)
       val maybe = maybeMessage((arrivals, state))
 
-      val expected = LiveFeedArrivalsDiffMessage(Option(1L), Seq(uniqueArrivalToMessage(fa1.unique), uniqueArrivalToMessage(fa2.unique)), arrivals.map(liveArrivalToMessage))
+      val expected = LiveFeedArrivalsDiffMessage(
+        Option(1L),
+        Seq(uniqueArrivalToMessage(fa1.unique), uniqueArrivalToMessage(fa2.unique)),
+        arrivals.map(liveArrivalToMessage)
+      )
 
       maybe should be(Some(expected))
     }

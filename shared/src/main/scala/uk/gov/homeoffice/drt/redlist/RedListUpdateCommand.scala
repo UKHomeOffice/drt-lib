@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.drt.redlist
 
-import upickle.default.{ReadWriter, macroRW}
+import upickle.default.{ macroRW, ReadWriter }
 
 sealed trait RedListUpdateCommand
 

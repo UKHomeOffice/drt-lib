@@ -3,22 +3,27 @@ package uk.gov.homeoffice.drt.egates
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-
 class EgateBankTest extends AnyWordSpec with Matchers {
   val banks = IndexedSeq(
     EgateBank(IndexedSeq(true, true, true, true, true)),
-    EgateBank(IndexedSeq(true, true, true, true, true)),
+    EgateBank(IndexedSeq(true, true, true, true, true))
   )
 
-  val updateAt10: EgateBanksUpdate = EgateBanksUpdate(10L, IndexedSeq(
-    EgateBank(IndexedSeq(true, true, true, true, true)),
-    EgateBank(IndexedSeq(true, true, true, false, true)),
-  ))
+  val updateAt10: EgateBanksUpdate = EgateBanksUpdate(
+    10L,
+    IndexedSeq(
+      EgateBank(IndexedSeq(true, true, true, true, true)),
+      EgateBank(IndexedSeq(true, true, true, false, true))
+    )
+  )
 
-  val updateAt20: EgateBanksUpdate = EgateBanksUpdate(20L, IndexedSeq(
-    EgateBank(IndexedSeq(true, true, true, true, true)),
-    EgateBank(IndexedSeq(false, true, true, false, true)),
-  ))
+  val updateAt20: EgateBanksUpdate = EgateBanksUpdate(
+    20L,
+    IndexedSeq(
+      EgateBank(IndexedSeq(true, true, true, true, true)),
+      EgateBank(IndexedSeq(false, true, true, false, true))
+    )
+  )
 
   "An egate bank" should {
     "reflect the most recent update at a given time" in {

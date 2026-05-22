@@ -2,26 +2,26 @@ package uk.gov.homeoffice.drt.db.dao
 
 import slick.dbio.Effect
 import slick.jdbc.PostgresProfile.api._
-import uk.gov.homeoffice.drt.db.tables.{BorderCrossingRow, BorderCrossingTable, GateType, GateTypes}
+import uk.gov.homeoffice.drt.db.tables.{ BorderCrossingRow, BorderCrossingTable, GateType, GateTypes }
 import uk.gov.homeoffice.drt.ports.Queues.Queue
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import uk.gov.homeoffice.drt.ports.{PortCode, Queues}
-import uk.gov.homeoffice.drt.time.{DateLike, LocalDate, SDate, UtcDate}
+import uk.gov.homeoffice.drt.ports.{ PortCode, Queues }
+import uk.gov.homeoffice.drt.time.{ DateLike, LocalDate, SDate, UtcDate }
 
 import scala.concurrent.ExecutionContext
-
 
 object BorderCrossingDao {
   val table: TableQuery[BorderCrossingTable] = TableQuery[BorderCrossingTable]
 
-  def replaceHours(port: PortCode)
-                  (implicit ec: ExecutionContext): (Terminal, GateType, Iterable[BorderCrossingRow]) => DBIOAction[Int, NoStream, Effect.Write] =
+  def replaceHours(port: PortCode)(implicit
+      ec: ExecutionContext
+  ): (Terminal, GateType, Iterable[BorderCrossingRow]) => DBIOAction[Int, NoStream, Effect.Write] =
     (terminal, gateType, rows) => {
       val inserts = rows
         .filter { r =>
           r.portCode == port.iata &&
-            r.terminal == terminal.toString &&
-            r.gateType == gateType.value
+          r.terminal == terminal.toString &&
+          r.gateType == gateType.value
         }
         .map(table.insertOrUpdate)
 
@@ -35,14 +35,16 @@ object BorderCrossingDao {
       .filter(_.dateUtc === date)
       .result
 
-  def totalForPortAndDate(port: String, maybeTerminal: Option[String])
-                         (implicit ec: ExecutionContext): DateLike => DBIOAction[Int, NoStream, Effect.Read] =
+  def totalForPortAndDate(port: String, maybeTerminal: Option[String])(implicit
+      ec: ExecutionContext
+  ): DateLike => DBIOAction[Int, NoStream, Effect.Read] =
     date =>
       filterPortTerminalDate(port, maybeTerminal, date)
         .map(_.map(_.passengers).sum)
 
-  def queueTotalsForPortAndDate(port: String, maybeTerminal: Option[String])
-                               (implicit ec: ExecutionContext): DateLike => DBIOAction[Map[Queue, Int], NoStream, Effect.Read] =
+  def queueTotalsForPortAndDate(port: String, maybeTerminal: Option[String])(implicit
+      ec: ExecutionContext
+  ): DateLike => DBIOAction[Map[Queue, Int], NoStream, Effect.Read] =
     date => filterPortTerminalDate(port, maybeTerminal, date).map(rowsToQueueTotals)
 
   private def rowsToQueueTotals(rows: Seq[BorderCrossingRow]): Map[Queue, Int] =
@@ -53,8 +55,9 @@ object BorderCrossingDao {
           (queueForGateType(gateType), queueRows.map(_.passengers).sum)
       }
 
-  def hourlyForPortAndDate(port: String, maybeTerminal: Option[String])
-                          (implicit ec: ExecutionContext): DateLike => DBIOAction[Map[Long, Map[Queue, Int]], NoStream, Effect.Read] =
+  def hourlyForPortAndDate(port: String, maybeTerminal: Option[String])(implicit
+      ec: ExecutionContext
+  ): DateLike => DBIOAction[Map[Long, Map[Queue, Int]], NoStream, Effect.Read] =
     date =>
       filterPortTerminalDate(port, maybeTerminal, date)
         .map {
@@ -79,13 +82,13 @@ object BorderCrossingDao {
   private def queueForGateType(gateType: String): Queue =
     gateType match {
       case GateTypes.EGate.value => Queues.EGate
-      case GateTypes.Pcp.value => Queues.QueueDesk
+      case GateTypes.Pcp.value   => Queues.QueueDesk
     }
-
 
   def filterDate(rows: Seq[BorderCrossingRow], date: DateLike): Seq[BorderCrossingRow] =
     rows.filter { row =>
-      val rowUtcDate = UtcDate.parse(row.dateUtc).getOrElse(throw new Exception(s"Failed to parse UtcDate from ${row.dateUtc}"))
+      val rowUtcDate =
+        UtcDate.parse(row.dateUtc).getOrElse(throw new Exception(s"Failed to parse UtcDate from ${row.dateUtc}"))
       date match {
         case localDate: LocalDate =>
           SDate(rowUtcDate).addHours(row.hour).toLocalDate == localDate
@@ -94,8 +97,9 @@ object BorderCrossingDao {
       }
     }
 
-  private def filterPortTerminalDate(port: String, maybeTerminal: Option[String], date: DateLike)
-                                    (implicit ec: ExecutionContext): DBIOAction[Seq[BorderCrossingRow], NoStream, Effect.Read] = {
+  private def filterPortTerminalDate(port: String, maybeTerminal: Option[String], date: DateLike)(implicit
+      ec: ExecutionContext
+  ): DBIOAction[Seq[BorderCrossingRow], NoStream, Effect.Read] = {
     val sdate = SDate(date)
     val startUtcDate = sdate.getLocalLastMidnight.toUtcDate
     val endUtcDate = sdate.getLocalNextMidnight.addMinutes(-1).toUtcDate

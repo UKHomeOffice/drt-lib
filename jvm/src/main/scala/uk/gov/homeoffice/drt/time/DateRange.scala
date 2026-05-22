@@ -9,7 +9,10 @@ object DateRange {
   val millisToUtc: MillisToDateLike[UtcDate] = (millis: Long) => SDate(millis).toUtcDate
   val millisToLocal: MillisToDateLike[LocalDate] = (millis: Long) => SDate(millis).toLocalDate
 
-  def dateRangeWithBuffer[A <: DateLike](startBuffer: Int, endBuffer: Int, millisToDate: MillisToDateLike[A])(start: SDateLike, end: SDateLike): Seq[A] = {
+  def dateRangeWithBuffer[A <: DateLike](startBuffer: Int, endBuffer: Int, millisToDate: MillisToDateLike[A])(
+      start: SDateLike,
+      end: SDateLike
+  ): Seq[A] = {
     val startMillis = start.addDays(startBuffer * -1).millisSinceEpoch
     val endMillis = end.addDays(endBuffer).millisSinceEpoch
     val daysRangeMillis = startMillis to endMillis by MilliTimes.oneDayMillis
@@ -35,7 +38,11 @@ object DateRange {
       .takeWhile(_.toUtcDate <= end)
       .map(_.toUtcDate)
 
-  def dateRangeSource[A <: DateLike](start: SDateLike, end: SDateLike, millisToDate: MillisToDateLike[A]): Source[A, NotUsed] =
+  def dateRangeSource[A <: DateLike](
+      start: SDateLike,
+      end: SDateLike,
+      millisToDate: MillisToDateLike[A]
+  ): Source[A, NotUsed] =
     Source(dateRange(start, end, millisToDate).toList)
 
   def utcDateRangeWithBuffer(startBuffer: Int, endBuffer: Int)(start: SDateLike, end: SDateLike): Seq[UtcDate] =

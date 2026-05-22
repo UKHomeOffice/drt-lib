@@ -4,7 +4,7 @@ import uk.gov.homeoffice.drt.auth.Roles.EMA
 import uk.gov.homeoffice.drt.ports.PaxTypes._
 import uk.gov.homeoffice.drt.ports.PaxTypesAndQueues._
 import uk.gov.homeoffice.drt.ports.Queues._
-import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{SplitRatio, SplitRatios, SplitSources}
+import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{ SplitRatio, SplitRatios, SplitSources }
 import uk.gov.homeoffice.drt.ports.Terminals._
 import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.time.LocalDate
@@ -44,27 +44,35 @@ object Ema extends AirportConfigLike {
     terminalProcessingTimes = Map(T1 -> defaultProcessingTimes),
     minMaxDesksByTerminalQueue24Hrs = Map(
       T1 -> Map(
-        EGate -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)),
-        QueueDesk -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5))
+        EGate ->
+          (
+            List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+          ),
+        QueueDesk ->
+          (
+            List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
+          )
       )
     ),
     eGateBankSizes = Map(T1 -> Iterable(5)),
     role = EMA,
     terminalPaxTypeQueueAllocation = Map(
-      T1 -> (defaultQueueRatios +
-        (EeaMachineReadable -> List(
-          EGate -> egateUtilisation,
-          EeaDesk -> nonEgateUtilisation
-        )) +
-        (GBRNational -> List(
-          EGate -> egateUtilisation,
-          EeaDesk -> nonEgateUtilisation
-        )) +
-        (B5JPlusNational -> List(
-          EGate -> egateUtilisation,
-          EeaDesk -> nonEgateUtilisation
-        ))
-        )
+      T1 ->
+        (defaultQueueRatios +
+          (EeaMachineReadable -> List(
+            EGate -> egateUtilisation,
+            EeaDesk -> nonEgateUtilisation
+          )) +
+          (GBRNational -> List(
+            EGate -> egateUtilisation,
+            EeaDesk -> nonEgateUtilisation
+          )) +
+          (B5JPlusNational -> List(
+            EGate -> egateUtilisation,
+            EeaDesk -> nonEgateUtilisation
+          )))
     ),
     flexedQueues = Set(),
     desksByTerminal = Map(T1 -> 5),

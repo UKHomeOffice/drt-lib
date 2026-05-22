@@ -1,12 +1,11 @@
 package uk.gov.homeoffice.drt.services
 
-import uk.gov.homeoffice.drt.ports.{AirportInfo, PortCode}
+import uk.gov.homeoffice.drt.ports.{ AirportInfo, PortCode }
 import uk.gov.homeoffice.drt.redlist.RedListUpdates
 import uk.gov.homeoffice.drt.time.MilliDate.MillisSinceEpoch
 
 import scala.io.Codec
 import scala.util.Try
-
 
 object AirportInfoService {
 
@@ -29,7 +28,8 @@ object AirportInfoService {
     row1.substring(1, row1.length - 1)
   }
 
-  def isRedListed(portToCheck: PortCode, forDate: MillisSinceEpoch, redListUpdates: RedListUpdates): Boolean = airportInfoByIataPortCode
-    .get(portToCheck.iata)
-    .exists(ai => redListUpdates.countryCodesByName(forDate).contains(ai.country))
+  def isRedListed(portToCheck: PortCode, forDate: MillisSinceEpoch, redListUpdates: RedListUpdates): Boolean =
+    airportInfoByIataPortCode
+      .get(portToCheck.iata)
+      .exists(ai => redListUpdates.countryCodesByName(forDate).contains(ai.country))
 }

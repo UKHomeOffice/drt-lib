@@ -1,11 +1,12 @@
 package uk.gov.homeoffice.drt.egates
 
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import upickle.default.{ReadWriter, macroRW}
+import upickle.default.{ macroRW, ReadWriter }
 
 sealed trait EgateBanksUpdateCommand
 
-case class SetEgateBanksUpdate(terminal: Terminal, originalDate: Long, egateBanksUpdate: EgateBanksUpdate) extends EgateBanksUpdateCommand {
+case class SetEgateBanksUpdate(terminal: Terminal, originalDate: Long, egateBanksUpdate: EgateBanksUpdate)
+    extends EgateBanksUpdateCommand {
   lazy val firstMinuteAffected: Long =
     if (egateBanksUpdate.effectiveFrom < originalDate)
       egateBanksUpdate.effectiveFrom

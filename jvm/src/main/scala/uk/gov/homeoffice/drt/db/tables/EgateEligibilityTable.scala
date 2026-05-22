@@ -4,15 +4,15 @@ import slick.jdbc.PostgresProfile.api._
 
 import java.sql.Timestamp
 
-case class EgateEligibilityRow(port: String,
-                               terminal: String,
-                               dateUtc: String,
-                               totalPassengers: Int,
-                               egateEligiblePct: Double,
-                               egateUnderAgePct: Double,
-                               createdAt: Timestamp,
-                              )
-
+case class EgateEligibilityRow(
+    port: String,
+    terminal: String,
+    dateUtc: String,
+    totalPassengers: Int,
+    egateEligiblePct: Double,
+    egateUnderAgePct: Double,
+    createdAt: Timestamp
+)
 
 class EgateEligibilityTable(tag: Tag) extends Table[EgateEligibilityRow](tag, "egate_eligibility") {
   def port: Rep[String] = column[String]("port", O.Length(64, varying = true))
@@ -29,8 +29,8 @@ class EgateEligibilityTable(tag: Tag) extends Table[EgateEligibilityRow](tag, "e
 
   def createdAt: Rep[Timestamp] = column[Timestamp]("created_at")
 
-
-  def * = (port, terminal, dateUtc, totalPassengers, egateEligiblePct, egateUnderAgePct, createdAt) <> (EgateEligibilityRow.tupled, EgateEligibilityRow.unapply)
+  def * = (port, terminal, dateUtc, totalPassengers, egateEligiblePct, egateUnderAgePct, createdAt) <>
+    (EgateEligibilityRow.tupled, EgateEligibilityRow.unapply)
 
   val key = primaryKey("egate_eligibility_idx", (port, terminal, dateUtc))
 }

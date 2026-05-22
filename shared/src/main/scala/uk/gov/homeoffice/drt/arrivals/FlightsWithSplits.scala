@@ -1,6 +1,15 @@
 package uk.gov.homeoffice.drt.arrivals
 
-import uk.gov.homeoffice.drt.ports.{AclFeedSource, ApiFeedSource, FeedSource, ForecastFeedSource, HistoricApiFeedSource, LiveFeedSource, MlFeedSource, ScenarioSimulationSource}
+import uk.gov.homeoffice.drt.ports.{
+  AclFeedSource,
+  ApiFeedSource,
+  FeedSource,
+  ForecastFeedSource,
+  HistoricApiFeedSource,
+  LiveFeedSource,
+  MlFeedSource,
+  ScenarioSimulationSource
+}
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 import uk.gov.homeoffice.drt.time.SDateLike
 
@@ -16,7 +25,11 @@ case class FlightsWithSplits(flights: Map[UniqueArrival, ApiFlightWithSplits]) {
     case (UniqueArrival(_, _, scheduledMillis, _), _) => scheduledMillis >= sinceMillis
   })
 
-  def scheduledOrPcpWindow(start: SDateLike, end: SDateLike, sourceOrderPreference: List[FeedSource]): FlightsWithSplits = {
+  def scheduledOrPcpWindow(
+      start: SDateLike,
+      end: SDateLike,
+      sourceOrderPreference: List[FeedSource]
+  ): FlightsWithSplits = {
     val inWindow = flights.filter {
       case (_, fws) =>
         val pcpMatches = fws.apiFlight.hasPcpDuring(start, end, sourceOrderPreference)
@@ -40,7 +53,8 @@ case class FlightsWithSplits(flights: Map[UniqueArrival, ApiFlightWithSplits]) {
 
   def --(toRemove: Iterable[UniqueArrival]): FlightsWithSplits = FlightsWithSplits(flights -- toRemove)
 
-  def ++(toUpdate: Iterable[(UniqueArrival, ApiFlightWithSplits)]): FlightsWithSplits = FlightsWithSplits(flights ++ toUpdate)
+  def ++(toUpdate: Iterable[(UniqueArrival, ApiFlightWithSplits)]): FlightsWithSplits =
+    FlightsWithSplits(flights ++ toUpdate)
 
   def +(toAdd: ApiFlightWithSplits): FlightsWithSplits = FlightsWithSplits(flights.updated(toAdd.unique, toAdd))
 
@@ -50,5 +64,6 @@ case class FlightsWithSplits(flights: Map[UniqueArrival, ApiFlightWithSplits]) {
 object FlightsWithSplits {
   val empty: FlightsWithSplits = FlightsWithSplits(Map[UniqueArrival, ApiFlightWithSplits]())
 
-  def apply(flights: Iterable[ApiFlightWithSplits]): FlightsWithSplits = FlightsWithSplits(flights.map(fws => (fws.unique, fws)).toMap)
+  def apply(flights: Iterable[ApiFlightWithSplits]): FlightsWithSplits =
+    FlightsWithSplits(flights.map(fws => (fws.unique, fws)).toMap)
 }

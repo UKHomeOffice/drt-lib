@@ -6,13 +6,15 @@ import org.apache.pekko.util.Timeout
 import uk.gov.homeoffice.drt.actor.commands.Commands.GetState
 import uk.gov.homeoffice.drt.ports.Queues.Queue
 import uk.gov.homeoffice.drt.ports.config.slas.SlaConfigs
-import uk.gov.homeoffice.drt.time.{LocalDate, SDate}
+import uk.gov.homeoffice.drt.time.{ LocalDate, SDate }
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 object Slas {
-  def slaProvider(slasActor: ActorRef)
-                 (implicit ec: ExecutionContext, timeout: Timeout): (LocalDate, Queue) => Future[Int] =
+  def slaProvider(slasActor: ActorRef)(implicit
+      ec: ExecutionContext,
+      timeout: Timeout
+  ): (LocalDate, Queue) => Future[Int] =
     (date, queue) =>
       slasActor
         .ask(GetState)

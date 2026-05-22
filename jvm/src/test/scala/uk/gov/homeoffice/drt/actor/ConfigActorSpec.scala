@@ -1,22 +1,22 @@
 package uk.gov.homeoffice.drt.actor
 
-import org.apache.pekko.actor.{ActorSystem, Props}
-import org.apache.pekko.testkit.{ImplicitSender, TestKit, TestProbe}
+import org.apache.pekko.actor.{ ActorSystem, Props }
+import org.apache.pekko.testkit.{ ImplicitSender, TestKit, TestProbe }
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import uk.gov.homeoffice.drt.actor.commands.Commands.GetState
-import uk.gov.homeoffice.drt.actor.commands.{Commands, CrunchRequest, TerminalUpdateRequest}
-import uk.gov.homeoffice.drt.ports.Queues.{EGate, EeaDesk}
+import uk.gov.homeoffice.drt.actor.commands.{ Commands, CrunchRequest, TerminalUpdateRequest }
+import uk.gov.homeoffice.drt.ports.Queues.{ EGate, EeaDesk }
 import uk.gov.homeoffice.drt.ports.Terminals.T1
-import uk.gov.homeoffice.drt.ports.config.slas.{SlaConfigs, SlasUpdate}
+import uk.gov.homeoffice.drt.ports.config.slas.{ SlaConfigs, SlasUpdate }
 import uk.gov.homeoffice.drt.time.TimeZoneHelper.europeLondonTimeZone
-import uk.gov.homeoffice.drt.time.{LocalDate, SDate, SDateLike}
+import uk.gov.homeoffice.drt.time.{ LocalDate, SDate, SDateLike }
 
 import scala.collection.immutable.SortedMap
 
 class ConfigActorSpec
-  extends TestKit(ActorSystem("ConfigActorSpec"))
+    extends TestKit(ActorSystem("ConfigActorSpec"))
     with ImplicitSender
     with AnyWordSpecLike
     with Matchers
@@ -27,7 +27,8 @@ class ConfigActorSpec
   }
 
   val myNow: () => SDateLike = () => SDate("2023-10-10T00:00")
-  val updateRequest: LocalDate => Seq[TerminalUpdateRequest] = date => Seq(TerminalUpdateRequest(T1, SDate(date).toLocalDate))
+  val updateRequest: LocalDate => Seq[TerminalUpdateRequest] =
+    date => Seq(TerminalUpdateRequest(T1, SDate(date).toLocalDate))
 
   "A new config actor" must {
     "have empty state" in {
@@ -72,7 +73,7 @@ class ConfigActorSpec
 
       expectMsg(SlaConfigs(SortedMap(
         1L -> Map(EGate -> 1),
-        2L -> Map(EeaDesk -> 10),
+        2L -> Map(EeaDesk -> 10)
       )))
     }
 

@@ -3,31 +3,31 @@ package uk.gov.homeoffice.drt.models
 import uk.gov.homeoffice.drt.Nationality
 import uk.gov.homeoffice.drt.ports.PaxType
 import uk.gov.homeoffice.drt.ports.PaxTypes._
-import uk.gov.homeoffice.drt.services.PassengerTypeCalculator.{isB5JPlus, isEea, isVisaNational}
+import uk.gov.homeoffice.drt.services.PassengerTypeCalculator.{ isB5JPlus, isEea, isVisaNational }
 
 trait PaxTypeAllocator {
   val b5JPlus: PartialFunction[ManifestPassengerProfile, PaxType] = {
     case ManifestPassengerProfile(country, _, Some(age), _, _)
-      if isB5JPlus(country) && age.isUnder(10) => B5JPlusNationalBelowEGateAge
+        if isB5JPlus(country) && age.isUnder(10) => B5JPlusNationalBelowEGateAge
     case ManifestPassengerProfile(country, _, _, _, _)
-      if isB5JPlus(country) => B5JPlusNational
+        if isB5JPlus(country) => B5JPlusNational
   }
 
   val countryAndDocumentTypes: PartialFunction[ManifestPassengerProfile, PaxType] = {
     case ManifestPassengerProfile(Nationality(CountryCodes.UK), _, Some(age), _, _)
-      if age.isUnder(10) => GBRNationalBelowEgateAge
+        if age.isUnder(10) => GBRNationalBelowEgateAge
     case ManifestPassengerProfile(Nationality(CountryCodes.UK), _, _, _, _) =>
       GBRNational
     case ManifestPassengerProfile(country, Some(docType), Some(age), _, _)
-      if isEea(country) && docType == DocumentType.Passport && age.isUnder(10) => EeaBelowEGateAge
+        if isEea(country) && docType == DocumentType.Passport && age.isUnder(10) => EeaBelowEGateAge
     case ManifestPassengerProfile(country, Some(docType), _, _, _)
-      if isEea(country) && docType == DocumentType.Passport => EeaMachineReadable
+        if isEea(country) && docType == DocumentType.Passport => EeaMachineReadable
     case ManifestPassengerProfile(country, _, _, _, _)
-      if isEea(country) => EeaNonMachineReadable
+        if isEea(country) => EeaNonMachineReadable
     case ManifestPassengerProfile(country, _, _, _, _)
-      if !isEea(country) && isVisaNational(country) => VisaNational
+        if !isEea(country) && isVisaNational(country) => VisaNational
     case ManifestPassengerProfile(country, _, _, _, _)
-      if !isEea(country) => NonVisaNational
+        if !isEea(country) => NonVisaNational
   }
 
   val transit: PartialFunction[ManifestPassengerProfile, PaxType] = {
@@ -47,7 +47,8 @@ case object DefaultPaxTypeAllocator extends PaxTypeAllocator {
 }
 
 case object DefaultWithTransitPaxTypeAllocator extends PaxTypeAllocator {
-  override def apply(manifestPassengerProfile: ManifestPassengerProfile): PaxType = withTransit(manifestPassengerProfile)
+  override def apply(manifestPassengerProfile: ManifestPassengerProfile): PaxType =
+    withTransit(manifestPassengerProfile)
 }
 
 case object B5JPlusTypeAllocator extends PaxTypeAllocator {
@@ -58,7 +59,8 @@ case object B5JPlusTypeAllocator extends PaxTypeAllocator {
 }
 
 case object B5JPlusWithTransitTypeAllocator extends PaxTypeAllocator {
-  val withTransitAndB5JPlus: PartialFunction[ManifestPassengerProfile, PaxType] = transit orElse b5JPlus orElse countryAndDocumentTypes
+  val withTransitAndB5JPlus: PartialFunction[ManifestPassengerProfile, PaxType] = transit orElse b5JPlus orElse
+    countryAndDocumentTypes
 
   override def apply(manifestPassengerProfile: ManifestPassengerProfile): PaxType =
     withTransitAndB5JPlus(manifestPassengerProfile)

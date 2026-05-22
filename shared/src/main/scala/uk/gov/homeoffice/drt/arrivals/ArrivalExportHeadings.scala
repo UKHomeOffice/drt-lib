@@ -1,7 +1,7 @@
 package uk.gov.homeoffice.drt.arrivals
 
 import uk.gov.homeoffice.drt.ports.Queues.Queue
-import uk.gov.homeoffice.drt.ports.{PaxTypesAndQueues, Queues}
+import uk.gov.homeoffice.drt.ports.{ PaxTypesAndQueues, Queues }
 import uk.gov.homeoffice.drt.splits.ApiSplitsToSplitRatio
 
 object ArrivalExportHeadings {
@@ -27,7 +27,8 @@ object ArrivalExportHeadings {
     "Invalid API"
   ).mkString(",")
 
-  private val splitsHeadings: String = Seq("API", "Historical", "Terminal Average").map(headingsForSplitSource).mkString(",")
+  private val splitsHeadings: String =
+    Seq("API", "Historical", "Terminal Average").map(headingsForSplitSource).mkString(",")
 
   private val apiAdditionalHeadings: String = Seq("Nationalities", "Ages").mkString(",")
 
@@ -37,11 +38,14 @@ object ArrivalExportHeadings {
     .map(q => s"$source ${Queues.displayName(q)}")
     .mkString(",")
 
-  val actualApiHeadings: String = PaxTypesAndQueues.inOrder.map(heading => s"API Actual - ${heading.displayName}").mkString(",")
+  val actualApiHeadings: String =
+    PaxTypesAndQueues.inOrder.map(heading => s"API Actual - ${heading.displayName}").mkString(",")
 
   val arrivalWithSplitsHeadings: String = Seq(arrivalHeadings, splitsHeadings).mkString(",")
 
-  val arrivalWithSplitsAndRawApiHeadings: String = Seq(arrivalWithSplitsHeadings, actualApiHeadings, apiAdditionalHeadings).mkString(",")
+  val arrivalWithSplitsAndRawApiHeadings: String =
+    Seq(arrivalWithSplitsHeadings, actualApiHeadings, apiAdditionalHeadings).mkString(",")
 
-  val regionalExportHeadings: String = Seq(regionalExportPrefixHeadings, arrivalWithSplitsAndRawApiHeadings).mkString(",")
+  val regionalExportHeadings: String =
+    Seq(regionalExportPrefixHeadings, arrivalWithSplitsAndRawApiHeadings).mkString(",")
 }

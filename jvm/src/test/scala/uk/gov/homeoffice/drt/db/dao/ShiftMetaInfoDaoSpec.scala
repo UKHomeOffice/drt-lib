@@ -21,8 +21,10 @@ class ShiftMetaInfoDaoSpec extends Specification with BeforeEach {
     Await.result(
       TestDatabase.run(DBIO.seq(
         dao.shiftMetaInfoTable.schema.dropIfExists,
-        dao.shiftMetaInfoTable.schema.createIfNotExists)
-      ), 2.second)
+        dao.shiftMetaInfoTable.schema.createIfNotExists
+      )),
+      2.second
+    )
   }
 
   val currentTimeInMillis: Long = Instant.now().toEpochMilli
@@ -65,9 +67,13 @@ class ShiftMetaInfoDaoSpec extends Specification with BeforeEach {
 
       val updatedShiftAssignmentsMigratedAt = currentTimeInMillis + 20000
 
-      val updateResult: Option[ShiftMeta] = Await.result(dao.updateShiftAssignmentsMigratedAt("LHR", "T5", Some(updatedShiftAssignmentsMigratedAt)), 1.second)
+      val updateResult: Option[ShiftMeta] = Await.result(
+        dao.updateShiftAssignmentsMigratedAt("LHR", "T5", Some(updatedShiftAssignmentsMigratedAt)),
+        1.second
+      )
 
-      val expectedUpdatedShiftMetaData = shiftMetaData.copy(shiftAssignmentsMigratedAt = Some(updatedShiftAssignmentsMigratedAt))
+      val expectedUpdatedShiftMetaData =
+        shiftMetaData.copy(shiftAssignmentsMigratedAt = Some(updatedShiftAssignmentsMigratedAt))
       updateResult.get === expectedUpdatedShiftMetaData
 
       val selectResult: Option[ShiftMeta] = Await.result(dao.getShiftMetaInfo("LHR", "T5"), 1.second)

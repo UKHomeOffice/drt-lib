@@ -4,18 +4,29 @@ import slick.jdbc.PostgresProfile.api._
 import slick.lifted.Tag
 import uk.gov.homeoffice.drt.feedback.UserFeedback
 
-case class UserFeedbackRow(email: String,
-                           createdAt: java.sql.Timestamp,
-                           feedbackType: Option[String],
-                           bfRole: String,
-                           drtQuality: String,
-                           drtLikes: Option[String],
-                           drtImprovements: Option[String],
-                           participationInterest: Boolean,
-                           abVersion: Option[String]) {
-  def toUserFeedback = UserFeedback(email, createdAt.getTime, feedbackType, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest, abVersion)
+case class UserFeedbackRow(
+    email: String,
+    createdAt: java.sql.Timestamp,
+    feedbackType: Option[String],
+    bfRole: String,
+    drtQuality: String,
+    drtLikes: Option[String],
+    drtImprovements: Option[String],
+    participationInterest: Boolean,
+    abVersion: Option[String]
+) {
+  def toUserFeedback = UserFeedback(
+    email,
+    createdAt.getTime,
+    feedbackType,
+    bfRole,
+    drtQuality,
+    drtLikes,
+    drtImprovements,
+    participationInterest,
+    abVersion
+  )
 }
-
 
 class UserFeedbackTable(tag: Tag) extends Table[UserFeedbackRow](tag, "user_feedback") {
 
@@ -39,6 +50,7 @@ class UserFeedbackTable(tag: Tag) extends Table[UserFeedbackRow](tag, "user_feed
 
   val pk = primaryKey("user_feedback_pkey", (email, createdAt))
 
-  def * = (email, createdAt, feedbackType, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest, abVersion) <> (UserFeedbackRow.tupled, UserFeedbackRow.unapply)
+  def * =
+    (email, createdAt, feedbackType, bfRole, drtQuality, drtLikes, drtImprovements, participationInterest, abVersion) <>
+      (UserFeedbackRow.tupled, UserFeedbackRow.unapply)
 }
-

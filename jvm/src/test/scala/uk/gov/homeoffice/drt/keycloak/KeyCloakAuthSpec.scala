@@ -1,12 +1,11 @@
 package uk.gov.homeoffice.drt.keycloak
 
-
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest, HttpResponse}
+import org.apache.pekko.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpRequest, HttpResponse }
 import org.specs2.mutable.Specification
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContextExecutor, Future}
+import scala.concurrent.{ Await, ExecutionContextExecutor, Future }
 
 class KeyCloakAuthSpec extends Specification with KeyCloakAuthTokenParserProtocol {
   implicit val system: ActorSystem = ActorSystem("KeyCloakAuthSpec")
@@ -25,7 +24,6 @@ class KeyCloakAuthSpec extends Specification with KeyCloakAuthTokenParserProtoco
        |   "session_state": "session",
        |   "scope": "profile email"
        |}""".stripMargin
-
 
   "When parsing keycloak JSON token I should get back a case class representation of the token" >> {
 

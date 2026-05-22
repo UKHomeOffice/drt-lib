@@ -1,10 +1,10 @@
 package uk.gov.homeoffice.drt.time
 
 import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{DateTime, DateTimeZone}
-import org.slf4j.{Logger, LoggerFactory}
+import org.joda.time.{ DateTime, DateTimeZone }
+import org.slf4j.{ Logger, LoggerFactory }
 import uk.gov.homeoffice.drt.time.MilliDate.MillisSinceEpoch
-import uk.gov.homeoffice.drt.time.TimeZoneHelper.{europeLondonTimeZone, utcTimeZone}
+import uk.gov.homeoffice.drt.time.TimeZoneHelper.{ europeLondonTimeZone, utcTimeZone }
 
 import scala.language.implicitConversions
 import scala.util.Try
@@ -78,9 +78,11 @@ object SDate {
     }
   }
 
-  def millisToLocalIsoDateOnly(timeZone: DateTimeZone): MillisSinceEpoch => String = (millis: MillisSinceEpoch) => SDate(millis, timeZone).toISODateOnly
+  def millisToLocalIsoDateOnly(timeZone: DateTimeZone): MillisSinceEpoch => String =
+    (millis: MillisSinceEpoch) => SDate(millis, timeZone).toISODateOnly
 
-  def millisToLocalHoursAndMinutes(timeZone: DateTimeZone): MillisSinceEpoch => String = (millis: MillisSinceEpoch) => SDate(millis, timeZone).toHoursAndMinutes
+  def millisToLocalHoursAndMinutes(timeZone: DateTimeZone): MillisSinceEpoch => String =
+    (millis: MillisSinceEpoch) => SDate(millis, timeZone).toHoursAndMinutes
 
   object implicits {
 
@@ -110,8 +112,10 @@ object SDate {
 
   def apply(dateTime: String, timeZone: DateTimeZone): SDateLike = JodaSDate(new DateTime(dateTime, timeZone))
 
-  def apply(dateTime: SDateLike,
-            timeZone: DateTimeZone): SDateLike = JodaSDate(new DateTime(dateTime.millisSinceEpoch, timeZone))
+  def apply(
+      dateTime: SDateLike,
+      timeZone: DateTimeZone
+  ): SDateLike = JodaSDate(new DateTime(dateTime.millisSinceEpoch, timeZone))
 
   def apply(millis: MillisSinceEpoch): SDateLike = JodaSDate(new DateTime(millis, DateTimeZone.UTC))
 
@@ -121,7 +125,8 @@ object SDate {
 
   def apply(localDate: LocalDate): SDateLike = SDate(localDate.toISOString + "T00:00", europeLondonTimeZone)
 
-  def apply(dateLike: DateLike): SDateLike = SDate(dateLike.toISOString + "T00:00", DateTimeZone.forID(dateLike.timeZone))
+  def apply(dateLike: DateLike): SDateLike =
+    SDate(dateLike.toISOString + "T00:00", DateTimeZone.forID(dateLike.timeZone))
 
   def apply(utcDate: UtcDate): SDateLike = SDate(utcDate.year, utcDate.month, utcDate.day, 0, 0)
 
@@ -164,7 +169,7 @@ object SDate {
     "September",
     "October",
     "November",
-    "December",
+    "December"
   )
 
   def firstDayOfWeek(today: SDateLike): SDateLike = {

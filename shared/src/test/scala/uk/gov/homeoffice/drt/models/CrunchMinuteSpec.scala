@@ -30,47 +30,59 @@ class CrunchMinuteSpec extends Specification {
       deployedWait = deployedWait,
       maybeDeployedPaxInQueue = maybeDeployedPaxInQueue,
       actDesks = actDesks,
-      actWait = actWait,
+      actWait = actWait
     )
     "When paxLoad is updated" >> {
       val cm = existing.copy(paxLoad = paxLoad + 1)
-      cm.maybeUpdated(existing, nowMillis) === Option(existing.copy(paxLoad = paxLoad + 1, lastUpdated = Option(nowMillis)))
+      cm.maybeUpdated(existing, nowMillis) ===
+        Option(existing.copy(paxLoad = paxLoad + 1, lastUpdated = Option(nowMillis)))
     }
     "When workLoad is updated" >> {
       val cm = existing.copy(workLoad = workLoad + 1)
-      cm.maybeUpdated(existing, nowMillis) === Option(existing.copy(workLoad = workLoad + 1.0, lastUpdated = Option(nowMillis)))
+      cm.maybeUpdated(existing, nowMillis) ===
+        Option(existing.copy(workLoad = workLoad + 1.0, lastUpdated = Option(nowMillis)))
     }
     "When deskRec is updated" >> {
       val cm = existing.copy(deskRec = deskRec + 1)
-      cm.maybeUpdated(existing, nowMillis) === Option(existing.copy(deskRec = deskRec + 1, lastUpdated = Option(nowMillis)))
+      cm.maybeUpdated(existing, nowMillis) ===
+        Option(existing.copy(deskRec = deskRec + 1, lastUpdated = Option(nowMillis)))
     }
     "When waitTime is updated" >> {
       val cm = existing.copy(waitTime = waitTime + 1)
-      cm.maybeUpdated(existing, nowMillis) === Option(existing.copy(waitTime = waitTime + 1, lastUpdated = Option(nowMillis)))
+      cm.maybeUpdated(existing, nowMillis) ===
+        Option(existing.copy(waitTime = waitTime + 1, lastUpdated = Option(nowMillis)))
     }
     "When maybePaxInQueue is updated" >> {
       val cm = existing.copy(maybePaxInQueue = maybePaxInQueue.map(_ + 1))
-      cm.maybeUpdated(existing, nowMillis) === Option(existing.copy(maybePaxInQueue = maybePaxInQueue.map(_ + 1), lastUpdated = Option(nowMillis)))
+      cm.maybeUpdated(existing, nowMillis) ===
+        Option(existing.copy(maybePaxInQueue = maybePaxInQueue.map(_ + 1), lastUpdated = Option(nowMillis)))
     }
     "When deployedDesks is updated" >> {
       val cm = existing.copy(deployedDesks = deployedDesks.map(_ + 1))
-      cm.maybeUpdated(existing, nowMillis) === Option(existing.copy(deployedDesks = deployedDesks.map(_ + 1), lastUpdated = Option(nowMillis)))
+      cm.maybeUpdated(existing, nowMillis) ===
+        Option(existing.copy(deployedDesks = deployedDesks.map(_ + 1), lastUpdated = Option(nowMillis)))
     }
     "When deployedWait is updated" >> {
       val cm = existing.copy(deployedWait = deployedWait.map(_ + 1))
-      cm.maybeUpdated(existing, nowMillis) === Option(existing.copy(deployedWait = deployedWait.map(_ + 1), lastUpdated = Option(nowMillis)))
+      cm.maybeUpdated(existing, nowMillis) ===
+        Option(existing.copy(deployedWait = deployedWait.map(_ + 1), lastUpdated = Option(nowMillis)))
     }
     "When maybeDeployedPaxInQueue is updated" >> {
       val cm = existing.copy(maybeDeployedPaxInQueue = maybeDeployedPaxInQueue.map(_ + 1))
-      cm.maybeUpdated(existing, nowMillis) === Option(existing.copy(maybeDeployedPaxInQueue = maybeDeployedPaxInQueue.map(_ + 1), lastUpdated = Option(nowMillis)))
+      cm.maybeUpdated(existing, nowMillis) === Option(existing.copy(
+        maybeDeployedPaxInQueue = maybeDeployedPaxInQueue.map(_ + 1),
+        lastUpdated = Option(nowMillis)
+      ))
     }
     "When actDesks is updated" >> {
       val cm = existing.copy(actDesks = actDesks.map(_ + 1))
-      cm.maybeUpdated(existing, nowMillis) === Option(existing.copy(actDesks = actDesks.map(_ + 1), lastUpdated = Option(nowMillis)))
+      cm.maybeUpdated(existing, nowMillis) ===
+        Option(existing.copy(actDesks = actDesks.map(_ + 1), lastUpdated = Option(nowMillis)))
     }
     "When actWait is updated" >> {
       val cm = existing.copy(actWait = actWait.map(_ + 1))
-      cm.maybeUpdated(existing, nowMillis) === Option(existing.copy(actWait = actWait.map(_ + 1), lastUpdated = Option(nowMillis)))
+      cm.maybeUpdated(existing, nowMillis) ===
+        Option(existing.copy(actWait = actWait.map(_ + 1), lastUpdated = Option(nowMillis)))
     }
   }
 
@@ -88,5 +100,6 @@ class CrunchMinuteSpec extends Specification {
     maybeDeployedPaxInQueue = Option(4),
     actDesks = Option(5),
     actWait = Option(6),
-    lastUpdated = Option(0L))
+    lastUpdated = Option(0L)
+  )
 }

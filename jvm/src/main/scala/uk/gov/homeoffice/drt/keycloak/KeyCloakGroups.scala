@@ -3,7 +3,6 @@ package uk.gov.homeoffice.drt.keycloak
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-
 case class KeyCloakGroups(groups: List[KeyCloakGroup], client: KeyCloakClient) {
   def usersWithGroupsCsvContent: Future[String] = {
     val usersWithGroupsFuture = allUsersWithGroups(groups)

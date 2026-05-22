@@ -3,9 +3,9 @@ package uk.gov.homeoffice.drt.protobuf.serialisation
 import org.specs2.mutable.Specification
 import uk.gov.homeoffice.drt.prediction.arrival.features.FeatureColumnsV1.DayOfWeek
 import uk.gov.homeoffice.drt.prediction.arrival.features.FeatureColumnsV2.SummerHolidayScotland
-import uk.gov.homeoffice.drt.prediction.arrival.{OffScheduleModelAndFeatures, PaxCapModelAndFeaturesV2}
-import uk.gov.homeoffice.drt.prediction.{FeaturesWithOneToManyValues, ModelAndFeatures, RegressionModel}
-import uk.gov.homeoffice.drt.time.{LocalDate, SDate, SDateLike}
+import uk.gov.homeoffice.drt.prediction.arrival.{ OffScheduleModelAndFeatures, PaxCapModelAndFeaturesV2 }
+import uk.gov.homeoffice.drt.prediction.{ FeaturesWithOneToManyValues, ModelAndFeatures, RegressionModel }
+import uk.gov.homeoffice.drt.time.{ LocalDate, SDate, SDateLike }
 
 class ModelAndFeaturesConversionTest extends Specification {
   implicit val sdateTs: Long => SDateLike = (ts: Long) => SDate(ts)

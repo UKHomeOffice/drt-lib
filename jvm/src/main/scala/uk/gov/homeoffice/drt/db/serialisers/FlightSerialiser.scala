@@ -2,16 +2,15 @@ package uk.gov.homeoffice.drt.db.serialisers
 
 import spray.json._
 import uk.gov.homeoffice.drt.arrivals._
-import uk.gov.homeoffice.drt.db.tables.{FlightRow, FlightTimings}
+import uk.gov.homeoffice.drt.db.tables.{ FlightRow, FlightTimings }
 import uk.gov.homeoffice.drt.ports.Queues.Queue
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSource
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.time.SDate
-import uk.gov.homeoffice.drt.{Nationality, arrivals}
+import uk.gov.homeoffice.drt.{ arrivals, Nationality }
 
 import java.sql.Timestamp
-
 
 trait FlightJsonFormats extends DefaultJsonProtocol {
   implicit object PredictionsJsonFormat extends RootJsonFormat[Predictions] {
@@ -41,7 +40,6 @@ trait FlightJsonFormats extends DefaultJsonProtocol {
     override def write(obj: FeedSource): JsValue = obj.id.toJson
   }
 
-
   implicit val passengersJsonFormat: RootJsonFormat[Passengers] = jsonFormat2(Passengers)
 
   implicit object QueueJsonFormat extends RootJsonFormat[Queue] {
@@ -64,7 +62,7 @@ trait FlightJsonFormats extends DefaultJsonProtocol {
 
     override def read(json: JsValue): Nationality = json match {
       case JsString(nat) => Nationality(nat)
-      case invalid => throw new Exception(s"Invalid nationality code format: ${invalid.getClass.getSimpleName}")
+      case invalid       => throw new Exception(s"Invalid nationality code format: ${invalid.getClass.getSimpleName}")
     }
 
     override def write(obj: Nationality): JsValue = obj.code.toJson
@@ -74,7 +72,7 @@ trait FlightJsonFormats extends DefaultJsonProtocol {
 
     override def read(json: JsValue): PaxAge = json match {
       case JsString(nat) => PaxAge(nat.toInt)
-      case invalid => throw new Exception(s"Invalid pax age code format: ${invalid.getClass.getSimpleName}")
+      case invalid       => throw new Exception(s"Invalid pax age code format: ${invalid.getClass.getSimpleName}")
     }
 
     override def write(obj: PaxAge): JsValue = obj.years.toString.toJson
@@ -86,7 +84,7 @@ trait FlightJsonFormats extends DefaultJsonProtocol {
     "queueType",
     "paxCount",
     "nationalities",
-    "ages",
+    "ages"
   )
 
   implicit object SplitSourceJsonFormat extends RootJsonFormat[SplitSource] {
@@ -118,7 +116,7 @@ trait FlightJsonFormats extends DefaultJsonProtocol {
     "splits",
     "source",
     "maybeEventType",
-    "splitStyle",
+    "splitStyle"
   )
 }
 
@@ -134,7 +132,7 @@ object FlightSerialiser extends FlightJsonFormats {
           actualChox = flight.ActualChox.map(new Timestamp(_)),
           pcpTime = flight.PcpTime.map(new Timestamp(_)),
           carrierScheduled = flight.CarrierScheduled.map(new Timestamp(_)),
-          scheduledDeparture = flight.ScheduledDeparture.map(new Timestamp(_)),
+          scheduledDeparture = flight.ScheduledDeparture.map(new Timestamp(_))
         )
 
         FlightRow(
@@ -155,8 +153,8 @@ object FlightSerialiser extends FlightJsonFormats {
           baggageReclaimId = flight.BaggageReclaimId,
           paxSourcesJson = flight.PassengerSources.toJson.compactPrint,
           redListPax = flight.RedListPax,
-          splitsJson= splits.toJson.compactPrint,
-          updatedAt = new Timestamp(lastUpdated.getOrElse(0)),
+          splitsJson = splits.toJson.compactPrint,
+          updatedAt = new Timestamp(lastUpdated.getOrElse(0))
         )
     }
 
@@ -189,7 +187,7 @@ object FlightSerialiser extends FlightJsonFormats {
         FeedSources = passengerSources.keySet,
         CarrierScheduled = f.timings.carrierScheduled.map(_.getTime),
         ScheduledDeparture = f.timings.scheduledDeparture.map(_.getTime),
-        RedListPax = f.redListPax,
+        RedListPax = f.redListPax
       )
       val splits = f.splitsJson.parseJson.convertTo[Set[Splits]]
       ApiFlightWithSplits(arrival, splits, Option(f.updatedAt.getTime))

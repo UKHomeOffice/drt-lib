@@ -1,14 +1,41 @@
 package uk.gov.homeoffice.drt.auth
 
-
 import ujson.Value
 import uk.gov.homeoffice.drt.AppEnvironment
 import uk.gov.homeoffice.drt.AppEnvironment.AppEnvironment
-import upickle.default.{readwriter, _}
-
+import upickle.default.{ readwriter, _ }
 
 object Roles {
-  val portRoles: Set[Role] = Set(ABZ, BFS, BHD, BHX, BRS, BOH, CWL, EDI, EMA, EXT, GLA, HUY, INV, LBA, LCY, LGW, LHR, LPL, LTN, MAN, MME, NCL, NQY, NWI, PIK, SEN, SOU, STN)
+  val portRoles: Set[Role] = Set(
+    ABZ,
+    BFS,
+    BHD,
+    BHX,
+    BRS,
+    BOH,
+    CWL,
+    EDI,
+    EMA,
+    EXT,
+    GLA,
+    HUY,
+    INV,
+    LBA,
+    LCY,
+    LGW,
+    LHR,
+    LPL,
+    LTN,
+    MAN,
+    MME,
+    NCL,
+    NQY,
+    NWI,
+    PIK,
+    SEN,
+    SOU,
+    STN
+  )
 
   val availableRoles: Set[Role] = Set(
     ApiView,
@@ -48,7 +75,7 @@ object Roles {
     AccessOnlyPreprod,
     NationalView,
     ApiQueueAccess,
-    ApiFlightAccess,
+    ApiFlightAccess
   ) ++ portRoles ++ Set(TEST, TEST2)
 
   def parse(roleName: String): Option[Role] = availableRoles.find(role => role.name.toLowerCase == roleName.toLowerCase)
@@ -234,7 +261,6 @@ object Roles {
   case object STN extends PortAccess {
     override val name: String = "STN"
   }
-
 
   case object CreateAlerts extends Role {
     override val name: String = "create-alerts"

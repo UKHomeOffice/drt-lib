@@ -28,9 +28,8 @@ object QueueSlotSerialiser {
           deployedDesks = cm.deployedDesks,
           deployedWait = cm.deployedWait,
           deployedPaxInQueue = cm.maybeDeployedPaxInQueue,
-          updatedAt = new Timestamp(cm.lastUpdated.getOrElse(SDate.now().millisSinceEpoch)),
+          updatedAt = new Timestamp(cm.lastUpdated.getOrElse(SDate.now().millisSinceEpoch))
         )
-
 
   val fromRow: QueueSlotRow => CrunchMinute = { row =>
     CrunchMinute(
@@ -45,7 +44,7 @@ object QueueSlotSerialiser {
       deployedDesks = row.deployedDesks,
       deployedWait = row.deployedWait,
       maybeDeployedPaxInQueue = row.deployedPaxInQueue,
-      lastUpdated = Option(row.updatedAt.getTime),
+      lastUpdated = Option(row.updatedAt.getTime)
     )
   }
 }

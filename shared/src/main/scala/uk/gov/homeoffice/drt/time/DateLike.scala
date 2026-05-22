@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.drt.time
 
-import scala.util.{Success, Try}
+import scala.util.{ Success, Try }
 
 trait DateLike extends Ordered[DateLike] {
   val timeZone: String
@@ -31,17 +31,18 @@ trait DateLike extends Ordered[DateLike] {
 
 object DateLike {
   def parse[A <: DateLike](toDateLike: (Int, Int, Int) => A): String => Option[A] =
-    (dateString: String) => Try(
-      dateString
-        .split("-")
-        .take(3)
-        .toList
-        .map(_.toInt)
-    ) match {
-      case Success(year :: month :: day :: _) =>
-        Option(toDateLike(year, month, day))
-      case _ => None
-    }
+    (dateString: String) =>
+      Try(
+        dateString
+          .split("-")
+          .take(3)
+          .toList
+          .map(_.toInt)
+      ) match {
+        case Success(year :: month :: day :: _) =>
+          Option(toDateLike(year, month, day))
+        case _ => None
+      }
 }
 
 object DateLikeOrdering extends Ordering[DateLike] {

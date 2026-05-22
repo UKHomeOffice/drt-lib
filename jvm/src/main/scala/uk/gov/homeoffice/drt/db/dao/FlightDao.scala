@@ -2,27 +2,29 @@ package uk.gov.homeoffice.drt.db.dao
 
 import org.apache.pekko.NotUsed
 import org.apache.pekko.stream.scaladsl.Source
-import slick.dbio.{DBIOAction, Effect, NoStream}
+import slick.dbio.{ DBIOAction, Effect, NoStream }
 import slick.jdbc.PostgresProfile.api._
-import uk.gov.homeoffice.drt.arrivals.{ApiFlightWithSplits, CodeShares, UniqueArrival}
+import uk.gov.homeoffice.drt.arrivals.{ ApiFlightWithSplits, CodeShares, UniqueArrival }
 import uk.gov.homeoffice.drt.db.serialisers.FlightSerialiser
-import uk.gov.homeoffice.drt.db.tables.{FlightRow, FlightTable}
+import uk.gov.homeoffice.drt.db.tables.{ FlightRow, FlightTable }
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import uk.gov.homeoffice.drt.ports.{FeedSource, PortCode}
-import uk.gov.homeoffice.drt.time.{DateLike, DateRange, LocalDate, SDate, UtcDate}
+import uk.gov.homeoffice.drt.ports.{ FeedSource, PortCode }
+import uk.gov.homeoffice.drt.time.{ DateLike, DateRange, LocalDate, SDate, UtcDate }
 
 import java.sql.Timestamp
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
-
-case class FlightDao()
-                    (implicit ec: ExecutionContext) {
+case class FlightDao()(implicit ec: ExecutionContext) {
   val table: TableQuery[FlightTable] = TableQuery[FlightTable]
 
-  def flightsForPcpDateRange(portCode: PortCode,
-                             paxFeedSourceOrder: List[FeedSource],
-                             execute: DBIOAction[(UtcDate, Seq[ApiFlightWithSplits]), NoStream, Effect.Read] => Future[(UtcDate, Seq[ApiFlightWithSplits])]
-                            ): (DateLike, DateLike, Seq[Terminal]) => Source[(UtcDate, Seq[ApiFlightWithSplits]), NotUsed] = {
+  def flightsForPcpDateRange(
+      portCode: PortCode,
+      paxFeedSourceOrder: List[FeedSource],
+      execute: DBIOAction[(UtcDate, Seq[ApiFlightWithSplits]), NoStream, Effect.Read] => Future[(
+          UtcDate,
+          Seq[ApiFlightWithSplits]
+      )]
+  ): (DateLike, DateLike, Seq[Terminal]) => Source[(UtcDate, Seq[ApiFlightWithSplits]), NotUsed] = {
     val getFlights = getForTerminalsUtcDate(portCode)
 
     (start, end, terminals) =>
@@ -36,15 +38,20 @@ case class FlightDao()
           execute(
             getFlights(terminals, date)
               .map { flights =>
-                val relevantFlightsForDates = flights.filter(_.apiFlight.hasPcpDuring(startSdate, endSdate, paxFeedSourceOrder))
+                val relevantFlightsForDates =
+                  flights.filter(_.apiFlight.hasPcpDuring(startSdate, endSdate, paxFeedSourceOrder))
                 date -> relevantFlightsForDates
               }
           )
         }
   }
 
-  def uniqueFlightsForDatesAndTerminals(execute: DBIOAction[(UtcDate, Seq[ApiFlightWithSplits]), NoStream, Effect.Read] => Future[(UtcDate, Seq[ApiFlightWithSplits])]
-                                       ): (PortCode, List[FeedSource], LocalDate, LocalDate, Seq[Terminal]) => Source[ApiFlightWithSplits, NotUsed] =
+  def uniqueFlightsForDatesAndTerminals(execute: DBIOAction[
+    (UtcDate, Seq[ApiFlightWithSplits]),
+    NoStream,
+    Effect.Read
+  ] => Future[(UtcDate, Seq[ApiFlightWithSplits])])
+      : (PortCode, List[FeedSource], LocalDate, LocalDate, Seq[Terminal]) => Source[ApiFlightWithSplits, NotUsed] =
     (portCode, sourceOrder, start, end, terminals) => {
       val uniqueFlights = CodeShares.uniqueArrivals(sourceOrder) _
 
@@ -54,7 +61,8 @@ case class FlightDao()
         .mapConcat(identity)
     }
 
-  def get(port: PortCode): (PortCode, Terminal, Long, Int) => DBIOAction[Option[ApiFlightWithSplits], NoStream, Effect.Read] =
+  def get(port: PortCode)
+      : (PortCode, Terminal, Long, Int) => DBIOAction[Option[ApiFlightWithSplits], NoStream, Effect.Read] =
     (origin, terminal, scheduled, voyageNumber) =>
       table
         .filter(f =>
@@ -62,11 +70,13 @@ case class FlightDao()
             f.port === port.iata &&
             f.terminal === terminal.toString &&
             f.scheduled === new Timestamp(scheduled) &&
-            f.voyageNumber === voyageNumber)
+            f.voyageNumber === voyageNumber
+        )
         .result
         .map(_.map(FlightSerialiser.fromRow).headOption)
 
-  def getForTerminalsUtcDate(port: PortCode): (Seq[Terminal], UtcDate) => DBIOAction[Seq[ApiFlightWithSplits], NoStream, Effect.Read] =
+  def getForTerminalsUtcDate(port: PortCode)
+      : (Seq[Terminal], UtcDate) => DBIOAction[Seq[ApiFlightWithSplits], NoStream, Effect.Read] =
     (terminals, date) =>
       table
         .filter(f =>
@@ -84,13 +94,15 @@ case class FlightDao()
         .result
         .map(_.map(FlightSerialiser.fromRow))
 
-  def insertOrUpdate(port: PortCode): ApiFlightWithSplits => DBIOAction[Int, NoStream, Effect.Write with Effect.Transactional] = {
+  def insertOrUpdate(port: PortCode)
+      : ApiFlightWithSplits => DBIOAction[Int, NoStream, Effect.Write with Effect.Transactional] = {
     val toRow: ApiFlightWithSplits => FlightRow = FlightSerialiser.toRow(port)
     flight =>
       table.insertOrUpdate(toRow(flight))
   }
 
-  def insertOrUpdateMulti(port: PortCode): Iterable[ApiFlightWithSplits] => DBIOAction[Int, NoStream, Effect.Write with Effect.Transactional] = {
+  def insertOrUpdateMulti(port: PortCode)
+      : Iterable[ApiFlightWithSplits] => DBIOAction[Int, NoStream, Effect.Write with Effect.Transactional] = {
     val insertOrUpdateSingle = insertOrUpdate(port)
     flights =>
       DBIO.sequence(flights.map(insertOrUpdateSingle)).map(_.sum)
@@ -112,7 +124,8 @@ case class FlightDao()
           f.terminal === ua.terminal.toString &&
           f.origin === ua.origin.iata &&
           f.scheduled === new Timestamp(ua.scheduled) &&
-          f.voyageNumber === ua.number)
+          f.voyageNumber === ua.number
+      )
       .delete
 
   def removeAllBefore: UtcDate => DBIOAction[Int, NoStream, Effect.Write] = date =>

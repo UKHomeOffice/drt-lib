@@ -2,7 +2,6 @@ package uk.gov.homeoffice.drt.arrivals
 
 import org.specs2.mutable.Specification
 
-
 class FlightCodeSpec extends Specification {
   "Can parse an IATA to carrier code and voyage number" >> {
     FlightCode("FR8364", "") === FlightCode(CarrierCode("FR"), VoyageNumber("8364"), None)

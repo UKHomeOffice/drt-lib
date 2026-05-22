@@ -1,19 +1,21 @@
 package uk.gov.homeoffice.drt.protobuf.serialisation
 
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 import uk.gov.homeoffice.drt.Nationality
 import uk.gov.homeoffice.drt.actor.state.ArrivalsState
 import uk.gov.homeoffice.drt.arrivals._
-import uk.gov.homeoffice.drt.feeds.{FeedStatus, FeedStatusFailure, FeedStatusSuccess, FeedStatuses}
+import uk.gov.homeoffice.drt.feeds.{ FeedStatus, FeedStatusFailure, FeedStatusSuccess, FeedStatuses }
 import uk.gov.homeoffice.drt.ports.Queues.Queue
-import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{SplitSource, SplitSources}
+import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{ SplitSource, SplitSources }
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.protobuf.messages.CrunchState._
 import uk.gov.homeoffice.drt.protobuf.messages.FlightsMessage._
-import uk.gov.homeoffice.drt.protobuf.messages.Prediction.{PredictionIntMessage, PredictionLongMessage, PredictionsMessage}
-
-
+import uk.gov.homeoffice.drt.protobuf.messages.Prediction.{
+  PredictionIntMessage,
+  PredictionLongMessage,
+  PredictionsMessage
+}
 
 object FlightMessageConversion {
   val log: Logger = LoggerFactory.getLogger(getClass.toString)
@@ -22,10 +24,20 @@ object FlightMessageConversion {
     FlightsWithSplitsDiff(diffMessage.updates.map(flightWithSplitsFromMessage).toList)
 
   def uniqueArrivalToMessage(unique: UniqueArrival): UniqueArrivalMessage =
-    UniqueArrivalMessage(Option(unique.number), Option(unique.terminal.toString), Option(unique.scheduled), Option(unique.origin.toString))
+    UniqueArrivalMessage(
+      Option(unique.number),
+      Option(unique.terminal.toString),
+      Option(unique.scheduled),
+      Option(unique.origin.toString)
+    )
 
   def uniqueArrivalFromMessage(unique: UniqueArrivalMessage): UniqueArrival =
-    UniqueArrival(unique.number.getOrElse(0), Terminal(unique.terminalName.getOrElse("")), unique.scheduled.getOrElse(0L), PortCode(unique.origin.getOrElse("")))
+    UniqueArrival(
+      unique.number.getOrElse(0),
+      Terminal(unique.terminalName.getOrElse("")),
+      unique.scheduled.getOrElse(0L),
+      PortCode(unique.origin.getOrElse(""))
+    )
 
   def flightWithSplitsDiffToMessage(diff: FlightsWithSplitsDiff, nowMillis: Long): FlightsWithSplitsDiffMessage = {
     FlightsWithSplitsDiffMessage(
@@ -80,7 +92,8 @@ object FlightMessageConversion {
     }
 
   def arrivalsStateToSnapshotMessage(state: ArrivalsState): FlightStateSnapshotMessage = {
-    val maybeStatusMessages: Option[FeedStatusesMessage] = state.maybeSourceStatuses.flatMap(feedStatuses => feedStatusesToMessage(feedStatuses.feedStatuses))
+    val maybeStatusMessages: Option[FeedStatusesMessage] =
+      state.maybeSourceStatuses.flatMap(feedStatuses => feedStatusesToMessage(feedStatuses.feedStatuses))
 
     FlightStateSnapshotMessage(
       state.arrivals.values.map(apiFlightToFlightMessage).toSeq,
@@ -99,8 +112,10 @@ object FlightMessageConversion {
     case s: FeedStatusFailure => FeedStatusMessage(Option(s.date), None, Option(s.message))
   }
 
-  def restoreArrivalsFromSnapshot(restorer: ArrivalsRestorer[Arrival],
-                                  snMessage: FlightStateSnapshotMessage): Unit = {
+  def restoreArrivalsFromSnapshot(
+      restorer: ArrivalsRestorer[Arrival],
+      snMessage: FlightStateSnapshotMessage
+  ): Unit = {
     restorer.applyUpdates(validFlightsFromMessages(snMessage.flightMessages))
   }
 
@@ -126,7 +141,8 @@ object FlightMessageConversion {
     FlightWithSplitsMessage(
       Option(FlightMessageConversion.apiFlightToFlightMessage(f.apiFlight)),
       f.splits.map(apiSplitsToMessage).toList,
-      lastUpdated = f.lastUpdated)
+      lastUpdated = f.lastUpdated
+    )
   }
 
   def flightWithSplitsFromMessage(fm: FlightWithSplitsMessage): ApiFlightWithSplits = ApiFlightWithSplits(
@@ -137,7 +153,8 @@ object FlightMessageConversion {
 
   def splitMessageToApiSplits(sm: SplitMessage): Splits = {
     val splitSource = SplitSource(sm.source.getOrElse("")) match {
-      case SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages_Old => SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages
+      case SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages_Old =>
+        SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages
       case s => s
     }
 
@@ -153,10 +170,9 @@ object FlightMessageConversion {
       }).toSet,
       splitSource,
       sm.eventType.map(EventType(_)),
-      SplitStyle(sm.style.getOrElse("")),
+      SplitStyle(sm.style.getOrElse(""))
     )
   }
-
 
   def nationalitiesFromMessage(ptqcm: PaxTypeAndQueueCountMessage): Option[Map[Nationality, Double]] = ptqcm
     .nationalities
@@ -166,7 +182,7 @@ object FlightMessageConversion {
       case (Some(nat), Some(count)) => Nationality(nat) -> count
     }.toMap match {
     case nats if nats.isEmpty => None
-    case nats => Option(nats)
+    case nats                 => Option(nats)
   }
 
   def passengerAgesFromMessage(ptqcm: PaxTypeAndQueueCountMessage): Option[Map[PaxAge, Double]] = ptqcm
@@ -177,7 +193,7 @@ object FlightMessageConversion {
       case (Some(age), Some(count)) => PaxAge(age) -> count
     }.toMap match {
     case ages if ages.isEmpty => None
-    case ages => Option(ages)
+    case ages                 => Option(ages)
   }
 
   def apiSplitsToMessage(s: Splits): SplitMessage = {
@@ -236,8 +252,10 @@ object FlightMessageConversion {
 
   def convertPassengerSourcesToMessage(totalPax: Map[FeedSource, Passengers]): Seq[TotalPaxSourceMessage] =
     totalPax.map { case (source, passengers: Passengers) =>
-      TotalPaxSourceMessage(feedSource = Option(source.toString),
-        passengers = Option(PassengersMessage(passengers.actual, passengers.transit)))
+      TotalPaxSourceMessage(
+        feedSource = Option(source.toString),
+        passengers = Option(PassengersMessage(passengers.actual, passengers.transit))
+      )
     }.toSeq
 
   def predictionsToMessage(predictions: Predictions): PredictionsMessage =
@@ -261,7 +279,7 @@ object FlightMessageConversion {
 
   def predictionsFromMessage(maybePredictionsMessage: Option[PredictionsMessage]): Predictions =
     maybePredictionsMessage match {
-      case None => Predictions(0L, Map())
+      case None              => Predictions(0L, Map())
       case Some(predictions) =>
         val modelPredictions = predictions.predictions.map(msg => (msg.getModelName, msg.getValue))
         Predictions(predictions.updatedAt.getOrElse(0L), modelPredictions.toMap)
@@ -302,9 +320,12 @@ object FlightMessageConversion {
     addApiPaxIfAvailable(flightMessage, paxSources)
   }
 
-  private def addApiPaxIfAvailable(flightMessage: FlightMessage, paxSources: Map[FeedSource, Passengers]): Map[FeedSource, Passengers] = {
+  private def addApiPaxIfAvailable(
+      flightMessage: FlightMessage,
+      paxSources: Map[FeedSource, Passengers]
+  ): Map[FeedSource, Passengers] = {
     flightMessage.apiPaxOLD match {
-      case None => paxSources
+      case None      => paxSources
       case Some(pax) => paxSources.updated(ApiFeedSource, Passengers(Option(pax), flightMessage.tranPaxOLD))
     }
   }
@@ -312,7 +333,8 @@ object FlightMessageConversion {
   private def passengerSourcesFromV2(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
     val bestSource = bestFeedSource(getFeedSources(flightMessage.feedSources).toSeq)
     val paxSources = flightMessage.feedSources.map {
-      case best if best == bestSource.toString => (bestSource, Passengers(flightMessage.actPaxOLD, flightMessage.tranPaxOLD))
+      case best if best == bestSource.toString =>
+        (bestSource, Passengers(flightMessage.actPaxOLD, flightMessage.tranPaxOLD))
       case other => (FeedSource(other).getOrElse(UnknownFeedSource), Passengers(None, None))
     }.toMap
 
@@ -322,7 +344,8 @@ object FlightMessageConversion {
   private def passengerSourcesFromV3(flightMessage: FlightMessage): Map[FeedSource, Passengers] = {
     val bestSource = bestFeedSource(getFeedSources(flightMessage.totalPax.map(tp => tp.feedSource.getOrElse(""))).toSeq)
     val paxSources = flightMessage.totalPax.map {
-      case TotalPaxSourceMessage(source, _, paxOLD) if source.getOrElse("") == bestSource.toString || source.getOrElse("") == bestSource.name =>
+      case TotalPaxSourceMessage(source, _, paxOLD)
+          if source.getOrElse("") == bestSource.toString || source.getOrElse("") == bestSource.name =>
         val feedSource = source.flatMap(FeedSource(_)).getOrElse(UnknownFeedSource)
         (feedSource, Passengers(paxOLD, flightMessage.tranPaxOLD))
       case TotalPaxSourceMessage(source, _, paxOLD) =>

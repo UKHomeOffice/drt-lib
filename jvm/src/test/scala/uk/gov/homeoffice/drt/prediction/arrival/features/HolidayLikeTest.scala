@@ -3,7 +3,7 @@ package uk.gov.homeoffice.drt.prediction.arrival.features
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.homeoffice.drt.prediction.arrival.features.FeatureColumnsV2._
-import uk.gov.homeoffice.drt.time.{LocalDate, SDate, SDateLike}
+import uk.gov.homeoffice.drt.time.{ LocalDate, SDate, SDateLike }
 
 class HolidayLikeTest extends AnyWordSpec with Matchers {
   "hasMissingDate" should {
@@ -19,7 +19,7 @@ class HolidayLikeTest extends AnyWordSpec with Matchers {
     "return true if the latest date is more than 6 months ago" in {
       val holiday: HolidayLike = holidayLike(Seq(
         (LocalDate(2024, 1, 1), LocalDate(2023, 1, 2)),
-        (LocalDate(2025, 2, 18), LocalDate(2025, 2, 20)),
+        (LocalDate(2025, 2, 18), LocalDate(2025, 2, 20))
       ))
 
       holiday.hasMissingDate shouldBe true
@@ -28,7 +28,7 @@ class HolidayLikeTest extends AnyWordSpec with Matchers {
     "return false if the latest date is within 6 month ago" in {
       val holiday = holidayLike(Seq(
         (LocalDate(2024, 1, 1), LocalDate(2023, 1, 2)),
-        (LocalDate(2025, 2, 28), LocalDate(2025, 2, 30)),
+        (LocalDate(2025, 2, 28), LocalDate(2025, 2, 30))
       ))
       holiday.hasMissingDate shouldBe false
     }
@@ -36,7 +36,7 @@ class HolidayLikeTest extends AnyWordSpec with Matchers {
     "return false if the latest date is within 6 months in the future" in {
       val holiday = holidayLike(Seq(
         (LocalDate(2024, 1, 1), LocalDate(2023, 1, 2)),
-        (LocalDate(2026, 2, 18), LocalDate(2026, 2, 18)),
+        (LocalDate(2026, 2, 18), LocalDate(2026, 2, 18))
       ))
       holiday.hasMissingDate shouldBe false
     }
@@ -55,7 +55,7 @@ class HolidayLikeTest extends AnyWordSpec with Matchers {
         SummerHalfTerm(),
         Term3b(),
         SummerHoliday(),
-        SummerHolidayScotland(),
+        SummerHolidayScotland()
       )
         .foreach { holiday =>
           val nowInOneMonth: () => SDateLike = () => SDate.now().addMonths(1)

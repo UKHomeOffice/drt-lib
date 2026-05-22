@@ -3,7 +3,7 @@ package uk.gov.homeoffice.drt.db.serialisers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.homeoffice.drt.ports.PortCode
 import uk.gov.homeoffice.drt.ports.Terminals.T1
-import uk.gov.homeoffice.drt.time.{SDate, UtcDate}
+import uk.gov.homeoffice.drt.time.{ SDate, UtcDate }
 
 class EgateEligibilitySerialisationTest extends AnyWordSpec {
   "EgateEligibilitySerialisation" should {

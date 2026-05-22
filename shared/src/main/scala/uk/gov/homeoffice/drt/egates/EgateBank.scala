@@ -1,7 +1,7 @@
 package uk.gov.homeoffice.drt.egates
 
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import upickle.default.{ReadWriter, macroRW}
+import upickle.default.{ macroRW, ReadWriter }
 
 import scala.collection.immutable.NumericRange
 
@@ -45,7 +45,8 @@ case class EgateBanksUpdates(updates: List[EgateBanksUpdate]) {
     updates.sortBy(_.effectiveFrom).findLast(_.effectiveFrom < atDate)
 
   def forPeriod(millis: NumericRange[Long]): IndexedSeq[Seq[EgateBank]] = {
-    updatesForDate(millis.min) ++ updates.filter(u => millis.min <= u.effectiveFrom && u.effectiveFrom <= millis.max) match {
+    updatesForDate(millis.min) ++
+      updates.filter(u => millis.min <= u.effectiveFrom && u.effectiveFrom <= millis.max) match {
       case noUpdates if noUpdates.isEmpty =>
         IndexedSeq.fill(millis.length)(Seq())
 
@@ -76,7 +77,7 @@ case class EgateBanksUpdates(updates: List[EgateBanksUpdate]) {
 
   def forTime(millis: Long): Seq[EgateBank] = {
     updatesForDate(millis) match {
-      case None => Seq()
+      case None                   => Seq()
       case Some(applicableUpdate) => applicableUpdate.banks
     }
   }

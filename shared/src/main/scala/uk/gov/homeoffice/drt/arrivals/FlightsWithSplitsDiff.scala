@@ -7,7 +7,10 @@ import uk.gov.homeoffice.drt.ports._
 import scala.util.Try
 
 object ArrivalsRemoval {
-  def removeArrivals[A](removals: Iterable[UniqueArrivalLike], arrivals: Map[UniqueArrival, A]): Map[UniqueArrival, A] = {
+  def removeArrivals[A](
+      removals: Iterable[UniqueArrivalLike],
+      arrivals: Map[UniqueArrival, A]
+  ): Map[UniqueArrival, A] = {
     val keys = removals.collect { case k: UniqueArrival => k }
     val minusRemovals = arrivals -- keys
     val legacyKeys = removals.collect { case lk: LegacyUniqueArrival => lk }
@@ -22,7 +25,8 @@ object ArrivalsRemoval {
 class ArrivalsRestorer[A <: WithUnique[UniqueArrival] with Updatable[A]] {
   var arrivals: Map[UniqueArrival, A] = Map()
 
-  def removeHashLegacies(removals: Iterable[Int]): Unit = removals.foreach(keyToRemove => arrivals = arrivals.view.filterKeys(_.legacyUniqueId != keyToRemove).toMap)
+  def removeHashLegacies(removals: Iterable[Int]): Unit =
+    removals.foreach(keyToRemove => arrivals = arrivals.view.filterKeys(_.legacyUniqueId != keyToRemove).toMap)
 
   def applyUpdates(updates: Iterable[A]): Unit = updates.foreach { update =>
     val updated = arrivals.get(update.unique).map(_.update(update)).getOrElse(update)
@@ -50,12 +54,14 @@ case class FlightsWithSplitsDiff(flightsToUpdate: Iterable[ApiFlightWithSplits])
 
   def nonEmpty: Boolean = !isEmpty
 
-  def updateMinutes(sourceOrderPreference: List[FeedSource]): Set[Long] = flightsToUpdate.flatMap(_.apiFlight.pcpRange(sourceOrderPreference)).toSet
+  def updateMinutes(sourceOrderPreference: List[FeedSource]): Set[Long] =
+    flightsToUpdate.flatMap(_.apiFlight.pcpRange(sourceOrderPreference)).toSet
 
-  def applyTo(flightsWithSplits: FlightsWithSplits,
-              nowMillis: Long,
-              sourceOrderPreference: List[FeedSource],
-             ): (FlightsWithSplits, Set[Long], Iterable[ApiFlightWithSplits], Iterable[UniqueArrival]) = {
+  def applyTo(
+      flightsWithSplits: FlightsWithSplits,
+      nowMillis: Long,
+      sourceOrderPreference: List[FeedSource]
+  ): (FlightsWithSplits, Set[Long], Iterable[ApiFlightWithSplits], Iterable[UniqueArrival]) = {
     val updatedFlights = flightsToUpdate.map(_.copy(lastUpdated = Option(nowMillis)))
     val updated = flightsWithSplits.flights ++ updatedFlights.map(f => f.unique -> f)
 
@@ -64,14 +70,14 @@ case class FlightsWithSplitsDiff(flightsToUpdate: Iterable[ApiFlightWithSplits])
     val minutesFromExistingStateUpdatedFlights = flightsToUpdate
       .flatMap { fws =>
         asMap.get(fws.unique) match {
-          case None => Set()
+          case None    => Set()
           case Some(f) => f.apiFlight.pcpRange(sourceOrderPreference)
         }
       }.toSet
 
     val updatedMinutesFromFlights =
       updateMinutes(sourceOrderPreference) ++
-      minutesFromExistingStateUpdatedFlights
+        minutesFromExistingStateUpdatedFlights
 
     (FlightsWithSplits(updated), updatedMinutesFromFlights, updatedFlights, Seq.empty)
   }

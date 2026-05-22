@@ -5,14 +5,18 @@ import org.apache.pekko.http.scaladsl.model._
 import org.apache.pekko.http.scaladsl.model.headers.Accept
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.apache.pekko.stream.Materializer
-import org.slf4j.{Logger, LoggerFactory}
-import spray.json.{DefaultJsonProtocol, JsNumber, JsObject, JsString, JsValue, RootJsonFormat}
+import org.slf4j.{ Logger, LoggerFactory }
+import spray.json.{ DefaultJsonProtocol, JsNumber, JsObject, JsString, JsValue, RootJsonFormat }
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
-case class KeyCloakAuth(tokenUrl: String, clientId: String, clientSecret: String, sendHttpRequest: HttpRequest => Future[HttpResponse])
-                                (implicit ec: ExecutionContext, mat: Materializer)
-  extends KeyCloakAuthTokenParserProtocol {
+case class KeyCloakAuth(
+    tokenUrl: String,
+    clientId: String,
+    clientSecret: String,
+    sendHttpRequest: HttpRequest => Future[HttpResponse]
+)(implicit ec: ExecutionContext, mat: Materializer)
+    extends KeyCloakAuthTokenParserProtocol {
 
   val log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -29,7 +33,8 @@ case class KeyCloakAuth(tokenUrl: String, clientId: String, clientSecret: String
       method = HttpMethods.POST,
       uri = Uri(tokenUrl),
       headers = List(Accept(MediaTypes.`application/json`)),
-      entity = formData(username, password, clientId, clientSecret).toEntity)
+      entity = formData(username, password, clientId, clientSecret).toEntity
+    )
 
     val requestWithHeaders = request.addHeader(Accept(MediaTypes.`application/json`))
 
@@ -41,30 +46,31 @@ case class KeyCloakAuth(tokenUrl: String, clientId: String, clientSecret: String
 
 sealed trait KeyCloakAuthResponse
 
-case class KeyCloakAuthToken(accessToken: String,
-                             expiresIn: Int,
-                             refreshExpiresIn: Int,
-                             refreshToken: String,
-                             tokenType: String,
-                             notBeforePolicy: Int,
-                             sessionState: String,
-                             scope: String) extends KeyCloakAuthResponse
+case class KeyCloakAuthToken(
+    accessToken: String,
+    expiresIn: Int,
+    refreshExpiresIn: Int,
+    refreshToken: String,
+    tokenType: String,
+    notBeforePolicy: Int,
+    sessionState: String,
+    scope: String
+) extends KeyCloakAuthResponse
 
 case class KeyCloakAuthError(error: String, errorDescription: String) extends KeyCloakAuthResponse
-
 
 trait KeyCloakAuthTokenParserProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val responseFormat: RootJsonFormat[KeyCloakAuthResponse] = new RootJsonFormat[KeyCloakAuthResponse] {
     override def write(response: KeyCloakAuthResponse): JsValue = response match {
       case KeyCloakAuthToken(token, expires, _, _, tokenType, _, _, _) => JsObject(
-        "access_token" -> JsString(token),
-        "expires_in" -> JsNumber(expires),
-        "token_type" -> JsString(tokenType)
-      )
+          "access_token" -> JsString(token),
+          "expires_in" -> JsNumber(expires),
+          "token_type" -> JsString(tokenType)
+        )
       case KeyCloakAuthError(error, desc) => JsObject(
-        "error" -> JsString(error),
-        "error_description" -> JsString(desc)
-      )
+          "error" -> JsString(error),
+          "error_description" -> JsString(desc)
+        )
     }
 
     override def read(json: JsValue): KeyCloakAuthResponse = json match {

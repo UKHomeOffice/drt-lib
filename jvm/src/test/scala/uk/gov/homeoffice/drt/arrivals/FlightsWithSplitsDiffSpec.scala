@@ -1,8 +1,8 @@
 package uk.gov.homeoffice.drt.arrivals
 
 import org.specs2.mutable.Specification
-import uk.gov.homeoffice.drt.ports.Terminals.{T1, T2, Terminal}
-import uk.gov.homeoffice.drt.time.{SDate, SDateLike}
+import uk.gov.homeoffice.drt.ports.Terminals.{ T1, T2, Terminal }
+import uk.gov.homeoffice.drt.time.{ SDate, SDateLike }
 
 class FlightsWithSplitsDiffSpec extends Specification {
 
@@ -58,48 +58,48 @@ class FlightsWithSplitsDiffSpec extends Specification {
 
   "Given a FlightsWithSplitsDiff updates and removals before, on and after the filter date " +
     "Then I should only get back arrivals on the filter date" >> {
-    val filterDate = SDate("2020-09-21")
-    val beforeDate = SDate("2020-09-20")
-    val afterDate = SDate("2020-09-22")
+      val filterDate = SDate("2020-09-21")
+      val beforeDate = SDate("2020-09-20")
+      val afterDate = SDate("2020-09-22")
 
-    val diff = FlightsWithSplitsDiff(
-      List(
-        ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(filterDate),
-        ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(beforeDate),
-        ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(afterDate)
+      val diff = FlightsWithSplitsDiff(
+        List(
+          ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(filterDate),
+          ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(beforeDate),
+          ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(afterDate)
+        )
       )
-    )
-    val expected = FlightsWithSplitsDiff(
-      List(ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(filterDate))
-    )
+      val expected = FlightsWithSplitsDiff(
+        List(ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(filterDate))
+      )
 
-    val result = diff.window(
-      filterDate.millisSinceEpoch,
-      filterDate.addDays(1).addMillis(-1).millisSinceEpoch
-    )
+      val result = diff.window(
+        filterDate.millisSinceEpoch,
+        filterDate.addDays(1).addMillis(-1).millisSinceEpoch
+      )
 
-    result === expected
-  }
+      result === expected
+    }
 
   "Given a FlightsWithSplitsDiff updates and removals on two terminals and I filter by terminal " +
     "Then I should only see the flights for the filter terminal" >> {
-    val date = SDate("2020-09-21")
+      val date = SDate("2020-09-21")
 
-    val diff = FlightsWithSplitsDiff(
-      List(
-        ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(date, T1),
-        ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(date, T2)
+      val diff = FlightsWithSplitsDiff(
+        List(
+          ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(date, T1),
+          ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(date, T2)
+        )
       )
-    )
 
-    val expected = FlightsWithSplitsDiff(
-      List(
-        ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(date, T1)
+      val expected = FlightsWithSplitsDiff(
+        List(
+          ArrivalGeneratorShared.flightWithSplitsForDayAndTerminal(date, T1)
+        )
       )
-    )
 
-    val result = diff.forTerminal(T1)
+      val result = diff.forTerminal(T1)
 
-    result === expected
-  }
+      result === expected
+    }
 }

@@ -1,10 +1,10 @@
 package uk.gov.homeoffice.drt.prediction.arrival
 
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.homeoffice.drt.arrivals.{Arrival, ArrivalGeneratorShared}
-import uk.gov.homeoffice.drt.prediction.arrival.features.FeatureColumnsV1.{DayOfWeek, OneToMany, PartOfDay}
+import uk.gov.homeoffice.drt.arrivals.{ Arrival, ArrivalGeneratorShared }
+import uk.gov.homeoffice.drt.prediction.arrival.features.FeatureColumnsV1.{ DayOfWeek, OneToMany, PartOfDay }
 import uk.gov.homeoffice.drt.prediction.arrival.features.OneToManyFeature
-import uk.gov.homeoffice.drt.time.{SDate, SDateLike}
+import uk.gov.homeoffice.drt.time.{ SDate, SDateLike }
 
 class ArrivalFeatureValuesExtractorSpec extends AnyWordSpec {
   implicit val sdateProvider: Long => SDateLike = (ts: Long) => SDate(ts)

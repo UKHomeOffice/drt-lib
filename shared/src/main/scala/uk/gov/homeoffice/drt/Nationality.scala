@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.drt
 
-import upickle.default.{ReadWriter, macroRW}
+import upickle.default.{ macroRW, ReadWriter }
 
 case class Nationality(code: String) {
   override def toString: String = code

@@ -9,7 +9,7 @@ import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.Historical
 import uk.gov.homeoffice.drt.ports.Terminals.T1
 import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.prediction.arrival.OffScheduleModelAndFeatures
-import uk.gov.homeoffice.drt.protobuf.messages.FlightsMessage.{FlightMessage, FlightsDiffMessage}
+import uk.gov.homeoffice.drt.protobuf.messages.FlightsMessage.{ FlightMessage, FlightsDiffMessage }
 import uk.gov.homeoffice.drt.time.SDate
 
 class FlightMessageConversionSpec extends Specification {
@@ -47,10 +47,9 @@ class FlightMessageConversionSpec extends Specification {
       ApiFeedSource -> Passengers(Option(95), None),
       AclFeedSource -> Passengers(Option(95), None),
       LiveBaseFeedSource -> Passengers(Option(95), None),
-      ScenarioSimulationSource -> Passengers(Option(95), None),
+      ScenarioSimulationSource -> Passengers(Option(95), None)
     )
   )
-
 
   "Given an Arrival with no suffix" >> {
     "When I convert it to a protobuf message and then back to an Arrival" >> {
@@ -113,8 +112,7 @@ class FlightMessageConversionSpec extends Specification {
           paxTypeAndQueueCount
         ),
         SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages,
-        Option(EventType("DC")
-        )
+        Option(EventType("DC"))
       )
     )
     val splitsWithoutApi = Set(
@@ -123,8 +121,7 @@ class FlightMessageConversionSpec extends Specification {
           paxTypeAndQueueCountWithoutApi
         ),
         SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages,
-        Option(EventType("DC")
-        )
+        Option(EventType("DC"))
       )
     )
 
@@ -144,17 +141,21 @@ class FlightMessageConversionSpec extends Specification {
 
   "Given a FlightsWithSplitsDiff" >> {
     val diff = FlightsWithSplitsDiff(
-      List(ApiFlightWithSplits(arrival, Set(Splits(
-        Set(
-          ApiPaxTypeAndQueueCount(PaxTypes.EeaBelowEGateAge, Queues.EeaDesk, 1, None, None),
-          ApiPaxTypeAndQueueCount(PaxTypes.EeaBelowEGateAge, Queues.EeaDesk, 1, None, None),
-          ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EeaDesk, 3, None, None),
-          ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EGate, 1, None, None)
-        ),
-        Historical,
-        None,
-        PaxNumbers
-      )))))
+      List(ApiFlightWithSplits(
+        arrival,
+        Set(Splits(
+          Set(
+            ApiPaxTypeAndQueueCount(PaxTypes.EeaBelowEGateAge, Queues.EeaDesk, 1, None, None),
+            ApiPaxTypeAndQueueCount(PaxTypes.EeaBelowEGateAge, Queues.EeaDesk, 1, None, None),
+            ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EeaDesk, 3, None, None),
+            ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EGate, 1, None, None)
+          ),
+          Historical,
+          None,
+          PaxNumbers
+        ))
+      ))
+    )
     "When I convert it to a protobuf message and then back to an FlightsWithSplitsDiff" >> {
       val diffMessage = FlightMessageConversion.flightWithSplitsDiffToMessage(diff, 100L)
       val restoredDiff = FlightMessageConversion.flightWithSplitsDiffFromMessage(diffMessage)
@@ -170,7 +171,11 @@ class FlightMessageConversionSpec extends Specification {
       val invalidArrival = arrival.copy(VoyageNumber = VoyageNumber(1))
       val flightMessage1 = FlightMessageConversion.apiFlightToFlightMessage(validArrival)
       val flightMessage2 = FlightMessageConversion.apiFlightToFlightMessage(invalidArrival)
-      val diff = FlightMessageConversion.arrivalsDiffFromMessage(FlightsDiffMessage(Option(1L), Seq(), Seq(flightMessage1, flightMessage2)))
+      val diff = FlightMessageConversion.arrivalsDiffFromMessage(FlightsDiffMessage(
+        Option(1L),
+        Seq(),
+        Seq(flightMessage1, flightMessage2)
+      ))
       diff.toUpdate.keySet === Set(invalidArrival.unique)
     }
   }

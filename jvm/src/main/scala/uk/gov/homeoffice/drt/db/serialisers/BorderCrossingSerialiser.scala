@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.drt.db.serialisers
 
-import uk.gov.homeoffice.drt.db.tables.{BorderCrossing, BorderCrossingRow, GateType}
+import uk.gov.homeoffice.drt.db.tables.{ BorderCrossing, BorderCrossingRow, GateType }
 import uk.gov.homeoffice.drt.ports.PortCode
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 import uk.gov.homeoffice.drt.time.UtcDate
@@ -17,7 +17,7 @@ object BorderCrossingSerialiser {
         gateType.value,
         hour,
         passengers,
-        new Timestamp(updatedAt),
+        new Timestamp(updatedAt)
       )
   }
 
@@ -29,7 +29,7 @@ object BorderCrossingSerialiser {
         UtcDate.parse(dateUtc).getOrElse(throw new Exception(s"Could not parse date $dateUtc")),
         GateType(gateType),
         hour,
-        passengers,
+        passengers
       )
   }
 }

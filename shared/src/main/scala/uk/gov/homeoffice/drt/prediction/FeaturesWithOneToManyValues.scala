@@ -1,7 +1,6 @@
 package uk.gov.homeoffice.drt.prediction
 
-import uk.gov.homeoffice.drt.prediction.arrival.features.{Feature, OneToManyFeature, SingleFeature}
-
+import uk.gov.homeoffice.drt.prediction.arrival.features.{ Feature, OneToManyFeature, SingleFeature }
 
 case class FeaturesWithOneToManyValues(features: List[Feature[_]], oneToManyValues: IndexedSeq[String]) {
   def oneToManyFeatures: List[OneToManyFeature[_]] = features.collect {

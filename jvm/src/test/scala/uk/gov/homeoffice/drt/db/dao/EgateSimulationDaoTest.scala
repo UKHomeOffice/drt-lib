@@ -4,10 +4,10 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.homeoffice.drt.db.TestDatabase
-import uk.gov.homeoffice.drt.db.serialisers.{EgateSimulation, EgateSimulationRequest, EgateSimulationResponse}
+import uk.gov.homeoffice.drt.db.serialisers.{ EgateSimulation, EgateSimulationRequest, EgateSimulationResponse }
 import uk.gov.homeoffice.drt.ports.PortCode
 import uk.gov.homeoffice.drt.ports.Terminals.T1
-import uk.gov.homeoffice.drt.time.{SDate, SDateLike}
+import uk.gov.homeoffice.drt.time.{ SDate, SDateLike }
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -25,8 +25,10 @@ class EgateSimulationDaoTest extends AnyWordSpec with Matchers with BeforeAndAft
     Await.result(
       TestDatabase.run(DBIO.seq(
         dao.table.schema.dropIfExists,
-        dao.table.schema.createIfNotExists)
-      ), 2.second)
+        dao.table.schema.createIfNotExists
+      )),
+      2.second
+    )
   }
 
   val date: SDateLike = SDate("2023-10-01T00:00:00Z")
@@ -39,7 +41,8 @@ class EgateSimulationDaoTest extends AnyWordSpec with Matchers with BeforeAndAft
       startDate = date.toUtcDate,
       endDate = date.toUtcDate,
       uptakePercentage = 50,
-      parentChildRatio = 0.5),
+      parentChildRatio = 0.5
+    ),
     status = "active",
     response = Some(EgateSimulationResponse(
       csvContent = "header1,header2\nvalue1,value2",
@@ -47,9 +50,9 @@ class EgateSimulationDaoTest extends AnyWordSpec with Matchers with BeforeAndAft
       standardDeviation = 1.0,
       bias = 0.1,
       correlationCoefficient = 0.9,
-      rSquaredError = 0.8,
+      rSquaredError = 0.8
     )),
-    createdAt = date,
+    createdAt = date
   )
 
   "insertOrUpdate" should {
@@ -65,7 +68,10 @@ class EgateSimulationDaoTest extends AnyWordSpec with Matchers with BeforeAndAft
 
       Await.result(TestDatabase.run(dao.insertOrUpdate(initialSimulation)), 2.second)
 
-      val updatedSimulation = initialSimulation.copy(status = "completed", response = Some(EgateSimulationResponse("nice csv content", 6.0, 1.5, 0.2, 0.95, 0.85)))
+      val updatedSimulation = initialSimulation.copy(
+        status = "completed",
+        response = Some(EgateSimulationResponse("nice csv content", 6.0, 1.5, 0.2, 0.95, 0.85))
+      )
       Await.result(TestDatabase.run(dao.insertOrUpdate(updatedSimulation)), 2.second)
 
       val retrievedSimulation = Await.result(TestDatabase.run(dao.get(updatedSimulation.uuid)), 2.second)

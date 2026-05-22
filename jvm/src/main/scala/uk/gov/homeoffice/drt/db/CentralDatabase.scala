@@ -1,9 +1,8 @@
 package uk.gov.homeoffice.drt.db
 
-import slick.dbio.{DBIOAction, NoStream}
+import slick.dbio.{ DBIOAction, NoStream }
 
 import scala.concurrent.Future
-
 
 trait CentralDatabase {
   val profile: slick.jdbc.JdbcProfile

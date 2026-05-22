@@ -8,11 +8,13 @@ import uk.gov.homeoffice.drt.time.LocalDate
 import scala.collection.SortedMap
 
 object QueueConfig {
-  def queuesForDateAndTerminal(configOverTime: SortedMap[LocalDate, Map[Terminal, Seq[Queue]]]): (LocalDate, Terminal) => Seq[Queue] =
+  def queuesForDateAndTerminal(configOverTime: SortedMap[LocalDate, Map[Terminal, Seq[Queue]]])
+      : (LocalDate, Terminal) => Seq[Queue] =
     (queryDate: LocalDate, terminal: Terminal) => {
-      val relevantDates: SortedMap[LocalDate, Map[Terminal, Seq[Queue]]] = SortedMap.empty[LocalDate, Map[Terminal, Seq[Queue]]] ++ configOverTime.filter {
-        case (configDate, _) => configDate <= queryDate
-      }
+      val relevantDates: SortedMap[LocalDate, Map[Terminal, Seq[Queue]]] =
+        SortedMap.empty[LocalDate, Map[Terminal, Seq[Queue]]] ++ configOverTime.filter {
+          case (configDate, _) => configDate <= queryDate
+        }
 
       val queues = relevantDates.toSeq.reverse.headOption
         .map {
@@ -26,19 +28,20 @@ object QueueConfig {
   def terminalsForDate(configOverTime: SortedMap[LocalDate, Map[Terminal, Seq[Queue]]]): LocalDate => Seq[Terminal] =
     queryDate => mostRecentConfig(configOverTime, queryDate).keys.toSeq.sorted
 
-
-  private def mostRecentConfig(configOverTime: SortedMap[LocalDate, Map[Terminal, Seq[Queue]]],
-                               queryDate: LocalDate
-                              ): Map[Terminal, Seq[Queue]] =
+  private def mostRecentConfig(
+      configOverTime: SortedMap[LocalDate, Map[Terminal, Seq[Queue]]],
+      queryDate: LocalDate
+  ): Map[Terminal, Seq[Queue]] =
     maybeMostRecentDate(configOverTime.keys, queryDate) match {
       case Some(maxDate) => configOverTime(maxDate)
-      case None => throw new NoSuchElementException(s"No config found for date $queryDate")
+      case None          => throw new NoSuchElementException(s"No config found for date $queryDate")
     }
 
   private def maybeMostRecentDate(dates: Iterable[LocalDate], queryDate: LocalDate): Option[LocalDate] =
     dates.filter(_ <= queryDate).toSeq.sorted.maxOption
 
-  def terminalsForDateRange(configOverTime: SortedMap[LocalDate, Map[Terminal, Seq[Queue]]]): (LocalDate, LocalDate) => Seq[Terminal] =
+  def terminalsForDateRange(configOverTime: SortedMap[LocalDate, Map[Terminal, Seq[Queue]]])
+      : (LocalDate, LocalDate) => Seq[Terminal] =
     (start: LocalDate, end: LocalDate) => {
       val firstConfigDate = maybeMostRecentDate(configOverTime.keys.filter(_ <= start), start)
       val lastConfigDate = maybeMostRecentDate(configOverTime.keys.filter(_ <= end), end)
@@ -63,7 +66,8 @@ object QueueConfig {
   def allTerminalsIncludingHistoric(configOverTime: SortedMap[LocalDate, Map[Terminal, Seq[Queue]]]): Seq[Terminal] =
     configOverTime.values.flatMap(_.keys).toSet.toSeq.sorted
 
-  def queuesForDateRangeAndTerminal(configOverTime: SortedMap[LocalDate, Map[Terminal, Seq[Queue]]]): (LocalDate, LocalDate, Terminal) => Seq[Queue] =
+  def queuesForDateRangeAndTerminal(configOverTime: SortedMap[LocalDate, Map[Terminal, Seq[Queue]]])
+      : (LocalDate, LocalDate, Terminal) => Seq[Queue] =
     (start: LocalDate, end: LocalDate, terminal: Terminal) => {
       val firstConfigDate = maybeMostRecentDate(configOverTime.keys.filter(_ <= start), start)
       val lastConfigDate = maybeMostRecentDate(configOverTime.keys.filter(_ <= end), end)

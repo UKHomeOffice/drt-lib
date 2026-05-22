@@ -12,12 +12,13 @@ trait ModelAndFeatures {
 }
 
 object ModelAndFeatures {
-  def apply(model: RegressionModel,
-            features: FeaturesWithOneToManyValues,
-            targetName: String,
-            examplesTrainedOn: Int,
-            improvementPct: Double,
-           ): ModelAndFeatures = (targetName, features) match {
+  def apply(
+      model: RegressionModel,
+      features: FeaturesWithOneToManyValues,
+      targetName: String,
+      examplesTrainedOn: Int,
+      improvementPct: Double
+  ): ModelAndFeatures = (targetName, features) match {
     case (OffScheduleModelAndFeatures.targetName, fts: FeaturesWithOneToManyValues) =>
       OffScheduleModelAndFeatures(model, fts, examplesTrainedOn, improvementPct)
     case (ToChoxModelAndFeatures.targetName, fts: FeaturesWithOneToManyValues) =>

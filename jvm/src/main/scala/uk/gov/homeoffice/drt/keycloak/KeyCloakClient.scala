@@ -2,20 +2,22 @@ package uk.gov.homeoffice.drt.keycloak
 
 import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import org.apache.pekko.http.scaladsl.model._
-import org.apache.pekko.http.scaladsl.model.headers.{Accept, Authorization, OAuth2BearerToken}
+import org.apache.pekko.http.scaladsl.model.headers.{ Accept, Authorization, OAuth2BearerToken }
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.util.Timeout
-import org.slf4j.{Logger, LoggerFactory}
-import spray.json.{DefaultJsonProtocol, RootJsonFormat}
+import org.slf4j.{ Logger, LoggerFactory }
+import spray.json.{ DefaultJsonProtocol, RootJsonFormat }
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.language.postfixOps
 
-case class KeyCloakClient(token: String, keyCloakUrl: String, sendHttpRequest: HttpRequest => Future[HttpResponse])
-                         (implicit val ec: ExecutionContext, mat: Materializer)
-  extends KeyCloakUserParserProtocol {
+case class KeyCloakClient(token: String, keyCloakUrl: String, sendHttpRequest: HttpRequest => Future[HttpResponse])(
+    implicit
+    val ec: ExecutionContext,
+    mat: Materializer
+) extends KeyCloakUserParserProtocol {
 
   def log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -23,7 +25,9 @@ case class KeyCloakClient(token: String, keyCloakUrl: String, sendHttpRequest: H
 
   def logResponse(requestName: String, resp: HttpResponse): HttpResponse = {
     if (resp.status.isFailure)
-      log.error(s"Error when calling $requestName on KeyCloak API Status code: ${resp.status} Response:<${resp.entity.toString}>")
+      log.error(
+        s"Error when calling $requestName on KeyCloak API Status code: ${resp.status} Response:<${resp.entity.toString}>"
+      )
 
     resp
   }

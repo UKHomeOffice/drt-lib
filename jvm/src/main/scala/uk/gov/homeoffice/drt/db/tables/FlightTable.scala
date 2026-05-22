@@ -5,39 +5,41 @@ import slick.lifted.Tag
 
 import java.sql.Timestamp
 
-case class FlightRow(port: String,
-                     origin: String,
-                     previousPort: Option[String],
-                     terminal: String,
-                     voyageNumber: Int,
-                     carrierCode: String,
-                     flightCodeSuffix: Option[String],
-                     status: String,
-                     scheduledDateUtc: String,
-                     timings: FlightTimings,
-                     predictions: String,
-                     gate: Option[String],
-                     stand: Option[String],
-                     maxPax: Option[Int],
-                     baggageReclaimId: Option[String],
-                     paxSourcesJson: String,
-                     redListPax: Option[Int],
-                     splitsJson: String,
-                     updatedAt: Timestamp,
-                    )
+case class FlightRow(
+    port: String,
+    origin: String,
+    previousPort: Option[String],
+    terminal: String,
+    voyageNumber: Int,
+    carrierCode: String,
+    flightCodeSuffix: Option[String],
+    status: String,
+    scheduledDateUtc: String,
+    timings: FlightTimings,
+    predictions: String,
+    gate: Option[String],
+    stand: Option[String],
+    maxPax: Option[Int],
+    baggageReclaimId: Option[String],
+    paxSourcesJson: String,
+    redListPax: Option[Int],
+    splitsJson: String,
+    updatedAt: Timestamp
+)
 
-case class FlightTimings(scheduled: Timestamp,
-                         estimated: Option[Timestamp],
-                         actual: Option[Timestamp],
-                         estimatedChox: Option[Timestamp],
-                         actualChox: Option[Timestamp],
-                         pcpTime: Option[Timestamp],
-                         carrierScheduled: Option[Timestamp],
-                         scheduledDeparture: Option[Timestamp],
-                       )
+case class FlightTimings(
+    scheduled: Timestamp,
+    estimated: Option[Timestamp],
+    actual: Option[Timestamp],
+    estimatedChox: Option[Timestamp],
+    actualChox: Option[Timestamp],
+    pcpTime: Option[Timestamp],
+    carrierScheduled: Option[Timestamp],
+    scheduledDeparture: Option[Timestamp]
+)
 
 class FlightTable(tag: Tag)
-  extends Table[FlightRow](tag, "flight") {
+    extends Table[FlightRow](tag, "flight") {
 
   def port: Rep[String] = column[String]("port")
 
@@ -95,7 +97,8 @@ class FlightTable(tag: Tag)
 
   def flightsForPortAndDateIndex = index("idx_flight_port_date", (port, scheduledDateUtc), unique = false)
 
-  def flightsForPortDateAndTerminalIndex = index("idx_flight_port_date_terminal", (port, scheduledDateUtc, terminal), unique = false)
+  def flightsForPortDateAndTerminalIndex =
+    index("idx_flight_port_date_terminal", (port, scheduledDateUtc, terminal), unique = false)
 
   def flightsScheduleIndex = index("idx_flight_schedule", scheduled, unique = false)
 
@@ -129,5 +132,6 @@ class FlightTable(tag: Tag)
     paxSourcesJson,
     redListPax,
     splitsJson,
-    updatedAt).mapTo[FlightRow]
+    updatedAt
+  ).mapTo[FlightRow]
 }

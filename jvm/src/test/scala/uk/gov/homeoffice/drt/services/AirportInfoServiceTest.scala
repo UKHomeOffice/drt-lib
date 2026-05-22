@@ -1,8 +1,8 @@
 package uk.gov.homeoffice.drt.services
 
 import org.specs2.mutable.SpecificationLike
-import uk.gov.homeoffice.drt.ports.{AirportInfo, PortCode}
-import uk.gov.homeoffice.drt.redlist.{RedListUpdate, RedListUpdates}
+import uk.gov.homeoffice.drt.ports.{ AirportInfo, PortCode }
+import uk.gov.homeoffice.drt.redlist.{ RedListUpdate, RedListUpdates }
 import uk.gov.homeoffice.drt.time.SDate
 
 object AirportInfoServiceTest extends SpecificationLike {
@@ -20,4 +20,3 @@ object AirportInfoServiceTest extends SpecificationLike {
     }
   }
 }
-

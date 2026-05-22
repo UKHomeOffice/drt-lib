@@ -1,50 +1,55 @@
 package uk.gov.homeoffice.drt
 
 import uk.gov.homeoffice.drt.time.LocalDate
-import upickle.default.{read, readwriter, writeJs, ReadWriter => RW}
+import upickle.default.{ read, readwriter, writeJs, ReadWriter => RW }
 
-case class Shift(port: String,
-                 terminal: String,
-                 shiftName: String,
-                 startDate: LocalDate,
-                 startTime: String,
-                 endTime: String,
-                 endDate: Option[LocalDate],
-                 staffNumber: Int,
-                 frequency: Option[String],
-                 createdBy: Option[String],
-                 createdAt: Long)
+case class Shift(
+    port: String,
+    terminal: String,
+    shiftName: String,
+    startDate: LocalDate,
+    startTime: String,
+    endTime: String,
+    endDate: Option[LocalDate],
+    staffNumber: Int,
+    frequency: Option[String],
+    createdBy: Option[String],
+    createdAt: Long
+)
 
 object Shift {
 
   implicit val localDateRW: RW[LocalDate] =
     readwriter[ujson.Value].bimap[LocalDate](
-      ld => ujson.Obj(
-        "year" -> ld.year,
-        "month" -> ld.month,
-        "day" -> ld.day
-      ),
-      json => LocalDate(
-        json("year").num.toInt,
-        json("month").num.toInt,
-        json("day").num.toInt
-      )
+      ld =>
+        ujson.Obj(
+          "year" -> ld.year,
+          "month" -> ld.month,
+          "day" -> ld.day
+        ),
+      json =>
+        LocalDate(
+          json("year").num.toInt,
+          json("month").num.toInt,
+          json("day").num.toInt
+        )
     )
 
   implicit val shiftRW: RW[Shift] = readwriter[ujson.Value].bimap[Shift](
-    shift => ujson.Obj(
-      "port" -> shift.port,
-      "terminal" -> shift.terminal,
-      "shiftName" -> shift.shiftName,
-      "startDate" -> writeJs(shift.startDate),
-      "startTime" -> shift.startTime,
-      "endTime" -> shift.endTime,
-      "endDate" -> shift.endDate.map(writeJs(_)).getOrElse(ujson.Null),
-      "staffNumber" -> shift.staffNumber,
-      "frequency" -> shift.frequency.map(ujson.Str(_)).getOrElse(ujson.Null),
-      "createdBy" -> shift.createdBy.map(ujson.Str(_)).getOrElse(ujson.Null),
-      "createdAt" -> ujson.Num(shift.createdAt)
-    ),
+    shift =>
+      ujson.Obj(
+        "port" -> shift.port,
+        "terminal" -> shift.terminal,
+        "shiftName" -> shift.shiftName,
+        "startDate" -> writeJs(shift.startDate),
+        "startTime" -> shift.startTime,
+        "endTime" -> shift.endTime,
+        "endDate" -> shift.endDate.map(writeJs(_)).getOrElse(ujson.Null),
+        "staffNumber" -> shift.staffNumber,
+        "frequency" -> shift.frequency.map(ujson.Str(_)).getOrElse(ujson.Null),
+        "createdBy" -> shift.createdBy.map(ujson.Str(_)).getOrElse(ujson.Null),
+        "createdAt" -> ujson.Num(shift.createdAt)
+      ),
     json => {
       val obj = json.obj
       Shift(
@@ -56,7 +61,7 @@ object Shift {
         endTime = obj("endTime").str,
         endDate = obj.get("endDate").flatMap {
           case ujson.Null => None
-          case other => Some(read[LocalDate](other))
+          case other      => Some(read[LocalDate](other))
         },
         staffNumber = obj("staffNumber").num.toInt,
         frequency = obj.get("frequency").collect { case ujson.Str(s) => s },

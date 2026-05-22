@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.drt.db
 
-import slick.dbio.{DBIOAction, NoStream}
+import slick.dbio.{ DBIOAction, NoStream }
 import slick.jdbc.PostgresProfile
 import uk.gov.homeoffice.drt.db.tables._
 
@@ -11,10 +11,9 @@ object AggregatedDbTables {
   def apply(databaseType: String): AggregatedDbTables =
     databaseType match {
       case "persistent" => AggregateDb
-      case "in-memory" => AggregateDbH2
+      case "in-memory"  => AggregateDbH2
     }
 }
-
 
 /** Slick data model trait for extension, choice of backend or usage in the cake pattern. (Make sure to initialize this late.) */
 trait AggregatedDbTables extends CentralDatabase {
@@ -24,7 +23,8 @@ trait AggregatedDbTables extends CentralDatabase {
 
   import profile.api._
 
-  lazy val schema: profile.SchemaDescription = voyageManifestPassengerInfo.schema ++ processedJson.schema ++ processedZip.schema
+  lazy val schema: profile.SchemaDescription = voyageManifestPassengerInfo.schema ++ processedJson.schema ++
+    processedZip.schema
 
   private val maybeSchema = profile match {
     case _: PostgresProfile =>
@@ -33,7 +33,8 @@ trait AggregatedDbTables extends CentralDatabase {
       None
   }
 
-  class ProcessedZipTable(_tableTag: Tag) extends profile.api.Table[ProcessedZipRow](_tableTag, maybeSchema, "processed_zip") {
+  class ProcessedZipTable(_tableTag: Tag)
+      extends profile.api.Table[ProcessedZipRow](_tableTag, maybeSchema, "processed_zip") {
     val zip_file_name: Rep[String] = column[String]("zip_file_name")
     val success: Rep[Boolean] = column[Boolean]("success")
     val processed_at: Rep[Timestamp] = column[Timestamp]("processed_at")
@@ -42,7 +43,8 @@ trait AggregatedDbTables extends CentralDatabase {
     def * = (zip_file_name, success, processed_at, created_on).mapTo[ProcessedZipRow]
   }
 
-  class ProcessedJsonTable(_tableTag: Tag) extends Table[ProcessedJsonRow](_tableTag, Option("public"), "processed_json") {
+  class ProcessedJsonTable(_tableTag: Tag)
+      extends Table[ProcessedJsonRow](_tableTag, Option("public"), "processed_json") {
     val zip_file_name: Rep[String] = column[String]("zip_file_name")
     val json_file_name: Rep[String] = column[String]("json_file_name")
     val suspicious_date: Rep[Boolean] = column[Boolean]("suspicious_date")
@@ -59,14 +61,53 @@ trait AggregatedDbTables extends CentralDatabase {
     val interactive_total_count: Rep[Option[Int]] = column[Option[Int]]("interactive_total_count")
     val interactive_trans_count: Rep[Option[Int]] = column[Option[Int]]("interactive_trans_count")
 
-    def * = (zip_file_name, json_file_name, suspicious_date, success, processed_at,
-      arrival_port_code, departure_port_code, voyage_number, carrier_code, scheduled,
-      event_code, non_interactive_total_count, non_interactive_trans_count, interactive_total_count, interactive_trans_count).mapTo[ProcessedJsonRow]
+    def * = (
+      zip_file_name,
+      json_file_name,
+      suspicious_date,
+      success,
+      processed_at,
+      arrival_port_code,
+      departure_port_code,
+      voyage_number,
+      carrier_code,
+      scheduled,
+      event_code,
+      non_interactive_total_count,
+      non_interactive_trans_count,
+      interactive_total_count,
+      interactive_trans_count
+    ).mapTo[ProcessedJsonRow]
   }
 
   /** Table description of table arrival. Objects of this class serve as prototypes for rows in queries. */
-  class VoyageManifestPassengerInfoTable(_tableTag: Tag) extends profile.api.Table[VoyageManifestPassengerInfoRow](_tableTag, maybeSchema, "voyage_manifest_passenger_info") {
-    def * = (event_code, arrival_port_code, departure_port_code, voyage_number, carrier_code, scheduled_date, day_of_week, week_of_year, document_type, document_issuing_country_code, eea_flag, age, disembarkation_port_code, in_transit_flag, disembarkation_port_country_code, nationality_country_code, passenger_identifier, in_transit, json_file) <> (VoyageManifestPassengerInfoRow.tupled, VoyageManifestPassengerInfoRow.unapply)
+  class VoyageManifestPassengerInfoTable(_tableTag: Tag) extends profile.api.Table[VoyageManifestPassengerInfoRow](
+        _tableTag,
+        maybeSchema,
+        "voyage_manifest_passenger_info"
+      ) {
+    def * =
+      (
+        event_code,
+        arrival_port_code,
+        departure_port_code,
+        voyage_number,
+        carrier_code,
+        scheduled_date,
+        day_of_week,
+        week_of_year,
+        document_type,
+        document_issuing_country_code,
+        eea_flag,
+        age,
+        disembarkation_port_code,
+        in_transit_flag,
+        disembarkation_port_country_code,
+        nationality_country_code,
+        passenger_identifier,
+        in_transit,
+        json_file
+      ) <> (VoyageManifestPassengerInfoRow.tupled, VoyageManifestPassengerInfoRow.unapply)
 
     val event_code: Rep[String] = column[String]("event_code")
     val arrival_port_code: Rep[String] = column[String]("arrival_port_code")
@@ -90,7 +131,24 @@ trait AggregatedDbTables extends CentralDatabase {
   }
 
   class UserTable(_tableTag: Tag) extends profile.api.Table[UserRow](_tableTag, maybeSchema, "user") {
-    def * = (id, userName, email, latest_login, inactive_email_sent, revoked_access, drop_in_notification_at, created_at, feedback_banner_closed_at, staff_planning_interval_minutes, hide_pax_data_source_description, show_staffing_shift_view, desks_and_queues_interval_minutes, port_dashboard_interval_minutes, port_dashboard_terminals) <> (UserRow.tupled, UserRow.unapply)
+    def * =
+      (
+        id,
+        userName,
+        email,
+        latest_login,
+        inactive_email_sent,
+        revoked_access,
+        drop_in_notification_at,
+        created_at,
+        feedback_banner_closed_at,
+        staff_planning_interval_minutes,
+        hide_pax_data_source_description,
+        show_staffing_shift_view,
+        desks_and_queues_interval_minutes,
+        port_dashboard_interval_minutes,
+        port_dashboard_terminals
+      ) <> (UserRow.tupled, UserRow.unapply)
 
     val id: Rep[String] = column[String]("id")
     val userName: Rep[String] = column[String]("username")
@@ -107,14 +165,15 @@ trait AggregatedDbTables extends CentralDatabase {
     val desks_and_queues_interval_minutes = column[Option[Int]]("desks_and_queues_interval_minutes")
     val port_dashboard_interval_minutes = column[Option[String]]("port_dashboard_interval_minutes")
     val port_dashboard_terminals = column[Option[String]]("port_dashboard_terminals")
-    val pk = primaryKey("user_pkey", (id))
+    val pk = primaryKey("user_pkey", id)
 
     index("username", userName)
     index("email", email)
     index("latest_login", latest_login)
   }
 
-  class ArrivalStatsTable(_tableTag: Tag) extends profile.api.Table[ArrivalStatsRow](_tableTag, maybeSchema, "arrival_stats") {
+  class ArrivalStatsTable(_tableTag: Tag)
+      extends profile.api.Table[ArrivalStatsRow](_tableTag, maybeSchema, "arrival_stats") {
     val portCode: Rep[String] = column[String]("port_code")
     val terminal: Rep[String] = column[String]("terminal")
     val date: Rep[String] = column[String]("date")
@@ -126,12 +185,24 @@ trait AggregatedDbTables extends CentralDatabase {
     val averageLoad: Rep[Double] = column[Double]("average_load")
     val createdAt: Rep[Long] = column[Long]("created_at")
 
-    def * = (portCode, terminal, date, daysAhead, dataType, flights, capacity, pax, averageLoad, createdAt).mapTo[ArrivalStatsRow]
+    def * = (
+      portCode,
+      terminal,
+      date,
+      daysAhead,
+      dataType,
+      flights,
+      capacity,
+      pax,
+      averageLoad,
+      createdAt
+    ).mapTo[ArrivalStatsRow]
 
     val pk = primaryKey("arrival_stats_pkey", (portCode, terminal, date, daysAhead, dataType))
   }
 
-  class StaffShiftsTable(_tableTag: Tag) extends profile.api.Table[StaffShiftRow](_tableTag, maybeSchema, "staff_shifts") {
+  class StaffShiftsTable(_tableTag: Tag)
+      extends profile.api.Table[StaffShiftRow](_tableTag, maybeSchema, "staff_shifts") {
     val port: Rep[String] = column[String]("port")
     val terminal: Rep[String] = column[String]("terminal")
     val shift_name: Rep[String] = column[String]("shift_name")
@@ -144,7 +215,19 @@ trait AggregatedDbTables extends CentralDatabase {
     val frequency: Rep[Option[String]] = column[Option[String]]("frequency")
     val created_at: Rep[java.sql.Timestamp] = column[java.sql.Timestamp]("created_at")
 
-    def * = (port, terminal, shift_name, start_date, start_time, end_time, end_date, staff_number, created_by, frequency, created_at).mapTo[StaffShiftRow]
+    def * = (
+      port,
+      terminal,
+      shift_name,
+      start_date,
+      start_time,
+      end_time,
+      end_date,
+      staff_number,
+      created_by,
+      frequency,
+      created_at
+    ).mapTo[StaffShiftRow]
 
     val pk = primaryKey("staff_shifts_pkey", (port, terminal, shift_name, start_date, start_time))
   }
@@ -162,5 +245,17 @@ trait AggregatedDbTables extends CentralDatabase {
   val staffShifts = new TableQuery(tag => new StaffShiftsTable(tag))
   val shiftMetaInfo = new TableQuery(tag => new ShiftMetaInfoTable(tag))
   val shiftStaffingRolling = new TableQuery(tag => new ShiftStaffRollingTable(tag))
-  val tables = Seq(arrivalStats, processedZip, processedJson, statusDaily, voyageManifestPassengerInfo, flight, capacity, queueSlot, staffShifts, shiftMetaInfo, shiftStaffingRolling)
+  val tables = Seq(
+    arrivalStats,
+    processedZip,
+    processedJson,
+    statusDaily,
+    voyageManifestPassengerInfo,
+    flight,
+    capacity,
+    queueSlot,
+    staffShifts,
+    shiftMetaInfo,
+    shiftStaffingRolling
+  )
 }

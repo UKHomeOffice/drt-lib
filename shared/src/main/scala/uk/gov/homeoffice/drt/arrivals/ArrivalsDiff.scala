@@ -3,8 +3,7 @@ package uk.gov.homeoffice.drt.arrivals
 import uk.gov.homeoffice.drt.DataUpdates.FlightUpdates
 import uk.gov.homeoffice.drt.ports.FeedSource
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import upickle.default.{macroRW, _}
-
+import upickle.default.{ macroRW, _ }
 
 object ArrivalsDiff {
   implicit val rw: ReadWriter[ArrivalsDiff] = macroRW
@@ -12,11 +11,13 @@ object ArrivalsDiff {
   val empty: ArrivalsDiff = ArrivalsDiff(Seq(), Seq())
 
   def apply(toUpdate: Iterable[Arrival], toRemove: Iterable[UniqueArrival]): ArrivalsDiff = ArrivalsDiff(
-    toUpdate.map(a => (a.unique, a)).toMap, toRemove
+    toUpdate.map(a => (a.unique, a)).toMap,
+    toRemove
   )
 }
 
-case class ArrivalsDiff(toUpdate: Map[UniqueArrival, Arrival], toRemove: Iterable[UniqueArrival]) extends FlightUpdates {
+case class ArrivalsDiff(toUpdate: Map[UniqueArrival, Arrival], toRemove: Iterable[UniqueArrival])
+    extends FlightUpdates {
   def diff(arrivals: Map[UniqueArrival, Arrival]): ArrivalsDiff = {
     val updatedFlights = toUpdate
       .map {
@@ -55,12 +56,14 @@ case class ArrivalsDiff(toUpdate: Map[UniqueArrival, Arrival], toRemove: Iterabl
     }
   )
 
-  def updateMinutes(sourceOrderPreference: List[FeedSource]): Set[Long] = toUpdate.values.flatMap(_.pcpRange(sourceOrderPreference)).toSet
+  def updateMinutes(sourceOrderPreference: List[FeedSource]): Set[Long] =
+    toUpdate.values.flatMap(_.pcpRange(sourceOrderPreference)).toSet
 
-  def applyTo(existingFlights: FlightsWithSplits,
-              nowMillis: Long,
-              sourceOrderPreference: List[FeedSource],
-             ): (FlightsWithSplits, Set[Long], Iterable[ApiFlightWithSplits], Iterable[UniqueArrival]) = {
+  def applyTo(
+      existingFlights: FlightsWithSplits,
+      nowMillis: Long,
+      sourceOrderPreference: List[FeedSource]
+  ): (FlightsWithSplits, Set[Long], Iterable[ApiFlightWithSplits], Iterable[UniqueArrival]) = {
     val updatedFlights = toUpdate.map {
       case (key, incomingArrival) =>
         existingFlights.flights.get(key) match {
@@ -76,13 +79,15 @@ case class ArrivalsDiff(toUpdate: Map[UniqueArrival, Arrival], toRemove: Iterabl
     val minusRemovals: Map[UniqueArrival, ApiFlightWithSplits] = ArrivalsRemoval.removeArrivals(toRemove, updated)
 
     val minutesFromRemovalsInExistingState: Set[Long] = toRemove
-      .flatMap { r => existingFlights.flights.get(r).map(_.apiFlight.pcpRange(sourceOrderPreference)).getOrElse(List()) }
+      .flatMap { r =>
+        existingFlights.flights.get(r).map(_.apiFlight.pcpRange(sourceOrderPreference)).getOrElse(List())
+      }
       .toSet
 
     val minutesFromExistingStateUpdatedFlights = toUpdate
       .flatMap { case (unique, _) =>
         existingFlights.flights.get(unique) match {
-          case None => Set()
+          case None    => Set()
           case Some(f) => f.apiFlight.pcpRange(sourceOrderPreference)
         }
       }.toSet

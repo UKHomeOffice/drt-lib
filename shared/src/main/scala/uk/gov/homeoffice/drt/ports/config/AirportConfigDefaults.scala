@@ -2,9 +2,9 @@ package uk.gov.homeoffice.drt.ports.config
 
 import uk.gov.homeoffice.drt.ports.PaxTypes._
 import uk.gov.homeoffice.drt.ports.PaxTypesAndQueues._
-import uk.gov.homeoffice.drt.ports.Queues.{EGate, EeaDesk, NonEeaDesk, Queue}
-import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{SplitRatio, SplitRatios, SplitSources}
-import uk.gov.homeoffice.drt.ports.{PaxTypes, _}
+import uk.gov.homeoffice.drt.ports.Queues.{ EGate, EeaDesk, NonEeaDesk, Queue }
+import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{ SplitRatio, SplitRatios, SplitSources }
+import uk.gov.homeoffice.drt.ports.{ PaxTypes, _ }
 
 object AirportConfigDefaults {
   val defaultSlas: Map[Queue, Int] = Map(
@@ -40,13 +40,13 @@ object AirportConfigDefaults {
     VisaNational -> List(NonEeaDesk -> 1.0),
     B5JPlusNational -> List(EGate -> 0.7, EeaDesk -> 0.3),
     B5JPlusNationalBelowEGateAge -> List(EeaDesk -> 1),
-    PaxTypes.Transit -> List(),
+    PaxTypes.Transit -> List()
   )
 
   val defaultQueueRatiosWithoutEgates: Map[PaxType, Seq[(Queue, Double)]] = defaultQueueRatios ++ Map(
     GBRNational -> List(EeaDesk -> 1.0),
     EeaMachineReadable -> List(EeaDesk -> 1.0),
-    B5JPlusNational -> List(EeaDesk -> 1.0),
+    B5JPlusNational -> List(EeaDesk -> 1.0)
   )
 
   private object ProcTimes {

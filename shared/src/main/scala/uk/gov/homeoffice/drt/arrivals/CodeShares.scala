@@ -1,15 +1,22 @@
 package uk.gov.homeoffice.drt.arrivals
 
-import uk.gov.homeoffice.drt.ports.{ApiFeedSource, FeedSource}
+import uk.gov.homeoffice.drt.ports.{ ApiFeedSource, FeedSource }
 
 object CodeShares {
 
-  def uniqueArrivals(paxFeedSourceOrder: List[FeedSource])
-                    (flights: Seq[ApiFlightWithSplits]): Iterable[ApiFlightWithSplits] =
-    uniqueArrivalsWithCodeShares(paxFeedSourceOrder)(flights, (f: ApiFlightWithSplits) => f.hasApi, (f: ApiFlightWithSplits) => f.apiFlight).map(_._1)
+  def uniqueArrivals(paxFeedSourceOrder: List[FeedSource])(flights: Seq[ApiFlightWithSplits])
+      : Iterable[ApiFlightWithSplits] =
+    uniqueArrivalsWithCodeShares(paxFeedSourceOrder)(
+      flights,
+      (f: ApiFlightWithSplits) => f.hasApi,
+      (f: ApiFlightWithSplits) => f.apiFlight
+    ).map(_._1)
 
-  def uniqueArrivalsWithCodeShares[T](paxFeedSourceOrder: List[FeedSource])
-                                     (flights: Seq[T], hasApi: T => Boolean, arrival: T => Arrival): Seq[(T, Seq[String])] = {
+  def uniqueArrivalsWithCodeShares[T](paxFeedSourceOrder: List[FeedSource])(
+      flights: Seq[T],
+      hasApi: T => Boolean,
+      arrival: T => Arrival
+  ): Seq[(T, Seq[String])] = {
     flights
       .groupBy(f =>
         (arrival(f).Scheduled, arrival(f).Terminal, arrival(f).Origin)
@@ -35,6 +42,11 @@ object CodeShares {
       }
   }
 
-  def uniqueFlightsWithCodeShares(paxFeedSourceOrder: List[FeedSource])(flights: Seq[ApiFlightWithSplits]): Seq[(ApiFlightWithSplits, Seq[String])] =
-    uniqueArrivalsWithCodeShares(paxFeedSourceOrder)(flights, (f: ApiFlightWithSplits) => f.hasApi, (f: ApiFlightWithSplits) => f.apiFlight)
+  def uniqueFlightsWithCodeShares(paxFeedSourceOrder: List[FeedSource])(flights: Seq[ApiFlightWithSplits])
+      : Seq[(ApiFlightWithSplits, Seq[String])] =
+    uniqueArrivalsWithCodeShares(paxFeedSourceOrder)(
+      flights,
+      (f: ApiFlightWithSplits) => f.hasApi,
+      (f: ApiFlightWithSplits) => f.apiFlight
+    )
 }

@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.drt.time
 
-import upickle.default.{ReadWriter, macroRW}
+import upickle.default.{ macroRW, ReadWriter }
 
 case class LocalDate(year: Int, month: Int, day: Int) extends DateLike {
   override val timeZone: String = "Europe/London"

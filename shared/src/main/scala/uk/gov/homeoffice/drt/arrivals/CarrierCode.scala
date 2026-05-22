@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.drt.arrivals
 
-import upickle.default.{ReadWriter, macroRW}
+import upickle.default.{ macroRW, ReadWriter }
 
 case class CarrierCode(code: String) {
   override def toString: String = code

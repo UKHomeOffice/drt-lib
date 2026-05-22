@@ -1,29 +1,30 @@
 package uk.gov.homeoffice.drt.arrivals
 
-import uk.gov.homeoffice.drt.ports.Terminals.{T1, Terminal}
+import uk.gov.homeoffice.drt.ports.Terminals.{ T1, Terminal }
 
 object FeedArrivalGenerator {
-  def live(operator: Option[String] = None,
-           maxPax: Option[Int] = None,
-           totalPax: Option[Int] = None,
-           transPax: Option[Int] = None,
-           terminal: Terminal = T1,
-           voyageNumber: Int = 1,
-           carrierCode: String = "BA",
-           flightCodeSuffix: Option[String] = None,
-           origin: String = "JFK",
-           previousPort: Option[String] = None,
-           scheduled: Long = 0L,
-           estimated: Option[Long] = None,
-           touchdown: Option[Long] = None,
-           estimatedChox: Option[Long] = None,
-           actualChox: Option[Long] = None,
-           status: String = "",
-           gate: Option[String] = None,
-           stand: Option[String] = None,
-           runway: Option[String] = None,
-           baggageReclaim: Option[String] = None,
-          ): LiveArrival =
+  def live(
+      operator: Option[String] = None,
+      maxPax: Option[Int] = None,
+      totalPax: Option[Int] = None,
+      transPax: Option[Int] = None,
+      terminal: Terminal = T1,
+      voyageNumber: Int = 1,
+      carrierCode: String = "BA",
+      flightCodeSuffix: Option[String] = None,
+      origin: String = "JFK",
+      previousPort: Option[String] = None,
+      scheduled: Long = 0L,
+      estimated: Option[Long] = None,
+      touchdown: Option[Long] = None,
+      estimatedChox: Option[Long] = None,
+      actualChox: Option[Long] = None,
+      status: String = "",
+      gate: Option[String] = None,
+      stand: Option[String] = None,
+      runway: Option[String] = None,
+      baggageReclaim: Option[String] = None
+  ): LiveArrival =
     LiveArrival(
       operator = operator,
       maxPax = maxPax,
@@ -44,21 +45,22 @@ object FeedArrivalGenerator {
       gate = gate,
       stand = stand,
       runway = runway,
-      baggageReclaim = baggageReclaim,
+      baggageReclaim = baggageReclaim
     )
 
-  def forecast(operator: Option[String] = None,
-               maxPax: Option[Int] = None,
-               totalPax: Option[Int] = None,
-               transPax: Option[Int] = None,
-               terminal: Terminal = T1,
-               voyageNumber: Int = 1,
-               carrierCode: String = "BA",
-               flightCodeSuffix: Option[String] = None,
-               origin: String = "JFK",
-               previousPort: Option[String] = None,
-               scheduled: Long = 0L,
-              ): ForecastArrival =
+  def forecast(
+      operator: Option[String] = None,
+      maxPax: Option[Int] = None,
+      totalPax: Option[Int] = None,
+      transPax: Option[Int] = None,
+      terminal: Terminal = T1,
+      voyageNumber: Int = 1,
+      carrierCode: String = "BA",
+      flightCodeSuffix: Option[String] = None,
+      origin: String = "JFK",
+      previousPort: Option[String] = None,
+      scheduled: Long = 0L
+  ): ForecastArrival =
     ForecastArrival(
       operator = operator,
       maxPax = maxPax,
@@ -70,6 +72,6 @@ object FeedArrivalGenerator {
       flightCodeSuffix = flightCodeSuffix,
       origin = origin,
       previousPort = previousPort,
-      scheduled = scheduled,
+      scheduled = scheduled
     )
 }

@@ -23,12 +23,15 @@ class UserFeedbackDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter 
     Await.result(
       TestDatabase.run(DBIO.seq(
         userFeedbackDao.table.schema.dropIfExists,
-        userFeedbackDao.table.schema.createIfNotExists)
-      ), 2.second)
+        userFeedbackDao.table.schema.createIfNotExists
+      )),
+      2.second
+    )
   }
 
   def getUserFeedBackRow(createdAt: Timestamp): UserFeedbackRow = {
-    UserFeedbackRow(email = "test@test.com",
+    UserFeedbackRow(
+      email = "test@test.com",
       createdAt = createdAt,
       bfRole = "test",
       drtQuality = "Good",
@@ -36,7 +39,8 @@ class UserFeedbackDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter 
       drtImprovements = Option("Staffing"),
       participationInterest = true,
       feedbackType = Option("test"),
-      abVersion = Option("A"))
+      abVersion = Option("A")
+    )
   }
 
   "UserFeedbackDao" should {
@@ -53,7 +57,8 @@ class UserFeedbackDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter 
       implicit val system: ActorSystem = ActorSystem("testSystem")
 
       val userFeedbackRow1 = getUserFeedBackRow(new Timestamp(Instant.now().minusSeconds(60).toEpochMilli))
-      val userFeedbackRow2 = getUserFeedBackRow(new Timestamp(Instant.now().minusSeconds(60).toEpochMilli)).copy(email = "test1@test.com")
+      val userFeedbackRow2 =
+        getUserFeedBackRow(new Timestamp(Instant.now().minusSeconds(60).toEpochMilli)).copy(email = "test1@test.com")
 
       Await.result(userFeedbackDao.insertOrUpdate(userFeedbackRow1), 1.second)
       Await.result(userFeedbackDao.insertOrUpdate(userFeedbackRow2), 1.second)

@@ -1,31 +1,30 @@
 package uk.gov.homeoffice.drt.db.tables
 
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 import uk.gov.homeoffice.drt.db.AggregatedDbTables
 import uk.gov.homeoffice.drt.models.UserPreferences
 import slick.jdbc.PostgresProfile.api._
 import uk.gov.homeoffice.drt.models.UserPreferences.serializeMap
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 case class UserRow(
-                    id: String,
-                    username: String,
-                    email: String,
-                    latest_login: java.sql.Timestamp,
-                    inactive_email_sent: Option[java.sql.Timestamp],
-                    revoked_access: Option[java.sql.Timestamp],
-                    drop_in_notification_at: Option[java.sql.Timestamp],
-                    created_at: Option[java.sql.Timestamp],
-                    feedback_banner_closed_at: Option[java.sql.Timestamp],
-                    staff_planning_interval_minutes: Option[Int],
-                    hide_pax_data_source_description: Option[Boolean],
-                    show_staffing_shift_view: Option[Boolean],
-                    desks_and_queues_interval_minutes: Option[Int],
-                    port_dashboard_interval_minutes: Option[String],
-                    port_dashboard_terminals: Option[String]
-                  )
-
+    id: String,
+    username: String,
+    email: String,
+    latest_login: java.sql.Timestamp,
+    inactive_email_sent: Option[java.sql.Timestamp],
+    revoked_access: Option[java.sql.Timestamp],
+    drop_in_notification_at: Option[java.sql.Timestamp],
+    created_at: Option[java.sql.Timestamp],
+    feedback_banner_closed_at: Option[java.sql.Timestamp],
+    staff_planning_interval_minutes: Option[Int],
+    hide_pax_data_source_description: Option[Boolean],
+    show_staffing_shift_view: Option[Boolean],
+    desks_and_queues_interval_minutes: Option[Int],
+    port_dashboard_interval_minutes: Option[String],
+    port_dashboard_terminals: Option[String]
+)
 
 trait UserTableLike {
 
@@ -41,7 +40,6 @@ trait UserTableLike {
 
   def updateUserPreferences(email: String, userPreferences: UserPreferences)(implicit ec: ExecutionContext): Future[Int]
 }
-
 
 case class UserTable(tables: AggregatedDbTables) extends UserTableLike {
   val log: Logger = LoggerFactory.getLogger(getClass)
@@ -63,7 +61,7 @@ case class UserTable(tables: AggregatedDbTables) extends UserTableLike {
 
   def updateCloseBanner(email: String, at: java.sql.Timestamp)(implicit ec: ExecutionContext): Future[Int] = {
     val query = userTableQuery.filter(_.email === email)
-      .map(f => (f.feedback_banner_closed_at))
+      .map(f => f.feedback_banner_closed_at)
       .update(Option(at))
     tables.run(query).recover {
       case throwable =>
@@ -102,9 +100,11 @@ case class UserTable(tables: AggregatedDbTables) extends UserTableLike {
   def matchId(id: String): tables.UserTable => Rep[Boolean] = (userTracking: tables.UserTable) =>
     userTracking.id === id
 
-  override def updateStaffPlanningIntervalMinutes(email: String, periodInterval: Int)(implicit ec: ExecutionContext): Future[Int] = {
+  override def updateStaffPlanningIntervalMinutes(email: String, periodInterval: Int)(implicit
+      ec: ExecutionContext
+  ): Future[Int] = {
     val query = userTableQuery.filter(_.email === email)
-      .map(f => (f.staff_planning_interval_minutes))
+      .map(f => f.staff_planning_interval_minutes)
       .update(Option(periodInterval))
     tables.run(query).recover {
       case throwable =>
@@ -113,23 +113,30 @@ case class UserTable(tables: AggregatedDbTables) extends UserTableLike {
     }
   }
 
-  override def updateUserPreferences(email: String, userPreferences: UserPreferences)(implicit ec: ExecutionContext): Future[Int] = {
+  override def updateUserPreferences(email: String, userPreferences: UserPreferences)(implicit
+      ec: ExecutionContext
+  ): Future[Int] = {
     val query = userTableQuery.filter(_.email === email)
-      .map(f => (
-        f.staff_planning_interval_minutes,
-        f.hide_pax_data_source_description,
-        f.show_staffing_shift_view,
-        f.desks_and_queues_interval_minutes,
-        f.port_dashboard_interval_minutes,
-        f.port_dashboard_terminals
-      ))
+      .map(f =>
+        (
+          f.staff_planning_interval_minutes,
+          f.hide_pax_data_source_description,
+          f.show_staffing_shift_view,
+          f.desks_and_queues_interval_minutes,
+          f.port_dashboard_interval_minutes,
+          f.port_dashboard_terminals
+        )
+      )
       .update((
         Option(userPreferences.userSelectedPlanningTimePeriod),
         Option(userPreferences.hidePaxDataSourceDescription),
         Option(userPreferences.showStaffingShiftView),
         Option(userPreferences.desksAndQueuesIntervalMinutes),
         Option(serializeMap(userPreferences.portDashboardIntervalMinutes, (value: Int) => value.toString)),
-        Option(serializeMap(userPreferences.portDashboardTerminals, (values: Set[String]) => values.filter(_.nonEmpty).mkString(",")))
+        Option(serializeMap(
+          userPreferences.portDashboardTerminals,
+          (values: Set[String]) => values.filter(_.nonEmpty).mkString(",")
+        ))
       ))
 
     tables.run(query).recover {

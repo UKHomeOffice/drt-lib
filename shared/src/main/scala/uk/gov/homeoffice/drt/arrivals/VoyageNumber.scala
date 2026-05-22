@@ -1,7 +1,7 @@
 package uk.gov.homeoffice.drt.arrivals
 
-import upickle.default.{ReadWriter, macroRW}
-import scala.util.{Failure, Success, Try}
+import upickle.default.{ macroRW, ReadWriter }
+import scala.util.{ Failure, Success, Try }
 
 object VoyageNumberLike {
   implicit val rw: ReadWriter[VoyageNumberLike] = ReadWriter.merge(VoyageNumber.rw, macroRW[InvalidVoyageNumber.type])
@@ -44,6 +44,6 @@ case object VoyageNumber {
 
   def apply(string: String): VoyageNumberLike = Try(string.toInt) match {
     case Success(value) => VoyageNumber(value)
-    case Failure(_) => InvalidVoyageNumber
+    case Failure(_)     => InvalidVoyageNumber
   }
 }

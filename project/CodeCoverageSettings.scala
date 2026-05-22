@@ -9,5 +9,3 @@ object CodeCoverageSettings {
     coverageExcludedPackages := "<empty>;.*Main.*"
   )
 }
-
-

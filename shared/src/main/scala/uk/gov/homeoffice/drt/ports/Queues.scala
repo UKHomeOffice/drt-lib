@@ -18,11 +18,11 @@ object Queues {
 
   case class QueueFallbacks(queues: (LocalDate, Terminal) => Seq[Queue]) {
     val fallbacks: PartialFunction[(Queue, PaxType), Seq[Queue]] = {
-      case (EGate, _: EeaPaxType) => Seq(EeaDesk, QueueDesk, NonEeaDesk)
+      case (EGate, _: EeaPaxType)    => Seq(EeaDesk, QueueDesk, NonEeaDesk)
       case (EGate, _: NonEeaPaxType) => Seq(NonEeaDesk, QueueDesk, EeaDesk)
-      case (EeaDesk, _: PaxType) => Seq(NonEeaDesk, QueueDesk)
-      case (NonEeaDesk, _: PaxType) => Seq(EeaDesk, QueueDesk)
-      case (_, _) => Seq()
+      case (EeaDesk, _: PaxType)     => Seq(NonEeaDesk, QueueDesk)
+      case (NonEeaDesk, _: PaxType)  => Seq(EeaDesk, QueueDesk)
+      case (_, _)                    => Seq()
     }
 
     def availableFallbacks(terminal: Terminal): (Queue, PaxType, LocalDate) => Seq[Queue] =
@@ -46,17 +46,17 @@ object Queues {
       macroRW[NonEeaDesk.type],
       macroRW[FastTrack.type],
       macroRW[Transfer.type],
-      macroRW[QueueDesk.type],
+      macroRW[QueueDesk.type]
     )
 
     def apply(queueName: String): Queue = queueName.toLowerCase match {
-      case "eeadesk" => EeaDesk
-      case "egate" => EGate
+      case "eeadesk"    => EeaDesk
+      case "egate"      => EGate
       case "noneeadesk" => NonEeaDesk
-      case "fasttrack" => FastTrack
-      case "transfer" => Transfer
-      case "queuedesk" => QueueDesk
-      case _ => InvalidQueue
+      case "fasttrack"  => FastTrack
+      case "transfer"   => Transfer
+      case "queuedesk"  => QueueDesk
+      case _            => InvalidQueue
     }
   }
 
@@ -94,13 +94,13 @@ object Queues {
   def inOrder(queuesToSort: Seq[Queue]): Seq[Queue] = queueOrder.filter(queuesToSort.contains)
 
   val displayName: Function[Queue, String] = {
-    case EeaDesk => "EEA"
+    case EeaDesk    => "EEA"
     case NonEeaDesk => "Non-EEA"
-    case EGate => "e-Gates"
-    case FastTrack => "Fast Track"
-    case Transfer => "Transfer"
-    case QueueDesk => "Desk"
-    case _ => "Invalid"
+    case EGate      => "e-Gates"
+    case FastTrack  => "Fast Track"
+    case Transfer   => "Transfer"
+    case QueueDesk  => "Desk"
+    case _          => "Invalid"
   }
 
   val forecastExportQueueOrderSansFastTrack = List(EeaDesk, NonEeaDesk, EGate)

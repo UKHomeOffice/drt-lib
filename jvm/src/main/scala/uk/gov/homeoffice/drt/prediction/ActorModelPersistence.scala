@@ -1,7 +1,7 @@
 package uk.gov.homeoffice.drt.prediction
 
 import org.apache.pekko.Done
-import org.apache.pekko.actor.{ActorRef, ActorSystem, PoisonPill, Props}
+import org.apache.pekko.actor.{ ActorRef, ActorSystem, PoisonPill, Props }
 import org.apache.pekko.pattern.ask
 import org.apache.pekko.util.Timeout
 import org.apache.spark.ml.regression.LinearRegressionModel
@@ -10,8 +10,7 @@ import uk.gov.homeoffice.drt.actor.PredictionModelActor._
 import uk.gov.homeoffice.drt.actor.commands.Commands.GetState
 import uk.gov.homeoffice.drt.time.SDate
 
-import scala.concurrent.{ExecutionContext, Future}
-
+import scala.concurrent.{ ExecutionContext, Future }
 
 trait ModelPersistence {
   def getModels(validModelNames: Seq[String], maybePointInTime: Option[Long]): WithId => Future[Models]
@@ -22,7 +21,8 @@ trait ModelPersistence {
 trait ActorModelPersistence extends ModelPersistence {
   val modelCategory: ModelCategory
   val actorProvider: (ModelCategory, WithId, Option[Long]) => ActorRef =
-    (modelCategory, identifier, maybePointInTime) => system.actorOf(Props(new PredictionModelActor(() => SDate.now(), modelCategory, identifier, maybePointInTime)))
+    (modelCategory, identifier, maybePointInTime) =>
+      system.actorOf(Props(new PredictionModelActor(() => SDate.now(), modelCategory, identifier, maybePointInTime)))
 
   implicit val ec: ExecutionContext
   implicit val timeout: Timeout
@@ -33,7 +33,7 @@ trait ActorModelPersistence extends ModelPersistence {
       val actor = actorProvider(modelCategory, identifier, None)
       val msg = maybeModelUpdate match {
         case Some(modelUpdate) => modelUpdate
-        case None => RemoveModel(modelName)
+        case None              => RemoveModel(modelName)
       }
       actor.ask(msg).map { _ =>
         actor ! PoisonPill
@@ -52,10 +52,20 @@ trait ActorModelPersistence extends ModelPersistence {
         }
     }
 
-  override val persist: (WithId, Int, LinearRegressionModel, FeaturesWithOneToManyValues, Int, Double, String) => Future[Done] =
-    (modelIdentifier, featuresVersion, linearRegressionModel, featuresWithValues, trainingExamples, improvementPct, modelName) => {
+  override val persist
+      : (WithId, Int, LinearRegressionModel, FeaturesWithOneToManyValues, Int, Double, String) => Future[Done] =
+    (
+        modelIdentifier,
+        featuresVersion,
+        linearRegressionModel,
+        featuresWithValues,
+        trainingExamples,
+        improvementPct,
+        modelName
+    ) => {
       val regressionModel = RegressionModelFromSpark(linearRegressionModel)
-      val modelUpdate = ModelUpdate(regressionModel, featuresVersion, featuresWithValues, trainingExamples, improvementPct, modelName)
+      val modelUpdate =
+        ModelUpdate(regressionModel, featuresVersion, featuresWithValues, trainingExamples, improvementPct, modelName)
       updateModel(modelIdentifier, modelName, Option(modelUpdate)).map(_ => Done)
     }
 

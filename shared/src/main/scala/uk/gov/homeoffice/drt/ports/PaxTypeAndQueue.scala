@@ -4,7 +4,6 @@ import uk.gov.homeoffice.drt.Nationality
 import uk.gov.homeoffice.drt.ports.Queues.Queue
 import upickle.default._
 
-
 object PaxTypesAndQueues {
   val gbrNationalToEgate: PaxTypeAndQueue = PaxTypeAndQueue(PaxTypes.GBRNational, Queues.EGate)
   val gbrNationalToDesk: PaxTypeAndQueue = PaxTypeAndQueue(PaxTypes.GBRNational, Queues.EeaDesk)
@@ -37,7 +36,7 @@ object PaxTypesAndQueues {
     nonVisaNationalToDesk,
     visaNationalToFastTrack,
     nonVisaNationalToFastTrack,
-    transitToTransfer,
+    transitToTransfer
   )
 
   val inOrder = List(
@@ -54,7 +53,7 @@ object PaxTypesAndQueues {
     visaNationalToDesk,
     nonVisaNationalToDesk,
     visaNationalToFastTrack,
-    nonVisaNationalToFastTrack,
+    nonVisaNationalToFastTrack
   )
 }
 
@@ -71,12 +70,12 @@ object PaxTypeAndQueue {
 }
 
 case class ApiPaxTypeAndQueueCount(
-                                    passengerType: PaxType,
-                                    queueType: Queue,
-                                    paxCount: Double,
-                                    nationalities: Option[Map[Nationality, Double]],
-                                    ages: Option[Map[PaxAge, Double]]
-                                  ) {
+    passengerType: PaxType,
+    queueType: Queue,
+    paxCount: Double,
+    nationalities: Option[Map[Nationality, Double]],
+    ages: Option[Map[PaxAge, Double]]
+) {
   val paxTypeAndQueue: PaxTypeAndQueue = PaxTypeAndQueue(passengerType, queueType)
 }
 

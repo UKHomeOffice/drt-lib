@@ -6,12 +6,12 @@ import org.apache.pekko.stream.scaladsl.Sink
 import org.scalatest.BeforeAndAfter
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.homeoffice.drt.arrivals.{ApiFlightWithSplits, Arrival, ArrivalGenerator, UniqueArrival}
+import uk.gov.homeoffice.drt.arrivals.{ ApiFlightWithSplits, Arrival, ArrivalGenerator, UniqueArrival }
 import uk.gov.homeoffice.drt.db.TestDatabase
 import uk.gov.homeoffice.drt.db.serialisers.FlightRowHelper.generateFlight
-import uk.gov.homeoffice.drt.ports.{LiveFeedSource, PortCode}
+import uk.gov.homeoffice.drt.ports.{ LiveFeedSource, PortCode }
 import uk.gov.homeoffice.drt.ports.Terminals.T1
-import uk.gov.homeoffice.drt.time.{DateLike, LocalDate, SDate, UtcDate}
+import uk.gov.homeoffice.drt.time.{ DateLike, LocalDate, SDate, UtcDate }
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -30,8 +30,10 @@ class FlightDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter {
     Await.result(
       TestDatabase.run(DBIO.seq(
         dao.table.schema.dropIfExists,
-        dao.table.schema.createIfNotExists)
-      ), 2.second)
+        dao.table.schema.createIfNotExists
+      )),
+      2.second
+    )
   }
 
   "insertOrUpdate" should {
@@ -46,7 +48,9 @@ class FlightDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter {
 
     "replace existing queues are replaced with new records for same time periods" in {
       val flight = generateFlight(123, 1L, PortCode("JFK"))
-      val flight2 = generateFlight(123, 1L, PortCode("JFK")).copy(apiFlight = flight.apiFlight.copy(Stand = Option("updated stand")))
+      val flight2 = generateFlight(123, 1L, PortCode("JFK")).copy(apiFlight =
+        flight.apiFlight.copy(Stand = Option("updated stand"))
+      )
 
       Await.result(TestDatabase.run(dao.insertOrUpdate(portCode)(flight)), 2.second)
       Await.result(TestDatabase.run(dao.insertOrUpdate(portCode)(flight2)), 2.second)
@@ -78,8 +82,10 @@ class FlightDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter {
       Await.result(
         TestDatabase.run(dao.removeMulti(portCode)(Seq(
           UniqueArrival(123, T1, 1L, PortCode("JFK")),
-          UniqueArrival(124, T1, 1L, PortCode("JFK"))))),
-        2.second)
+          UniqueArrival(124, T1, 1L, PortCode("JFK"))
+        ))),
+        2.second
+      )
 
       val rows = Await.result(TestDatabase.run(dao.get(portCode)(PortCode("JFK"), T1, 1L, 123)), 1.second)
       rows should be(None)
@@ -93,7 +99,8 @@ class FlightDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter {
       Await.result(TestDatabase.run(dao.insertOrUpdate(portCode)(flight2)), 2.second)
       Await.result(
         TestDatabase.run(dao.removeMulti(portCode)(Seq(UniqueArrival(123, T1, 1L, PortCode("JFK"))))),
-        2.second)
+        2.second
+      )
 
       val rows = Await.result(TestDatabase.run(dao.get(portCode)(PortCode("JFK"), T1, 1L, 123)), 1.second)
       rows should be(None)
@@ -107,15 +114,18 @@ class FlightDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter {
       Seq(
         generateFlight(125, SDate("2024-11-11").millisSinceEpoch, PortCode("JFK")),
         generateFlight(125, SDate("2024-11-12").millisSinceEpoch, PortCode("JFK")),
-        generateFlight(125, SDate("2024-11-13").millisSinceEpoch, PortCode("JFK")),
+        generateFlight(125, SDate("2024-11-13").millisSinceEpoch, PortCode("JFK"))
       ).map(flight => Await.result(TestDatabase.run(dao.insertOrUpdate(portCode)(flight)), 2.second))
 
-      Await.result(TestDatabase.run(dao.removeAllBefore(UtcDate(2024, 11,13))), 2.second)
+      Await.result(TestDatabase.run(dao.removeAllBefore(UtcDate(2024, 11, 13))), 2.second)
 
       Seq(
         (SDate("2024-11-11").millisSinceEpoch, None),
         (SDate("2024-11-12").millisSinceEpoch, None),
-        (SDate("2024-11-13").millisSinceEpoch, Option(generateFlight(125, SDate("2024-11-13").millisSinceEpoch, PortCode("JFK")))),
+        (
+          SDate("2024-11-13").millisSinceEpoch,
+          Option(generateFlight(125, SDate("2024-11-13").millisSinceEpoch, PortCode("JFK")))
+        )
       ).map {
         case (minute, expected) =>
           val rows = Await.result(TestDatabase.run(dao.get(portCode)(PortCode("JFK"), T1, minute, 125)), 1.second)
@@ -158,28 +168,30 @@ class FlightDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter {
     }
   }
 
-  private def checkScheduledIsReturnedForDate(scheduled: String, date: DateLike)
-                                             (implicit mat: Materializer): Any = {
+  private def checkScheduledIsReturnedForDate(scheduled: String, date: DateLike)(implicit mat: Materializer): Any = {
     val (arrival: Arrival, arrivals: Seq[Arrival]) = insertAndQueryForDate(scheduled, date)
 
     arrivals should contain(arrival)
   }
 
-  private def checkScheduledIsNotReturnedForDate(scheduled: String, date: DateLike)
-                                             (implicit mat: Materializer): Any = {
+  private def checkScheduledIsNotReturnedForDate(scheduled: String, date: DateLike)(implicit mat: Materializer): Any = {
     val (arrival: Arrival, arrivals: Seq[Arrival]) = insertAndQueryForDate(scheduled, date)
 
-    arrivals should not contain(arrival)
+    arrivals should not contain arrival
   }
 
-  private def insertAndQueryForDate(scheduled: String, date: DateLike)
-                                   (implicit mat: Materializer)= {
-    val arrival = ArrivalGenerator.arrival("BA123", scheduled, terminal = T1, origin = PortCode("JFK"), feedSource = LiveFeedSource)
+  private def insertAndQueryForDate(scheduled: String, date: DateLike)(implicit mat: Materializer) = {
+    val arrival =
+      ArrivalGenerator.arrival("BA123", scheduled, terminal = T1, origin = PortCode("JFK"), feedSource = LiveFeedSource)
     val flight1 = ApiFlightWithSplits(arrival, Set())
 
     Await.result(TestDatabase.run(dao.insertOrUpdate(portCode)(flight1)), 2.second)
 
-    val future = dao.flightsForPcpDateRange(portCode, List(LiveFeedSource), TestDatabase.run)(date, date, Seq(T1)).runWith(Sink.seq)
+    val future = dao.flightsForPcpDateRange(portCode, List(LiveFeedSource), TestDatabase.run)(
+      date,
+      date,
+      Seq(T1)
+    ).runWith(Sink.seq)
     val arrivals = Await.result(future, 2.second).flatMap(_._2.map(_.apiFlight))
     (arrival, arrivals)
   }

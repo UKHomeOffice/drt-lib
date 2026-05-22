@@ -3,7 +3,7 @@ package uk.gov.homeoffice.drt.ports
 import ujson.Value.Value
 import upickle.default._
 
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 
 trait FeedSource {
   def name: String
@@ -34,10 +34,11 @@ case object HistoricApiFeedSource extends FeedSource {
 
   override val maybeLastUpdateThreshold: Option[FiniteDuration] = None
 
-  override val description: Boolean => String = isLiveFeedAvailable => if (isLiveFeedAvailable)
-    "Historic passenger nationality and age data when available."
-  else
-    "Historic passenger numbers and nationality data when available."
+  override val description: Boolean => String = isLiveFeedAvailable =>
+    if (isLiveFeedAvailable)
+      "Historic passenger nationality and age data when available."
+    else
+      "Historic passenger numbers and nationality data when available."
 
   override val id: String = "historic-api"
 }
@@ -47,10 +48,11 @@ case object ApiFeedSource extends FeedSource {
 
   override val maybeLastUpdateThreshold: Option[FiniteDuration] = None
 
-  override val description: Boolean => String = isLiveFeedAvailable => if (isLiveFeedAvailable)
-    "Actual passenger nationality and age data when available."
-  else
-    "Actual passenger numbers and nationality data when available."
+  override val description: Boolean => String = isLiveFeedAvailable =>
+    if (isLiveFeedAvailable)
+      "Actual passenger nationality and age data when available."
+    else
+      "Actual passenger numbers and nationality data when available."
 
   override val id: String = "api"
 }
@@ -82,10 +84,11 @@ case object LiveFeedSource extends FeedSource {
 
   override val maybeLastUpdateThreshold: Option[FiniteDuration] = Option(12.hours)
 
-  override val description: Boolean => String = isCiriumAsLiveFeedSource => if (isCiriumAsLiveFeedSource)
-    "Estimated and actual arrival time updates where not available from the port operator."
-  else
-    "Up-to-date passenger numbers, estimated and actual arrival times, gates and stands."
+  override val description: Boolean => String = isCiriumAsLiveFeedSource =>
+    if (isCiriumAsLiveFeedSource)
+      "Estimated and actual arrival time updates where not available from the port operator."
+    else
+      "Up-to-date passenger numbers, estimated and actual arrival times, gates and stands."
 
   override val id: String = "live"
 }
@@ -107,10 +110,11 @@ case object LiveBaseFeedSource extends FeedSource {
 
   override val maybeLastUpdateThreshold: Option[FiniteDuration] = Option(12.hours)
 
-  override val description: Boolean => String = isLiveFeedAvailable => if (isLiveFeedAvailable)
-    "Estimated and actual arrival time updates where not available from live feed."
-  else
-    "Estimated and actual arrival time updates."
+  override val description: Boolean => String = isLiveFeedAvailable =>
+    if (isLiveFeedAvailable)
+      "Estimated and actual arrival time updates where not available from live feed."
+    else
+      "Estimated and actual arrival time updates."
 
   override val id: String = "live-base"
 }
@@ -126,20 +130,30 @@ case object UnknownFeedSource extends FeedSource {
 }
 
 object FeedSource {
-  def feedSources: Set[FeedSource] = Set(ApiFeedSource, AclFeedSource, ForecastFeedSource, HistoricApiFeedSource, LiveFeedSource, LiveBaseFeedSource, ScenarioSimulationSource, MlFeedSource)
+  def feedSources: Set[FeedSource] = Set(
+    ApiFeedSource,
+    AclFeedSource,
+    ForecastFeedSource,
+    HistoricApiFeedSource,
+    LiveFeedSource,
+    LiveBaseFeedSource,
+    ScenarioSimulationSource,
+    MlFeedSource
+  )
 
-  def apply(feedSource: String): Option[FeedSource] = feedSources.find(fs => fs.toString == feedSource || fs.name == feedSource)
+  def apply(feedSource: String): Option[FeedSource] =
+    feedSources.find(fs => fs.toString == feedSource || fs.name == feedSource)
 
   def byId(id: String): FeedSource = id match {
-    case "api" => ApiFeedSource
-    case "acl" => AclFeedSource
-    case "forecast" => ForecastFeedSource
-    case "historic-api" => HistoricApiFeedSource
-    case "live" => LiveFeedSource
-    case "live-base" => LiveBaseFeedSource
+    case "api"                 => ApiFeedSource
+    case "acl"                 => AclFeedSource
+    case "forecast"            => ForecastFeedSource
+    case "historic-api"        => HistoricApiFeedSource
+    case "live"                => LiveFeedSource
+    case "live-base"           => LiveBaseFeedSource
     case "scenario-simulation" => ScenarioSimulationSource
-    case "ml" => MlFeedSource
-    case _ => UnknownFeedSource
+    case "ml"                  => MlFeedSource
+    case _                     => UnknownFeedSource
   }
 
   implicit val feedSourceReadWriter: ReadWriter[FeedSource] =

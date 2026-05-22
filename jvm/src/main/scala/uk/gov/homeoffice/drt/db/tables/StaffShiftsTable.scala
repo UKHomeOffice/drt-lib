@@ -1,22 +1,22 @@
 package uk.gov.homeoffice.drt.db.tables
 
-import java.sql.{Date, Timestamp}
+import java.sql.{ Date, Timestamp }
 import slick.lifted.Tag
 import slick.jdbc.PostgresProfile.api._
 
 case class StaffShiftRow(
-                          port: String,
-                          terminal: String,
-                          shiftName: String,
-                          startDate: Date,
-                          startTime: String,
-                          endTime: String,
-                          endDate: Option[Date],
-                          staffNumber: Int,
-                          createdBy: Option[String],
-                          frequency: Option[String],
-                          createdAt: Timestamp
-                        )
+    port: String,
+    terminal: String,
+    shiftName: String,
+    startDate: Date,
+    startTime: String,
+    endTime: String,
+    endDate: Option[Date],
+    staffNumber: Int,
+    createdBy: Option[String],
+    frequency: Option[String],
+    createdAt: Timestamp
+)
 
 class StaffShiftsTable(tag: Tag) extends Table[StaffShiftRow](tag, "staff_shifts") {
   def port: Rep[String] = column[String]("port")

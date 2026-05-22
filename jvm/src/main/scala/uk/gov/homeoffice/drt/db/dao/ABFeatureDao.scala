@@ -3,10 +3,9 @@ package uk.gov.homeoffice.drt.db.dao
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.TableQuery
 import uk.gov.homeoffice.drt.db.CentralDatabase
-import uk.gov.homeoffice.drt.db.tables.{ABFeatureRow, ABFeatureTable}
+import uk.gov.homeoffice.drt.db.tables.{ ABFeatureRow, ABFeatureTable }
 
 import scala.concurrent.Future
-
 
 trait IABFeatureDao {
   def insertOrUpdate(aBFeatureRow: ABFeatureRow): Future[Int]

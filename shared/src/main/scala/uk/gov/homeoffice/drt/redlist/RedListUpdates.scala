@@ -1,10 +1,9 @@
 package uk.gov.homeoffice.drt.redlist
 
 import uk.gov.homeoffice.drt.Nationality
-import upickle.default.{ReadWriter, macroRW}
+import upickle.default.{ macroRW, ReadWriter }
 
 import scala.collection.immutable.Map
-
 
 case class RedListUpdate(effectiveFrom: Long, additions: Map[String, String], removals: List[String])
 
@@ -20,10 +19,11 @@ case class RedListUpdates(updates: Map[Long, RedListUpdate]) {
   def remove(effectiveFrom: Long): RedListUpdates = copy(updates = updates.filterKeys(_ != effectiveFrom).view.toMap)
 
   def update(setRedListUpdate: SetRedListUpdate): RedListUpdates =
-    copy(updates = updates
-      .filter {
-        case (effectiveFrom, _) => effectiveFrom != setRedListUpdate.originalDate
-      } + (setRedListUpdate.redListUpdate.effectiveFrom -> setRedListUpdate.redListUpdate)
+    copy(updates =
+      updates
+        .filter {
+          case (effectiveFrom, _) => effectiveFrom != setRedListUpdate.originalDate
+        } + (setRedListUpdate.redListUpdate.effectiveFrom -> setRedListUpdate.redListUpdate)
     )
 
   def ++(other: RedListUpdates): RedListUpdates = copy(updates = updates ++ other.updates)
@@ -48,4 +48,3 @@ object RedListUpdates {
 
   implicit val rw: ReadWriter[RedListUpdates] = macroRW
 }
-

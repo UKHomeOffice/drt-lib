@@ -2,16 +2,14 @@ package uk.gov.homeoffice.drt.db.dao
 
 import slick.dbio.Effect
 import slick.jdbc.PostgresProfile.api._
-import uk.gov.homeoffice.drt.db.serialisers.{EgateSimulation, EgateSimulationRequest, EgateSimulationSerialisation}
+import uk.gov.homeoffice.drt.db.serialisers.{ EgateSimulation, EgateSimulationRequest, EgateSimulationSerialisation }
 import uk.gov.homeoffice.drt.db.tables.EgateSimulationTable
 import uk.gov.homeoffice.drt.time.SDate
 
 import java.sql.Timestamp
 import scala.concurrent.ExecutionContext
 
-
-case class EgateSimulationDao()
-                             (implicit ec: ExecutionContext) {
+case class EgateSimulationDao()(implicit ec: ExecutionContext) {
   val table: TableQuery[EgateSimulationTable] = TableQuery[EgateSimulationTable]
 
   def get(uuid: String): DBIOAction[Option[EgateSimulation], NoStream, Effect.Read] =

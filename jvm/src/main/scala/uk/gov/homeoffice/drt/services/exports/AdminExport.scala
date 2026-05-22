@@ -1,7 +1,7 @@
 package uk.gov.homeoffice.drt.services.exports
 
-import FlightExports.{apiIsInvalid, splitsForSources}
-import uk.gov.homeoffice.drt.arrivals.{ApiFlightWithSplits, ArrivalExportHeadings}
+import FlightExports.{ apiIsInvalid, splitsForSources }
+import uk.gov.homeoffice.drt.arrivals.{ ApiFlightWithSplits, ArrivalExportHeadings }
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.time.LocalDate
@@ -10,7 +10,7 @@ trait AdminExport extends FlightsWithSplitsWithActualApiExport {
   private val oldForecastFeedOrder: List[FeedSource] = List(
     ForecastFeedSource,
     HistoricApiFeedSource,
-    AclFeedSource,
+    AclFeedSource
   )
 
   override val headings: String = ArrivalExportHeadings
@@ -32,10 +32,11 @@ trait AdminExport extends FlightsWithSplitsWithActualApiExport {
   }
 }
 
-case class AdminExportImpl(start: LocalDate,
-                           end: LocalDate,
-                           terminals: Seq[Terminal],
-                           paxFeedSourceOrder: List[FeedSource],
-                          ) extends AdminExport {
+case class AdminExportImpl(
+    start: LocalDate,
+    end: LocalDate,
+    terminals: Seq[Terminal],
+    paxFeedSourceOrder: List[FeedSource]
+) extends AdminExport {
   override val flightsFilter: (ApiFlightWithSplits, Seq[Terminal]) => Boolean = standardFilter
 }
