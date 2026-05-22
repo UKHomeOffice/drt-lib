@@ -1,4 +1,8 @@
-import com.timushev.sbt.updates.UpdatesPlugin.autoImport.{dependencyUpdatesFailBuild, dependencyUpdatesFilter, moduleFilterRemoveValue}
+import com.timushev.sbt.updates.UpdatesPlugin.autoImport.{
+  dependencyUpdatesFailBuild,
+  dependencyUpdatesFilter,
+  moduleFilterRemoveValue
+}
 import sbt.*
 
 object SbtUpdatesSettings {
@@ -11,4 +15,3 @@ object SbtUpdatesSettings {
     // Keep them out of the default dependencyUpdates output so the report stays focused on lower-risk upgrades.
   )
 }
-

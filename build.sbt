@@ -1,4 +1,4 @@
-import net.nmoncho.sbt.dependencycheck.settings.{AnalyzerSettings, NvdApiSettings}
+import net.nmoncho.sbt.dependencycheck.settings.{ AnalyzerSettings, NvdApiSettings }
 
 ThisBuild / scalaVersion := "2.13.18"
 ThisBuild / organization := "uk.gov.homeoffice"
