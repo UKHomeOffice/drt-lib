@@ -36,6 +36,10 @@ object Bhx extends AirportConfigLike {
         T1 -> Seq(EeaDesk, EGate, NonEeaDesk),
         T2 -> Seq(QueueDesk)
       ),
+      LocalDate(2026, 5, 26) -> SortedMap(
+        T1 -> Seq(EeaDesk, EGate, NonEeaDesk),
+        T2 -> Seq(QueueDesk, EGate)
+      ),
     ),
     slaByQueue = defaultSlas ++ Map(
       QueueDesk -> 60,
@@ -52,7 +56,8 @@ object Bhx extends AirportConfigLike {
       ),
       T2 -> SplitRatios(
         SplitSources.TerminalAverage,
-        SplitRatio(eeaMachineReadableToDesk, 0.92),
+        SplitRatio(eeaMachineReadableToDesk, 0.92 * 0.2446),
+        SplitRatio(eeaMachineReadableToEGate, 0.92 * 0.7554),
         SplitRatio(eeaNonMachineReadableToDesk, 0),
         SplitRatio(visaNationalToDesk, 0.04),
         SplitRatio(nonVisaNationalToDesk, 0.04)
@@ -94,6 +99,8 @@ object Bhx extends AirportConfigLike {
           List(8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8))
       ),
       T2 -> Map(
+        EGate -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+          List(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)),
         EeaDesk -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
           List(4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4)),
         NonEeaDesk -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
@@ -102,7 +109,7 @@ object Bhx extends AirportConfigLike {
           List(8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8)),
       )
     ),
-    eGateBankSizes = Map(T1 -> Iterable(10, 5)),
+    eGateBankSizes = Map(T1 -> Iterable(10, 5), T2 -> Iterable(5)),
     hasEstChox = false,
     role = BHX,
     terminalPaxTypeQueueAllocation = Map(
@@ -110,7 +117,10 @@ object Bhx extends AirportConfigLike {
         defaultQueueRatios +
           (EeaMachineReadable -> List(EGate -> 0.7968, EeaDesk -> (1.0 - 0.7968))),
         ),
-      T2 -> defaultQueueRatiosWithoutEgates
+      T2 -> (
+        defaultQueueRatios +
+          (EeaMachineReadable -> List(EGate -> 0.7968, EeaDesk -> (1.0 - 0.7968))),
+        ),
     ),
     feedSources = Seq(ApiFeedSource, LiveBaseFeedSource, LiveFeedSource, ForecastFeedSource, AclFeedSource),
     flexedQueues = Set(EeaDesk, NonEeaDesk),

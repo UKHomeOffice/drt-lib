@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.drt.db.dao
 
 import org.joda.time.DateTimeZone
+import org.specs2.matcher.Matcher
 import org.specs2.mutable.Specification
 import org.specs2.specification.BeforeEach
 import uk.gov.homeoffice.drt.ShiftStaffRolling
@@ -19,6 +20,19 @@ import scala.util.Try
 class ShiftStaffRollingDaoSpec extends Specification with BeforeEach {
   sequential
   TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+
+  private def localDate(millis: Long): String =
+    SDate(millis).toLocalDate.toISOString
+
+  private def matchShiftStaffRolling(expected: ShiftStaffRolling): Matcher[ShiftStaffRolling] =
+    beLike[ShiftStaffRolling] { actual =>
+      actual.port mustEqual expected.port
+      actual.terminal mustEqual expected.terminal
+      localDate(actual.rollingStartDate) mustEqual localDate(expected.rollingStartDate)
+      localDate(actual.rollingEndDate) mustEqual localDate(expected.rollingEndDate)
+      actual.updatedAt mustEqual expected.updatedAt
+      actual.triggeredBy mustEqual expected.triggeredBy
+    }
 
   val dao: ShiftStaffRollingDao = ShiftStaffRollingDao(TestDatabase)
 
@@ -67,7 +81,8 @@ class ShiftStaffRollingDaoSpec extends Specification with BeforeEach {
 
       val selectResult: Seq[ShiftStaffRolling] = Await.result(dao.getShiftStaffRolling("LHR", "T5"), 5.seconds)
 
-      selectResult === Seq(shiftStaffRolling)
+      selectResult must haveSize(1)
+      selectResult.head must matchShiftStaffRolling(shiftStaffRolling)
     }
 
     "insert multiple port and get for one port" in {
@@ -83,7 +98,8 @@ class ShiftStaffRollingDaoSpec extends Specification with BeforeEach {
 
       val selectResult: Seq[ShiftStaffRolling] = Await.result(dao.getShiftStaffRolling("LHR", "T5"), 5.seconds)
 
-      selectResult === Seq(shiftStaffRolling)
+      selectResult must haveSize(1)
+      selectResult.head must matchShiftStaffRolling(shiftStaffRolling)
     }
 
     "insert multiple records and get the latest one" in {
@@ -102,7 +118,7 @@ class ShiftStaffRollingDaoSpec extends Specification with BeforeEach {
 
       val selectResult: Option[ShiftStaffRolling] = Await.result(dao.latestShiftStaffRolling("MAN", "T5"), 5.seconds)
 
-      selectResult === Option(shiftStaffRolling3)
+      selectResult must beSome(matchShiftStaffRolling(shiftStaffRolling3))
     }
   }
 }
