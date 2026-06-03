@@ -4,7 +4,7 @@ import uk.gov.homeoffice.drt.auth.Roles.LHR
 import uk.gov.homeoffice.drt.ports.PaxTypes._
 import uk.gov.homeoffice.drt.ports.PaxTypesAndQueues._
 import uk.gov.homeoffice.drt.ports.Queues._
-import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{SplitRatio, SplitRatios, SplitSources}
+import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{ SplitRatio, SplitRatios, SplitSources }
 import uk.gov.homeoffice.drt.ports.Terminals._
 import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.time.LocalDate
@@ -73,14 +73,19 @@ object Lhr extends AirportConfigLike {
     slaByQueue = Map(EeaDesk -> 25, EGate -> 15, NonEeaDesk -> 45),
     crunchOffsetMinutes = 120,
     defaultWalkTimeMillis = Map(T2 -> 900000L, T3 -> 660000L, T4 -> 900000L, T5 -> 660000L),
-    terminalPaxSplits = List(T2, T3, T4, T5).map(t => (t, SplitRatios(
-      SplitSources.TerminalAverage,
-      SplitRatio(eeaMachineReadableToDesk, 0.64 * 0.2),
-      SplitRatio(eeaMachineReadableToEGate, 0.64 * 0.8),
-      SplitRatio(eeaNonMachineReadableToDesk, 0),
-      SplitRatio(visaNationalToDesk, 0.08),
-      SplitRatio(nonVisaNationalToDesk, 0.28),
-    ))).toMap,
+    terminalPaxSplits = List(T2, T3, T4, T5).map(t =>
+      (
+        t,
+        SplitRatios(
+          SplitSources.TerminalAverage,
+          SplitRatio(eeaMachineReadableToDesk, 0.64 * 0.2),
+          SplitRatio(eeaMachineReadableToEGate, 0.64 * 0.8),
+          SplitRatio(eeaNonMachineReadableToDesk, 0),
+          SplitRatio(visaNationalToDesk, 0.08),
+          SplitRatio(nonVisaNationalToDesk, 0.28)
+        )
+      )
+    ).toMap,
     terminalProcessingTimes = Map(
       T2 -> Map(
         b5jsskToDesk -> ProcTimesT2.b5jssk / 60,
@@ -95,7 +100,7 @@ object Lhr extends AirportConfigLike {
         gbrNationalToEgate -> ProcTimesT2.egates / 60,
         visaNationalToDesk -> ProcTimesT2.vn / 60,
         nonVisaNationalToDesk -> ProcTimesT2.nvn / 60,
-        transitToTransfer -> 50d / 60,
+        transitToTransfer -> 50d / 60
       ),
       T3 -> Map(
         b5jsskToDesk -> ProcTimesT3.b5jssk / 60,
@@ -110,7 +115,7 @@ object Lhr extends AirportConfigLike {
         gbrNationalToEgate -> ProcTimesT3.egates / 60,
         visaNationalToDesk -> ProcTimesT3.vn / 60,
         nonVisaNationalToDesk -> ProcTimesT3.nvn / 60,
-        transitToTransfer -> 50d / 60,
+        transitToTransfer -> 50d / 60
       ),
       T4 -> Map(
         b5jsskToDesk -> ProcTimesT4.b5jssk / 60,
@@ -125,7 +130,7 @@ object Lhr extends AirportConfigLike {
         gbrNationalToEgate -> ProcTimesT4.egates / 60,
         visaNationalToDesk -> ProcTimesT4.vn / 60,
         nonVisaNationalToDesk -> ProcTimesT4.nvn / 60,
-        transitToTransfer -> 50d / 60,
+        transitToTransfer -> 50d / 60
       ),
       T5 -> Map(
         b5jsskToDesk -> ProcTimesT5.b5jssk / 60,
@@ -140,36 +145,84 @@ object Lhr extends AirportConfigLike {
         gbrNationalToEgate -> ProcTimesT5.egates / 60,
         visaNationalToDesk -> ProcTimesT5.vn / 60,
         nonVisaNationalToDesk -> ProcTimesT5.nvn / 60,
-        transitToTransfer -> 50d / 60,
+        transitToTransfer -> 50d / 60
       )
     ),
     minMaxDesksByTerminalQueue24Hrs = Map(
       T2 -> Map(
-        Queues.EGate -> (List(0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1), List(1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)),
-        Queues.EeaDesk -> (List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9)),
-        Queues.NonEeaDesk -> (List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20))
+        Queues.EGate ->
+          (
+            List(0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1),
+            List(1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
+          ),
+        Queues.EeaDesk ->
+          (
+            List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9)
+          ),
+        Queues.NonEeaDesk ->
+          (
+            List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20)
+          )
       ),
       T3 -> Map(
-        Queues.EGate -> (List(0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1), List(1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)),
-        Queues.EeaDesk -> (List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16)),
-        Queues.NonEeaDesk -> (List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23))
+        Queues.EGate ->
+          (
+            List(0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1),
+            List(1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
+          ),
+        Queues.EeaDesk ->
+          (
+            List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16)
+          ),
+        Queues.NonEeaDesk ->
+          (
+            List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23)
+          )
       ),
       T4 -> Map(
-        Queues.EGate -> (List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)),
-        Queues.EeaDesk -> (List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8)),
-        Queues.NonEeaDesk -> (List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27))
+        Queues.EGate ->
+          (
+            List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+          ),
+        Queues.EeaDesk ->
+          (
+            List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8)
+          ),
+        Queues.NonEeaDesk ->
+          (
+            List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27)
+          )
       ),
       T5 -> Map(
-        Queues.EGate -> (List(0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1), List(3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)),
-        Queues.EeaDesk -> (List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6)),
-        Queues.NonEeaDesk -> (List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20))
+        Queues.EGate ->
+          (
+            List(0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1),
+            List(3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)
+          ),
+        Queues.EeaDesk ->
+          (
+            List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6)
+          ),
+        Queues.NonEeaDesk ->
+          (
+            List(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20)
+          )
       )
     ),
     eGateBankSizes = Map(
       T2 -> Iterable(10, 5),
       T3 -> Iterable(10, 5),
       T4 -> Iterable(10),
-      T5 -> Iterable(10, 9, 5),
+      T5 -> Iterable(10, 9, 5)
     ),
     role = LHR,
     terminalPaxTypeQueueAllocation = {
@@ -178,22 +231,30 @@ object Lhr extends AirportConfigLike {
       val egateSplitT4 = 0.7687
       val egateSplitT5 = 0.8466
       Map(
-        T2 -> (lhrDefaultQueueRatios + (EeaMachineReadable -> List(
-          EGate -> egateSplitT2,
-          EeaDesk -> (1.0 - egateSplitT2)
-        ))),
-        T3 -> (lhrDefaultQueueRatios + (EeaMachineReadable -> List(
-          EGate -> egateSplitT3,
-          EeaDesk -> (1.0 - egateSplitT3)
-        ))),
-        T4 -> (lhrDefaultQueueRatios + (EeaMachineReadable -> List(
-          EGate -> egateSplitT4,
-          EeaDesk -> (1.0 - egateSplitT4)
-        ))),
-        T5 -> (lhrDefaultQueueRatios + (EeaMachineReadable -> List(
-          EGate -> egateSplitT5,
-          EeaDesk -> (1.0 - egateSplitT5)
-        )))
+        T2 ->
+          (lhrDefaultQueueRatios +
+            (EeaMachineReadable -> List(
+              EGate -> egateSplitT2,
+              EeaDesk -> (1.0 - egateSplitT2)
+            ))),
+        T3 ->
+          (lhrDefaultQueueRatios +
+            (EeaMachineReadable -> List(
+              EGate -> egateSplitT3,
+              EeaDesk -> (1.0 - egateSplitT3)
+            ))),
+        T4 ->
+          (lhrDefaultQueueRatios +
+            (EeaMachineReadable -> List(
+              EGate -> egateSplitT4,
+              EeaDesk -> (1.0 - egateSplitT4)
+            ))),
+        T5 ->
+          (lhrDefaultQueueRatios +
+            (EeaMachineReadable -> List(
+              EGate -> egateSplitT5,
+              EeaDesk -> (1.0 - egateSplitT5)
+            )))
       )
     },
     hasTransfer = true,
@@ -204,7 +265,7 @@ object Lhr extends AirportConfigLike {
       T2 -> 29,
       T3 -> 28,
       T4 -> 39,
-      T5 -> 27,
+      T5 -> 27
     )
   )
 }

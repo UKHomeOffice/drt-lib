@@ -29,7 +29,7 @@ class TerminalsTest extends AnyWordSpec with Matchers {
         "s" -> S,
         "mt" -> T1,
         "cta" -> CTA,
-        "mainapron" -> MainApron,
+        "mainapron" -> MainApron
       )
       nameToTerminal.map { case (name, expectedTerminal) =>
         Terminal(name) should ===(expectedTerminal)

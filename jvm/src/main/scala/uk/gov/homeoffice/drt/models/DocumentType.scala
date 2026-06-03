@@ -15,8 +15,8 @@ object DocumentType {
   }
 
   def apply(docTypeCode: String): DocumentType = docTypeCode.toUpperCase() match {
-    case "V" => Visa
+    case "V"              => Visa
     case "P" | "PASSPORT" => Passport
-    case _ => InvalidDocument
+    case _                => InvalidDocument
   }
 }

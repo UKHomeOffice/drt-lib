@@ -9,8 +9,8 @@ trait EmptyConfig[B, A <: Configs[B]] {
 }
 
 object EmptyConfig {
-  implicit val emptySlaUpdates: EmptyConfig[Map[Queue, Int], SlaConfigs] = new EmptyConfig[Map[Queue, Int], SlaConfigs] {
-    override def empty: SlaConfigs = SlaConfigs.empty
-  }
+  implicit val emptySlaUpdates: EmptyConfig[Map[Queue, Int], SlaConfigs] =
+    new EmptyConfig[Map[Queue, Int], SlaConfigs] {
+      override def empty: SlaConfigs = SlaConfigs.empty
+    }
 }
-

@@ -2,7 +2,7 @@ package uk.gov.homeoffice.drt.auth
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.homeoffice.drt.AppEnvironment.{OtherEnv, PreProdEnv, ProdEnv, TestEnv}
+import uk.gov.homeoffice.drt.AppEnvironment.{ OtherEnv, PreProdEnv, ProdEnv, TestEnv }
 import uk.gov.homeoffice.drt.auth.Roles._
 
 class LoggedInUserSpec extends AnyWordSpec with Matchers {
@@ -123,4 +123,3 @@ class LoggedInUserSpec extends AnyWordSpec with Matchers {
     }
   }
 }
-

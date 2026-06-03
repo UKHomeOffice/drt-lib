@@ -1,7 +1,7 @@
 package uk.gov.homeoffice.drt.jsonformats
 
-import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat}
-import uk.gov.homeoffice.drt.models.{DayPaxFigures, PaxFigures}
+import spray.json.{ DefaultJsonProtocol, JsString, JsValue, RootJsonFormat }
+import uk.gov.homeoffice.drt.models.{ DayPaxFigures, PaxFigures }
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 
 object DayPaxFiguresJsonFormat extends DefaultJsonProtocol {

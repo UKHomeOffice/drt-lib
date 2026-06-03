@@ -2,11 +2,18 @@ package uk.gov.homeoffice.drt.protobuf.serialisation
 
 import scalapb.GeneratedMessage
 import uk.gov.homeoffice.drt.actor.TerminalDayFeedArrivalActor.FeedArrivalsDiff
-import uk.gov.homeoffice.drt.arrivals.{FeedArrival, ForecastArrival, LiveArrival, UniqueArrival}
+import uk.gov.homeoffice.drt.arrivals.{ FeedArrival, ForecastArrival, LiveArrival, UniqueArrival }
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import uk.gov.homeoffice.drt.protobuf.messages.FeedArrivalsMessage.{ForecastArrivalStateSnapshotMessage, ForecastFeedArrivalMessage, ForecastFeedArrivalsDiffMessage, LiveArrivalStateSnapshotMessage, LiveFeedArrivalMessage, LiveFeedArrivalsDiffMessage}
+import uk.gov.homeoffice.drt.protobuf.messages.FeedArrivalsMessage.{
+  ForecastArrivalStateSnapshotMessage,
+  ForecastFeedArrivalMessage,
+  ForecastFeedArrivalsDiffMessage,
+  LiveArrivalStateSnapshotMessage,
+  LiveFeedArrivalMessage,
+  LiveFeedArrivalsDiffMessage
+}
 import uk.gov.homeoffice.drt.protobuf.messages.FlightsMessage.UniqueArrivalMessage
-import uk.gov.homeoffice.drt.protobuf.serialisation.FlightMessageConversion.{log, uniqueArrivalToMessage}
+import uk.gov.homeoffice.drt.protobuf.serialisation.FlightMessageConversion.{ log, uniqueArrivalToMessage }
 
 object FeedArrivalMessageConversion {
 
@@ -32,7 +39,8 @@ object FeedArrivalMessageConversion {
         .toMap
   }
 
-  def forecastStateFromMessage: (GeneratedMessage, Map[UniqueArrival, ForecastArrival]) => Map[UniqueArrival, ForecastArrival] = {
+  def forecastStateFromMessage
+      : (GeneratedMessage, Map[UniqueArrival, ForecastArrival]) => Map[UniqueArrival, ForecastArrival] = {
     case (msg: ForecastFeedArrivalsDiffMessage, state) =>
       val removals = msg.removals.map(FlightMessageConversion.uniqueArrivalFromMessage)
       val updates = msg.forecastUpdates.map(FeedArrivalMessageConversion.forecastArrivalFromMessage)
@@ -46,9 +54,10 @@ object FeedArrivalMessageConversion {
       (state -- removals) ++ updates.map(a => a.unique -> a)
   }
 
-  def forecastArrivalsToMaybeDiffMessage(now: () => Long,
-                                         processRemovals: Boolean,
-                                        ): PartialFunction[(Any, Map[UniqueArrival, ForecastArrival]), Option[GeneratedMessage]] =
+  def forecastArrivalsToMaybeDiffMessage(
+      now: () => Long,
+      processRemovals: Boolean
+  ): PartialFunction[(Any, Map[UniqueArrival, ForecastArrival]), Option[GeneratedMessage]] =
     diffToMaybeMessage(
       now,
       arrivalsToMessages(FeedArrivalMessageConversion.forecastArrivalToMessage),
@@ -56,9 +65,10 @@ object FeedArrivalMessageConversion {
       processRemovals
     )
 
-  def liveArrivalsToMaybeDiffMessage(now: () => Long,
-                                     processRemovals: Boolean,
-                                    ): PartialFunction[(Any, Map[UniqueArrival, LiveArrival]), Option[GeneratedMessage]] =
+  def liveArrivalsToMaybeDiffMessage(
+      now: () => Long,
+      processRemovals: Boolean
+  ): PartialFunction[(Any, Map[UniqueArrival, LiveArrival]), Option[GeneratedMessage]] =
     diffToMaybeMessage(
       now,
       arrivalsToMessages(FeedArrivalMessageConversion.liveArrivalToMessage),
@@ -66,11 +76,12 @@ object FeedArrivalMessageConversion {
       processRemovals
     )
 
-  private def diffToMaybeMessage[A <: FeedArrival, U](now: () => Long,
-                                                      arrivalsToMessages: (Seq[A], Map[UniqueArrival, A]) => U,
-                                                      toMessage: (Long, U, Seq[UniqueArrivalMessage]) => GeneratedMessage,
-                                                      processRemovals: Boolean,
-                                                     ): PartialFunction[(Any, Map[UniqueArrival, A]), Option[GeneratedMessage]] = {
+  private def diffToMaybeMessage[A <: FeedArrival, U](
+      now: () => Long,
+      arrivalsToMessages: (Seq[A], Map[UniqueArrival, A]) => U,
+      toMessage: (Long, U, Seq[UniqueArrivalMessage]) => GeneratedMessage,
+      processRemovals: Boolean
+  ): PartialFunction[(Any, Map[UniqueArrival, A]), Option[GeneratedMessage]] = {
     case (arrivals: Seq[A], state) =>
       val diff = createDiff(arrivals, state, processRemovals)
       val updatesForDiff = arrivalsToMessages(arrivals, state)
@@ -86,10 +97,10 @@ object FeedArrivalMessageConversion {
       None
   }
 
-  private def arrivalsToMessages[A <: FeedArrival, M](arrivalToMessage: A => M)
-                                                     (arrivals: Seq[A],
-                                                      state: Map[UniqueArrival, A],
-                                                     ): Seq[M] =
+  private def arrivalsToMessages[A <: FeedArrival, M](arrivalToMessage: A => M)(
+      arrivals: Seq[A],
+      state: Map[UniqueArrival, A]
+  ): Seq[M] =
     arrivals.foldLeft(Seq.empty[M]) {
       case (acc, a) =>
         state.get(a.unique) match {
@@ -100,7 +111,11 @@ object FeedArrivalMessageConversion {
         }
     }
 
-  private def createDiff[A <: FeedArrival](arrivals: Seq[A], state: Map[UniqueArrival, A], processRemovals: Boolean): FeedArrivalsDiff[A] = {
+  private def createDiff[A <: FeedArrival](
+      arrivals: Seq[A],
+      state: Map[UniqueArrival, A],
+      processRemovals: Boolean
+  ): FeedArrivalsDiff[A] = {
     val updates = arrivals.filterNot(a => state.get(a.unique).contains(a))
     val removals = if (processRemovals) state.keySet -- arrivals.map(_.unique) else Set.empty
     FeedArrivalsDiff(updates, removals)
@@ -133,7 +148,7 @@ object FeedArrivalMessageConversion {
       flightCodeSuffix = msg.flightCodeSuffix,
       origin = msg.origin.getOrElse(""),
       previousPort = msg.previousPort,
-      scheduled = msg.scheduled.getOrElse(0L),
+      scheduled = msg.scheduled.getOrElse(0L)
     )
 
   def liveArrivalToMessage(fa: LiveArrival): LiveFeedArrivalMessage =
@@ -157,7 +172,7 @@ object FeedArrivalMessageConversion {
       gate = fa.gate,
       stand = fa.stand,
       runway = fa.runway,
-      baggageReclaim = fa.baggageReclaim,
+      baggageReclaim = fa.baggageReclaim
     )
 
   private def liveArrivalFromMessage(msg: LiveFeedArrivalMessage): LiveArrival =
@@ -181,7 +196,7 @@ object FeedArrivalMessageConversion {
       gate = msg.gate,
       stand = msg.stand,
       runway = msg.runway,
-      baggageReclaim = msg.baggageReclaim,
+      baggageReclaim = msg.baggageReclaim
     )
 
   private def forecastArrivalsToSnapshot(arrivals: Seq[ForecastArrival]): ForecastArrivalStateSnapshotMessage =

@@ -1,17 +1,16 @@
 package uk.gov.homeoffice.drt.db.tables
 
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.{ProvenShape, Tag}
+import slick.lifted.{ ProvenShape, Tag }
 
 case class ShiftStaffRollingRow(
-                                 port: String,
-                                 terminal: String,
-                                 rollingStartDate: java.sql.Date,
-                                 rollingEndDate: java.sql.Date,
-                                 updatedAt: java.sql.Timestamp,
-                                 triggeredBy: String
-                               )
-
+    port: String,
+    terminal: String,
+    rollingStartDate: java.sql.Date,
+    rollingEndDate: java.sql.Date,
+    updatedAt: java.sql.Timestamp,
+    triggeredBy: String
+)
 
 class ShiftStaffRollingTable(_tableTag: Tag) extends Table[ShiftStaffRollingRow](_tableTag, "shift_staff_rolling") {
   def port: Rep[String] = column[String]("port")
@@ -28,5 +27,6 @@ class ShiftStaffRollingTable(_tableTag: Tag) extends Table[ShiftStaffRollingRow]
 
   val pk = primaryKey("shift_staff_rolling_pkey", (port, terminal, rollingStartDate))
 
-  override def * : ProvenShape[ShiftStaffRollingRow] = (port, terminal, rollingStartDate, rollingEndDate, updatedAt, triggeredBy).mapTo[ShiftStaffRollingRow]
+  override def * : ProvenShape[ShiftStaffRollingRow] =
+    (port, terminal, rollingStartDate, rollingEndDate, updatedAt, triggeredBy).mapTo[ShiftStaffRollingRow]
 }

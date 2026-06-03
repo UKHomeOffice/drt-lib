@@ -3,32 +3,43 @@ package uk.gov.homeoffice.drt.actor
 import org.apache.pekko.pattern.StatusReply.Ack
 import org.apache.pekko.persistence.SnapshotMetadata
 import org.apache.spark.ml.regression.LinearRegressionModel
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 import scalapb.GeneratedMessage
-import uk.gov.homeoffice.drt.actor.PredictionModelActor.{Models, RemoveModel, WithId}
+import uk.gov.homeoffice.drt.actor.PredictionModelActor.{ Models, RemoveModel, WithId }
 import uk.gov.homeoffice.drt.actor.commands.Commands.GetState
 import uk.gov.homeoffice.drt.arrivals.Arrival
-import uk.gov.homeoffice.drt.prediction.{FeaturesWithOneToManyValues, ModelAndFeatures, ModelCategory, RegressionModel}
-import uk.gov.homeoffice.drt.protobuf.messages.ModelAndFeatures.{ModelAndFeaturesMessage, ModelsAndFeaturesMessage, RemoveModelMessage}
-import uk.gov.homeoffice.drt.time.{LocalDate, SDate, SDateLike}
+import uk.gov.homeoffice.drt.prediction.{
+  FeaturesWithOneToManyValues,
+  ModelAndFeatures,
+  ModelCategory,
+  RegressionModel
+}
+import uk.gov.homeoffice.drt.protobuf.messages.ModelAndFeatures.{
+  ModelAndFeaturesMessage,
+  ModelsAndFeaturesMessage,
+  RemoveModelMessage
+}
+import uk.gov.homeoffice.drt.time.{ LocalDate, SDate, SDateLike }
 
 import scala.concurrent.ExecutionContext
 
 object PredictionModelActor {
   case class Models(models: Map[String, ModelAndFeatures])
 
-  case class ModelUpdate(model: RegressionModel,
-                         featuresVersion: Int,
-                         features: FeaturesWithOneToManyValues,
-                         examplesTrainedOn: Int,
-                         improvementPct: Double,
-                         targetName: String,
-                        ) extends ModelAndFeatures
+  case class ModelUpdate(
+      model: RegressionModel,
+      featuresVersion: Int,
+      features: FeaturesWithOneToManyValues,
+      examplesTrainedOn: Int,
+      improvementPct: Double,
+      targetName: String
+  ) extends ModelAndFeatures
 
   case class RemoveModel(targetName: String)
 
   object RegressionModelFromSpark {
-    def apply(lrModel: LinearRegressionModel): RegressionModel = RegressionModel(lrModel.coefficients.toArray, lrModel.intercept)
+    def apply(lrModel: LinearRegressionModel): RegressionModel =
+      RegressionModel(lrModel.coefficients.toArray, lrModel.intercept)
   }
 
   trait WithId {
@@ -85,11 +96,12 @@ object PredictionModelActor {
   }
 }
 
-class PredictionModelActor(val now: () => SDateLike,
-                           modelCategory: ModelCategory,
-                           identifier: WithId,
-                           override val maybePointInTime: Option[Long],
-                          ) extends RecoveryActorLike {
+class PredictionModelActor(
+    val now: () => SDateLike,
+    modelCategory: ModelCategory,
+    identifier: WithId,
+    override val maybePointInTime: Option[Long]
+) extends RecoveryActorLike {
   implicit val ec: ExecutionContext = context.dispatcher
 
   import uk.gov.homeoffice.drt.protobuf.serialisation.ModelAndFeaturesConversion._
@@ -145,7 +157,7 @@ class PredictionModelActor(val now: () => SDateLike,
     case maf: ModelAndFeatures =>
       val isUpdated = state.get(maf.targetName) match {
         case Some(existingMaf) => maf != existingMaf
-        case None => true
+        case None              => true
       }
       if (isUpdated) {
         state = state.updated(maf.targetName, maf)
@@ -159,11 +171,12 @@ class PredictionModelActor(val now: () => SDateLike,
       if (state.contains(targetName)) {
         state = state - targetName
         val replyToAndAck = List((sender(), Ack))
-        persistAndMaybeSnapshotWithAck(RemoveModelMessage(Option(targetName), Option(now().millisSinceEpoch)), replyToAndAck)
+        persistAndMaybeSnapshotWithAck(
+          RemoveModelMessage(Option(targetName), Option(now().millisSinceEpoch)),
+          replyToAndAck
+        )
       } else {
         sender() ! Ack
       }
   }
 }
-
-

@@ -2,10 +2,28 @@ package uk.gov.homeoffice.drt.splits
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.homeoffice.drt.arrivals.SplitStyle.{PaxNumbers, Percentage, Ratio}
-import uk.gov.homeoffice.drt.arrivals.{ApiFlightWithSplits, Arrival, ArrivalGeneratorShared, Passengers, SplitStyle, Splits}
-import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.{ApiSplitsWithHistoricalEGateAndFTPercentages, Historical, TerminalAverage}
-import uk.gov.homeoffice.drt.ports.{ApiFeedSource, ApiPaxTypeAndQueueCount, LiveFeedSource, PaxTypeAndQueue, PaxTypes, Queues}
+import uk.gov.homeoffice.drt.arrivals.SplitStyle.{ PaxNumbers, Percentage, Ratio }
+import uk.gov.homeoffice.drt.arrivals.{
+  ApiFlightWithSplits,
+  Arrival,
+  ArrivalGeneratorShared,
+  Passengers,
+  SplitStyle,
+  Splits
+}
+import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.{
+  ApiSplitsWithHistoricalEGateAndFTPercentages,
+  Historical,
+  TerminalAverage
+}
+import uk.gov.homeoffice.drt.ports.{
+  ApiFeedSource,
+  ApiPaxTypeAndQueueCount,
+  LiveFeedSource,
+  PaxTypeAndQueue,
+  PaxTypes,
+  Queues
+}
 import uk.gov.homeoffice.drt.splits.ApiSplitsToSplitRatio.applyPaxSplitsToFlightPax
 
 class ApiSplitsToSplitRatioSpec extends AnyWordSpec with Matchers {
@@ -83,29 +101,29 @@ class ApiSplitsToSplitRatioSpec extends AnyWordSpec with Matchers {
     "return pax splits of: 1 EeaMachineReadable to Egate and 1 EeaMachineReadable to Desk " +
       "Given 2 pax with a split of 1 EeaMachineReadable to Egate and 1 EeaMachineReadable to Desk" in {
 
-      val splits = Splits(
-        Set(
-          ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EGate, 1, None, None),
-          ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EeaDesk, 1, None, None)
-        ),
-        TerminalAverage,
-        None
-      )
+        val splits = Splits(
+          Set(
+            ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EGate, 1, None, None),
+            ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EeaDesk, 1, None, None)
+          ),
+          TerminalAverage,
+          None
+        )
 
-      val result = applyPaxSplitsToFlightPax(splits, 2)
+        val result = applyPaxSplitsToFlightPax(splits, 2)
 
-      val expected = Splits(
-        Set(
-          ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EGate, 1, None, None),
-          ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EeaDesk, 1, None, None)
-        ),
-        TerminalAverage,
-        None,
-        SplitStyle("Ratio")
-      )
+        val expected = Splits(
+          Set(
+            ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EGate, 1, None, None),
+            ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EeaDesk, 1, None, None)
+          ),
+          TerminalAverage,
+          None,
+          SplitStyle("Ratio")
+        )
 
-      assert(result == expected)
-    }
+        assert(result == expected)
+      }
 
     "return pax totalling 3 Given 3 pax with a split of 1 EeaMachineReadable to Egate and 1 EeaMachineReadable to Desk" in {
       val splits = Splits(
@@ -177,7 +195,12 @@ class ApiSplitsToSplitRatioSpec extends AnyWordSpec with Matchers {
           ApiPaxTypeAndQueueCount(PaxTypes.VisaNational, Queues.NonEeaDesk, 5.699999999999999, None, None),
           ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EeaDesk, 30.150000000000006, None, None),
           ApiPaxTypeAndQueueCount(PaxTypes.EeaNonMachineReadable, Queues.EeaDesk, 15, None, None),
-          ApiPaxTypeAndQueueCount(PaxTypes.VisaNational, Queues.FastTrack, 0.3, None, None)), Historical, None, Percentage)
+          ApiPaxTypeAndQueueCount(PaxTypes.VisaNational, Queues.FastTrack, 0.3, None, None)
+        ),
+        Historical,
+        None,
+        Percentage
+      )
 
       val expected = Splits(
         Set(
@@ -187,7 +210,12 @@ class ApiSplitsToSplitRatioSpec extends AnyWordSpec with Matchers {
           ApiPaxTypeAndQueueCount(PaxTypes.VisaNational, Queues.NonEeaDesk, 9, None, None),
           ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EeaDesk, 46, None, None),
           ApiPaxTypeAndQueueCount(PaxTypes.EeaNonMachineReadable, Queues.EeaDesk, 23, None, None),
-          ApiPaxTypeAndQueueCount(PaxTypes.VisaNational, Queues.FastTrack, 0, None, None)), Historical, None, Ratio)
+          ApiPaxTypeAndQueueCount(PaxTypes.VisaNational, Queues.FastTrack, 0, None, None)
+        ),
+        Historical,
+        None,
+        Ratio
+      )
 
       val result = applyPaxSplitsToFlightPax(splits, pax)
 
@@ -232,9 +260,17 @@ class ApiSplitsToSplitRatioSpec extends AnyWordSpec with Matchers {
           ApiPaxTypeAndQueueCount(PaxTypes.VisaNational, Queues.NonEeaDesk, 5.699999999999999, None, None),
           ApiPaxTypeAndQueueCount(PaxTypes.EeaMachineReadable, Queues.EeaDesk, 30.150000000000006, None, None),
           ApiPaxTypeAndQueueCount(PaxTypes.EeaNonMachineReadable, Queues.EeaDesk, 15, None, None),
-          ApiPaxTypeAndQueueCount(PaxTypes.VisaNational, Queues.FastTrack, 0.3, None, None)), Historical, None, Percentage)
+          ApiPaxTypeAndQueueCount(PaxTypes.VisaNational, Queues.FastTrack, 0.3, None, None)
+        ),
+        Historical,
+        None,
+        Percentage
+      )
 
-      val result: Option[Map[Queues.Queue, Int]] = ApiSplitsToSplitRatio.paxPerQueueUsingBestSplitsAsRatio(ApiFlightWithSplits(flight, Set(splits)), paxFeedSourceOrder)
+      val result: Option[Map[Queues.Queue, Int]] = ApiSplitsToSplitRatio.paxPerQueueUsingBestSplitsAsRatio(
+        ApiFlightWithSplits(flight, Set(splits)),
+        paxFeedSourceOrder
+      )
 
       val expected: Option[Map[Queues.Queue, Int]] = Option(Map(
         Queues.EeaDesk -> 69,
@@ -249,12 +285,20 @@ class ApiSplitsToSplitRatioSpec extends AnyWordSpec with Matchers {
     "return the total broken down per queue given a flight with PaxNumbers splits" in {
       val flight = ArrivalGeneratorShared
         .arrival(passengerSources = Map(LiveFeedSource -> Passengers(Option(100), None)))
-      val splits = Splits(Set(
-        ApiPaxTypeAndQueueCount(PaxTypes.NonVisaNational, Queues.NonEeaDesk, 15, None, None),
-        ApiPaxTypeAndQueueCount(PaxTypes.NonVisaNational, Queues.FastTrack, 5, None, None)),
-        Historical, None, PaxNumbers)
+      val splits = Splits(
+        Set(
+          ApiPaxTypeAndQueueCount(PaxTypes.NonVisaNational, Queues.NonEeaDesk, 15, None, None),
+          ApiPaxTypeAndQueueCount(PaxTypes.NonVisaNational, Queues.FastTrack, 5, None, None)
+        ),
+        Historical,
+        None,
+        PaxNumbers
+      )
 
-      val result = ApiSplitsToSplitRatio.paxPerQueueUsingBestSplitsAsRatio(ApiFlightWithSplits(flight, Set(splits)), paxFeedSourceOrder)
+      val result = ApiSplitsToSplitRatio.paxPerQueueUsingBestSplitsAsRatio(
+        ApiFlightWithSplits(flight, Set(splits)),
+        paxFeedSourceOrder
+      )
 
       val expected: Option[Map[Queues.Queue, Int]] = Option(Map(
         Queues.NonEeaDesk -> 75,
@@ -268,18 +312,27 @@ class ApiSplitsToSplitRatioSpec extends AnyWordSpec with Matchers {
       val flight: Arrival = ArrivalGeneratorShared
         .arrival(passengerSources = Map(), feedSources = Set(ApiFeedSource))
         .copy(PassengerSources = Map(ApiFeedSource -> Passengers(Some(100), None)))
-      val splits = Splits(Set(
-        ApiPaxTypeAndQueueCount(PaxTypes.NonVisaNational, Queues.NonEeaDesk, 15, None, None),
-        ApiPaxTypeAndQueueCount(PaxTypes.NonVisaNational, Queues.FastTrack, 5, None, None)),
-        ApiSplitsWithHistoricalEGateAndFTPercentages, None, PaxNumbers)
+      val splits = Splits(
+        Set(
+          ApiPaxTypeAndQueueCount(PaxTypes.NonVisaNational, Queues.NonEeaDesk, 15, None, None),
+          ApiPaxTypeAndQueueCount(PaxTypes.NonVisaNational, Queues.FastTrack, 5, None, None)
+        ),
+        ApiSplitsWithHistoricalEGateAndFTPercentages,
+        None,
+        PaxNumbers
+      )
 
       val apiFlightWithSplits = ApiFlightWithSplits(flight, Set(splits))
       val bestSplits = apiFlightWithSplits.bestSplits
       assert(bestSplits.contains(Splits(
-        Set(ApiPaxTypeAndQueueCount(PaxTypes.NonVisaNational, Queues.NonEeaDesk, 15, None, None),
-          ApiPaxTypeAndQueueCount(PaxTypes.NonVisaNational, Queues.FastTrack, 5, None, None)),
-        ApiSplitsWithHistoricalEGateAndFTPercentages, None, PaxNumbers))
-      )
+        Set(
+          ApiPaxTypeAndQueueCount(PaxTypes.NonVisaNational, Queues.NonEeaDesk, 15, None, None),
+          ApiPaxTypeAndQueueCount(PaxTypes.NonVisaNational, Queues.FastTrack, 5, None, None)
+        ),
+        ApiSplitsWithHistoricalEGateAndFTPercentages,
+        None,
+        PaxNumbers
+      )))
       val result = ApiSplitsToSplitRatio.paxPerQueueUsingBestSplitsAsRatio(apiFlightWithSplits, paxFeedSourceOrder)
 
       val expected: Option[Map[Queues.Queue, Int]] = Option(Map(
@@ -290,4 +343,3 @@ class ApiSplitsToSplitRatioSpec extends AnyWordSpec with Matchers {
     }
   }
 }
-

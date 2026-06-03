@@ -39,25 +39,33 @@ object FlightRowHelper {
     RedListPax = Option(8),
     PassengerSources = Map(
       LiveFeedSource -> Passengers(Option(100), Option(50)),
-      ForecastFeedSource -> Passengers(Option(101), Option(51)),
-    ),
+      ForecastFeedSource -> Passengers(Option(101), Option(51))
+    )
   )
   val nats = Map(
     Nationality("GB") -> 10d,
-    Nationality("FR") -> 11d,
+    Nationality("FR") -> 11d
   )
   val ages = Map(
     PaxAge(1) -> 10d,
-    PaxAge(2) -> 11d,
+    PaxAge(2) -> 11d
   )
   val splits: Set[Splits] = Set(
-    Splits(Set(ApiPaxTypeAndQueueCount(VisaNational, Queues.NonEeaDesk, 100, Option(nats), Option(ages))), SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages, Option(EventTypes.DC)),
-    Splits(Set(ApiPaxTypeAndQueueCount(VisaNational, Queues.NonEeaDesk, 100, Option(nats), Option(ages))), SplitSources.Historical, Option(EventTypes.DC)),
+    Splits(
+      Set(ApiPaxTypeAndQueueCount(VisaNational, Queues.NonEeaDesk, 100, Option(nats), Option(ages))),
+      SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages,
+      Option(EventTypes.DC)
+    ),
+    Splits(
+      Set(ApiPaxTypeAndQueueCount(VisaNational, Queues.NonEeaDesk, 100, Option(nats), Option(ages))),
+      SplitSources.Historical,
+      Option(EventTypes.DC)
+    )
   )
   def generateFlight(voyageNumber: Int, scheduled: Long, origin: PortCode): ApiFlightWithSplits = ApiFlightWithSplits(
     apiFlight = arrival(voyageNumber, scheduled, origin),
     splits = splits,
-    lastUpdated = Option(123L),
+    lastUpdated = Option(123L)
   )
 }
 

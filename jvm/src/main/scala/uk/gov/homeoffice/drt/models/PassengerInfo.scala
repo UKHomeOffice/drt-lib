@@ -1,8 +1,8 @@
 package uk.gov.homeoffice.drt.models
 
 import uk.gov.homeoffice.drt.Nationality
-import uk.gov.homeoffice.drt.ports.{PaxAge, PaxType}
-import uk.gov.homeoffice.drt.time.{SDate, SDateLike}
+import uk.gov.homeoffice.drt.ports.{ PaxAge, PaxType }
+import uk.gov.homeoffice.drt.time.{ SDate, SDateLike }
 
 import scala.collection.SortedMap
 
@@ -22,7 +22,7 @@ object PassengerInfo {
         AgeRange(18, 24),
         AgeRange(25, 49),
         AgeRange(50, 65),
-        AgeRange(66),
+        AgeRange(66)
       )
   }
 
@@ -30,7 +30,7 @@ object PassengerInfo {
     .find { ar =>
       val withinTop = ar.top match {
         case Some(top) => age.years <= top
-        case None => true
+        case None      => true
       }
       val withinBottom = ar.bottom <= age.years
 

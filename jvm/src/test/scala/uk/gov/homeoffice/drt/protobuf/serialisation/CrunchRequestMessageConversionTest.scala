@@ -2,9 +2,9 @@ package uk.gov.homeoffice.drt.protobuf.serialisation
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.homeoffice.drt.actor.commands.{MergeArrivalsRequest, TerminalUpdateRequest}
+import uk.gov.homeoffice.drt.actor.commands.{ MergeArrivalsRequest, TerminalUpdateRequest }
 import uk.gov.homeoffice.drt.ports.Terminals.T1
-import uk.gov.homeoffice.drt.time.{LocalDate, UtcDate}
+import uk.gov.homeoffice.drt.time.{ LocalDate, UtcDate }
 
 class CrunchRequestMessageConversionTest extends AnyWordSpec with Matchers {
   "loadProcessingRequestToMessage" should {

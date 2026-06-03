@@ -42,7 +42,6 @@ object CountryCodes {
   val SouthKorea = "KOR"
   val USA = "USA"
 
-
   import CountryCodes._
 
   lazy val EUCountries: Set[String] = {

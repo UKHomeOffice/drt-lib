@@ -1,7 +1,7 @@
 package uk.gov.homeoffice.drt.arrivals
 
 import ujson.Value.Value
-import upickle.default.{ReadWriter, readwriter}
+import upickle.default.{ readwriter, ReadWriter }
 
 sealed trait SplitStyle {
   def name: String = getClass.getSimpleName
@@ -12,11 +12,11 @@ sealed trait SplitStyle {
 object SplitStyle {
   def apply(splitStyle: String): SplitStyle = splitStyle match {
     case "PaxNumbers$" => PaxNumbers
-    case "PaxNumbers" => PaxNumbers
+    case "PaxNumbers"  => PaxNumbers
     case "Percentage$" => Percentage
-    case "Percentage" => Percentage
-    case "Ratio" => Ratio
-    case _ => UndefinedSplitStyle
+    case "Percentage"  => Percentage
+    case "Ratio"       => Ratio
+    case _             => UndefinedSplitStyle
   }
 
   def apply(id: Int): SplitStyle = id match {

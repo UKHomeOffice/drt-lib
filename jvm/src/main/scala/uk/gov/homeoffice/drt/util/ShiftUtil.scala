@@ -5,7 +5,7 @@ import uk.gov.homeoffice.drt.db.tables.StaffShiftRow
 import uk.gov.homeoffice.drt.time.LocalDate
 
 import java.sql.Date
-import java.time.{LocalDate => JavaLocalDate}
+import java.time.{ LocalDate => JavaLocalDate }
 
 object ShiftUtil {
   def toStaffShiftRow(shift: Shift): StaffShiftRow = {

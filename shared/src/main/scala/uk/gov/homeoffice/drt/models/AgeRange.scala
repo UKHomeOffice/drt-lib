@@ -1,7 +1,7 @@
 package uk.gov.homeoffice.drt.models
 
 import ujson.Value.Value
-import upickle.default.{macroRW, _}
+import upickle.default.{ macroRW, _ }
 
 trait PaxAgeRange extends Ordered[PaxAgeRange] {
   def title: String
@@ -10,21 +10,21 @@ trait PaxAgeRange extends Ordered[PaxAgeRange] {
 case class AgeRange(bottom: Int, top: Option[Int]) extends PaxAgeRange {
   def isInRange(age: Int): Boolean = this match {
     case AgeRange(bottom, Some(top)) => age >= bottom && age <= top
-    case AgeRange(bottom, None) => age > bottom
+    case AgeRange(bottom, None)      => age > bottom
   }
 
   def title: String = top match {
     case Some(top) => s"$bottom to $top"
-    case _ => s"$bottom and over"
+    case _         => s"$bottom and over"
   }
 
   override def compare(that: PaxAgeRange): Int = that match {
-    case AgeRange(thatBottom, _) if this.bottom != thatBottom => this.bottom - thatBottom
+    case AgeRange(thatBottom, _) if this.bottom != thatBottom                        => this.bottom - thatBottom
     case AgeRange(_, Some(thatTop)) if this.top.isDefined && this.top.get != thatTop => this.top.get - thatTop
-    case AgeRange(_, None) if this.top.isDefined => -1
-    case AgeRange(_, None) if this.top.isEmpty => 0
-    case UnknownAge => -1
-    case _ => 0
+    case AgeRange(_, None) if this.top.isDefined                                     => -1
+    case AgeRange(_, None) if this.top.isEmpty                                       => 0
+    case UnknownAge                                                                  => -1
+    case _                                                                           => 0
   }
 }
 
@@ -33,7 +33,7 @@ case object UnknownAge extends PaxAgeRange {
 
   override def compare(that: PaxAgeRange): Int = that match {
     case UnknownAge => 0
-    case _ => 1
+    case _          => 1
   }
 }
 
@@ -61,4 +61,3 @@ object PaxAgeRange {
       AgeRange(bottom.replace(" and over", "").toInt)
   }
 }
-

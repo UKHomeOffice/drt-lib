@@ -4,13 +4,12 @@ import uk.gov.homeoffice.drt.auth.Roles.STN
 import uk.gov.homeoffice.drt.ports.PaxTypes._
 import uk.gov.homeoffice.drt.ports.PaxTypesAndQueues._
 import uk.gov.homeoffice.drt.ports.Queues._
-import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{SplitRatio, SplitRatios, SplitSources}
+import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{ SplitRatio, SplitRatios, SplitSources }
 import uk.gov.homeoffice.drt.ports.Terminals._
 import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.time.LocalDate
 
 import scala.collection.immutable.SortedMap
-
 
 object Stn extends AirportConfigLike {
 
@@ -54,25 +53,41 @@ object Stn extends AirportConfigLike {
       eeaMachineReadableToEGate -> ProcTimes.egates / 60,
       gbrNationalToEgate -> ProcTimes.egates / 60,
       visaNationalToDesk -> ProcTimes.vn / 60,
-      nonVisaNationalToDesk -> ProcTimes.nvn / 60,
+      nonVisaNationalToDesk -> ProcTimes.nvn / 60
     )),
     minMaxDesksByTerminalQueue24Hrs = Map(
       T1 -> Map(
-        Queues.EGate -> (List(1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)),
-        Queues.EeaDesk -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13)),
-        Queues.NonEeaDesk -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8))
+        Queues.EGate ->
+          (
+            List(1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)
+          ),
+        Queues.EeaDesk ->
+          (
+            List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13)
+          ),
+        Queues.NonEeaDesk ->
+          (
+            List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8)
+          )
       )
     ),
     eGateBankSizes = Map(T1 -> Iterable(10, 10, 10)),
-    fixedPointExamples = Seq("Roving Officer, 00:00, 23:59, 1",
+    fixedPointExamples = Seq(
+      "Roving Officer, 00:00, 23:59, 1",
       "Referral Officer, 00:00, 23:59, 1",
-      "Forgery Officer, 00:00, 23:59, 1"),
+      "Forgery Officer, 00:00, 23:59, 1"
+    ),
     role = STN,
     terminalPaxTypeQueueAllocation = Map(
-      T1 -> (defaultQueueRatios + (EeaMachineReadable -> List(
-        EGate -> 0.8084,
-        EeaDesk -> (1.0 - 0.8084)
-      )))
+      T1 ->
+        (defaultQueueRatios +
+          (EeaMachineReadable -> List(
+            EGate -> 0.8084,
+            EeaDesk -> (1.0 - 0.8084)
+          )))
     ),
     flexedQueues = Set(EeaDesk, NonEeaDesk),
     desksByTerminal = Map(T1 -> 22),

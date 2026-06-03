@@ -1,18 +1,18 @@
 package uk.gov.homeoffice.drt.models
 
-import uk.gov.homeoffice.drt.arrivals.{WithTerminal, WithTimeAccessor}
+import uk.gov.homeoffice.drt.arrivals.{ WithTerminal, WithTimeAccessor }
 import uk.gov.homeoffice.drt.ports.Queues.Queue
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 import uk.gov.homeoffice.drt.time.MilliDate.MillisSinceEpoch
 import upickle.default._
 
 case class TQM(terminal: Terminal, queue: Queue, minute: MillisSinceEpoch)
-  extends Ordered[TQM] with WithTimeAccessor with WithTerminal[TQM] {
+    extends Ordered[TQM] with WithTimeAccessor with WithTerminal[TQM] {
   override def compare(that: TQM): Int = minute.compare(that.minute) match {
     case 0 => queue.compare(that.queue) match {
-      case 0 => terminal.compare(that.terminal)
-      case c => c
-    }
+        case 0 => terminal.compare(that.terminal)
+        case c => c
+      }
     case c => c
   }
 
@@ -24,7 +24,8 @@ object TQM {
 
   def apply(crunchMinute: CrunchMinute): TQM = TQM(crunchMinute.terminal, crunchMinute.queue, crunchMinute.minute)
 
-  def apply(terminalName: String, queueName: String, minute: MillisSinceEpoch): TQM = TQM(Terminal(terminalName), Queue(queueName), minute)
+  def apply(terminalName: String, queueName: String, minute: MillisSinceEpoch): TQM =
+    TQM(Terminal(terminalName), Queue(queueName), minute)
 
   def atTime: MillisSinceEpoch => TQM = (time: MillisSinceEpoch) => TQM("", "", time)
 }

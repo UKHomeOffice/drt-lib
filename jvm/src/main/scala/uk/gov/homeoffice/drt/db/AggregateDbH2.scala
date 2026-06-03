@@ -1,10 +1,10 @@
 package uk.gov.homeoffice.drt.db
 
-import slick.dbio.{DBIOAction, NoStream}
+import slick.dbio.{ DBIOAction, NoStream }
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ Await, ExecutionContext, Future }
 
 object AggregateDbH2 extends AggregatedDbTables {
   override val profile: JdbcProfile = slick.jdbc.H2Profile
@@ -12,9 +12,7 @@ object AggregateDbH2 extends AggregatedDbTables {
 
   override def run[R](action: DBIOAction[R, NoStream, Nothing]): Future[R] = db.run[R](action)
 
-
-  def dropAndCreateH2Tables()
-                           (implicit ec: ExecutionContext): Unit = {
+  def dropAndCreateH2Tables()(implicit ec: ExecutionContext): Unit = {
 
     import profile.api._
 

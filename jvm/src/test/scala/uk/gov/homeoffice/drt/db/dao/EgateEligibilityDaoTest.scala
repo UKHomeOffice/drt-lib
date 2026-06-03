@@ -7,7 +7,7 @@ import uk.gov.homeoffice.drt.db.TestDatabase
 import uk.gov.homeoffice.drt.db.serialisers.EgateEligibility
 import uk.gov.homeoffice.drt.ports.PortCode
 import uk.gov.homeoffice.drt.ports.Terminals.T1
-import uk.gov.homeoffice.drt.time.{SDate, UtcDate}
+import uk.gov.homeoffice.drt.time.{ SDate, UtcDate }
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -24,8 +24,10 @@ class EgateEligibilityDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
     Await.result(
       TestDatabase.run(DBIO.seq(
         dao.table.schema.dropIfExists,
-        dao.table.schema.createIfNotExists)
-      ), 2.second)
+        dao.table.schema.createIfNotExists
+      )),
+      2.second
+    )
   }
 
   "insertOrUpdate" should {
@@ -42,7 +44,8 @@ class EgateEligibilityDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
 
       Await.result(TestDatabase.run(dao.insertOrUpdate(eligibility)), 2.second)
 
-      val retrievedEligibility = Await.result(TestDatabase.run(dao.get(eligibility.port, eligibility.terminal, eligibility.dateUtc)), 2.second)
+      val retrievedEligibility =
+        Await.result(TestDatabase.run(dao.get(eligibility.port, eligibility.terminal, eligibility.dateUtc)), 2.second)
       retrievedEligibility shouldBe Some(eligibility)
     }
 
@@ -62,7 +65,10 @@ class EgateEligibilityDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       val updatedEligibility = eligibility.copy(totalPassengers = 1200)
       Await.result(TestDatabase.run(dao.insertOrUpdate(updatedEligibility)), 2.second)
 
-      val retrievedEligibility = Await.result(TestDatabase.run(dao.get(updatedEligibility.port, updatedEligibility.terminal, updatedEligibility.dateUtc)), 2.second)
+      val retrievedEligibility = Await.result(
+        TestDatabase.run(dao.get(updatedEligibility.port, updatedEligibility.terminal, updatedEligibility.dateUtc)),
+        2.second
+      )
       retrievedEligibility shouldBe Some(updatedEligibility)
     }
   }
@@ -81,12 +87,14 @@ class EgateEligibilityDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
 
       Await.result(TestDatabase.run(dao.insertOrUpdate(eligibility)), 2.second)
 
-      val retrievedEligibility = Await.result(TestDatabase.run(dao.get(eligibility.port, eligibility.terminal, eligibility.dateUtc)), 2.second)
+      val retrievedEligibility =
+        Await.result(TestDatabase.run(dao.get(eligibility.port, eligibility.terminal, eligibility.dateUtc)), 2.second)
       retrievedEligibility shouldBe Some(eligibility)
     }
 
     "return None for a non-existing egate eligibility" in {
-      val retrievedEligibility = Await.result(TestDatabase.run(dao.get(PortCode("LHR"), T1, UtcDate(2023, 10, 2))), 2.second)
+      val retrievedEligibility =
+        Await.result(TestDatabase.run(dao.get(PortCode("LHR"), T1, UtcDate(2023, 10, 2))), 2.second)
       retrievedEligibility shouldBe None
     }
   }

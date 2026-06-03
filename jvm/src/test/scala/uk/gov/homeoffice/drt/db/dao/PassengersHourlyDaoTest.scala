@@ -8,9 +8,9 @@ import uk.gov.homeoffice.drt.db.TestDatabase
 import uk.gov.homeoffice.drt.db.serialisers.PassengersHourlySerialiser
 import uk.gov.homeoffice.drt.db.tables.PassengersHourly
 import uk.gov.homeoffice.drt.ports.PortCode
-import uk.gov.homeoffice.drt.ports.Queues.{EGate, EeaDesk, FastTrack, NonEeaDesk}
-import uk.gov.homeoffice.drt.ports.Terminals.{T1, T2, T3, Terminal}
-import uk.gov.homeoffice.drt.time.{LocalDate, SDate, UtcDate}
+import uk.gov.homeoffice.drt.ports.Queues.{ EGate, EeaDesk, FastTrack, NonEeaDesk }
+import uk.gov.homeoffice.drt.ports.Terminals.{ T1, T2, T3, Terminal }
+import uk.gov.homeoffice.drt.time.{ LocalDate, SDate, UtcDate }
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -27,8 +27,10 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
     Await.result(
       TestDatabase.run(DBIO.seq(
         dao.table.schema.dropIfExists,
-        dao.table.schema.createIfNotExists)
-      ), 2.second)
+        dao.table.schema.createIfNotExists
+      )),
+      2.second
+    )
   }
 
   "PassengersHourlyQueries replaceHours" should {
@@ -38,13 +40,14 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       val paxHourly = List(
         PassengersHourly(portCode, terminal, EeaDesk, UtcDate(2020, 1, 1), 1, 1),
         PassengersHourly(portCode, terminal, EGate, UtcDate(2020, 1, 1), 2, 2),
-        PassengersHourly(portCode, terminal, NonEeaDesk, UtcDate(2020, 1, 1), 3, 3),
+        PassengersHourly(portCode, terminal, NonEeaDesk, UtcDate(2020, 1, 1), 3, 3)
       )
       val paxHourlyToInsert = paxHourly.map(ph => PassengersHourlySerialiser.toRow(ph, 0L))
 
       Await.result(TestDatabase.run(dao.replaceHours(portCode)(terminal, paxHourlyToInsert)), 2.second)
 
-      val rows = TestDatabase.run(dao.get(portCode.iata, terminal.toString, UtcDate(2020, 1, 1).toISOString)).futureValue
+      val rows =
+        TestDatabase.run(dao.get(portCode.iata, terminal.toString, UtcDate(2020, 1, 1).toISOString)).futureValue
       rows.toSet.map(PassengersHourlySerialiser.fromRow) should be(paxHourly.toSet)
     }
 
@@ -54,23 +57,24 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       val paxHourly = List(
         PassengersHourly(portCode, terminal, EeaDesk, UtcDate(2020, 1, 1), 1, 1),
         PassengersHourly(portCode, terminal, EGate, UtcDate(2020, 1, 1), 1, 1),
-        PassengersHourly(portCode, terminal, NonEeaDesk, UtcDate(2020, 1, 1), 3, 3),
+        PassengersHourly(portCode, terminal, NonEeaDesk, UtcDate(2020, 1, 1), 3, 3)
       ).map(ph => PassengersHourlySerialiser.toRow(ph, 0L))
 
       Await.result(TestDatabase.run(dao.replaceHours(portCode)(terminal, paxHourly)), 2.second)
       val paxHourlyUpdate = List(
         PassengersHourly(portCode, terminal, FastTrack, UtcDate(2020, 1, 1), 1, 1),
-        PassengersHourly(portCode, terminal, FastTrack, UtcDate(2020, 1, 1), 2, 2),
+        PassengersHourly(portCode, terminal, FastTrack, UtcDate(2020, 1, 1), 2, 2)
       ).map(ph => PassengersHourlySerialiser.toRow(ph, 0L))
       Await.result(TestDatabase.run(dao.replaceHours(portCode)(terminal, paxHourlyUpdate)), 2.second)
 
       val expected = List(
         PassengersHourly(portCode, terminal, FastTrack, UtcDate(2020, 1, 1), 1, 1),
         PassengersHourly(portCode, terminal, FastTrack, UtcDate(2020, 1, 1), 2, 2),
-        PassengersHourly(portCode, terminal, NonEeaDesk, UtcDate(2020, 1, 1), 3, 3),
+        PassengersHourly(portCode, terminal, NonEeaDesk, UtcDate(2020, 1, 1), 3, 3)
       )
 
-      val rows = TestDatabase.run(dao.get(portCode.iata, terminal.toString, UtcDate(2020, 1, 1).toISOString)).futureValue
+      val rows =
+        TestDatabase.run(dao.get(portCode.iata, terminal.toString, UtcDate(2020, 1, 1).toISOString)).futureValue
       rows.toSet.map(ph => PassengersHourlySerialiser.fromRow(ph)) should be(expected.toSet)
     }
 
@@ -82,11 +86,15 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       val paxHourly = List(
         PassengersHourly(otherPortCode, otherTerminal, EeaDesk, UtcDate(2020, 1, 1), 1, 1),
         PassengersHourly(otherPortCode, otherTerminal, EGate, UtcDate(2020, 1, 1), 1, 1),
-        PassengersHourly(otherPortCode, otherTerminal, NonEeaDesk, UtcDate(2020, 1, 1), 3, 3),
+        PassengersHourly(otherPortCode, otherTerminal, NonEeaDesk, UtcDate(2020, 1, 1), 3, 3)
       ).map(ph => PassengersHourlySerialiser.toRow(ph, 0L))
 
       Await.result(TestDatabase.run(dao.replaceHours(portCode)(terminal, paxHourly)), 2.second)
-      val rows = TestDatabase.run(dao.get(otherPortCode.iata, otherTerminal.toString, UtcDate(2020, 1, 1).toISOString)).futureValue
+      val rows = TestDatabase.run(dao.get(
+        otherPortCode.iata,
+        otherTerminal.toString,
+        UtcDate(2020, 1, 1).toISOString
+      )).futureValue
       rows.toSet.map(ph => PassengersHourlySerialiser.fromRow(ph)) should be(Set())
     }
 
@@ -97,11 +105,12 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       val paxHourly = List(
         PassengersHourly(otherPortCode, terminal, EeaDesk, UtcDate(2020, 1, 1), 1, 1),
         PassengersHourly(otherPortCode, terminal, EGate, UtcDate(2020, 1, 1), 1, 1),
-        PassengersHourly(otherPortCode, terminal, NonEeaDesk, UtcDate(2020, 1, 1), 3, 3),
+        PassengersHourly(otherPortCode, terminal, NonEeaDesk, UtcDate(2020, 1, 1), 3, 3)
       ).map(ph => PassengersHourlySerialiser.toRow(ph, 0L))
 
       Await.result(TestDatabase.run(dao.replaceHours(portCode)(terminal, paxHourly)), 2.second)
-      val rows = TestDatabase.run(dao.get(otherPortCode.iata, terminal.toString, UtcDate(2020, 1, 1).toISOString)).futureValue
+      val rows =
+        TestDatabase.run(dao.get(otherPortCode.iata, terminal.toString, UtcDate(2020, 1, 1).toISOString)).futureValue
       rows.toSet.map(ph => PassengersHourlySerialiser.fromRow(ph)) should be(Set())
     }
 
@@ -112,11 +121,12 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       val paxHourly = List(
         PassengersHourly(portCode, otherTerminal, EeaDesk, UtcDate(2020, 1, 1), 1, 1),
         PassengersHourly(portCode, otherTerminal, EGate, UtcDate(2020, 1, 1), 1, 1),
-        PassengersHourly(portCode, otherTerminal, NonEeaDesk, UtcDate(2020, 1, 1), 3, 3),
+        PassengersHourly(portCode, otherTerminal, NonEeaDesk, UtcDate(2020, 1, 1), 3, 3)
       ).map(ph => PassengersHourlySerialiser.toRow(ph, 0L))
 
       Await.result(TestDatabase.run(dao.replaceHours(portCode)(terminal, paxHourly)), 2.second)
-      val rows = TestDatabase.run(dao.get(portCode.iata, otherTerminal.toString, UtcDate(2020, 1, 1).toISOString)).futureValue
+      val rows =
+        TestDatabase.run(dao.get(portCode.iata, otherTerminal.toString, UtcDate(2020, 1, 1).toISOString)).futureValue
       rows.toSet.map(ph => PassengersHourlySerialiser.fromRow(ph)) should be(Set())
     }
   }
@@ -132,7 +142,7 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       PassengersHourly(portCode, terminal, EeaDesk, utcDayBefore, 22, 10),
       PassengersHourly(portCode, terminal, EeaDesk, utcDayBefore, 23, eeaPax),
       PassengersHourly(portCode, terminal, EGate, utcDate, 1, egatePax),
-      PassengersHourly(portCode, terminal, EGate, utcDate, 23, 10),
+      PassengersHourly(portCode, terminal, EGate, utcDate, 23, 10)
     ).map(ph => PassengersHourlySerialiser.toRow(ph, 0L))
     Await.result(TestDatabase.run(dao.replaceHours(portCode)(terminal, paxHourly)), 2.second)
   }
@@ -141,7 +151,8 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
     "return the total passengers for a port and local date (spanning 2 utc dates)" in {
       insertHourlyPax(T2, 50, 25, LocalDate(2023, 6, 10))
 
-      val result = TestDatabase.run(dao.totalForPortAndDate(portCode.iata, None)(global)(LocalDate(2023, 6, 10))).futureValue
+      val result =
+        TestDatabase.run(dao.totalForPortAndDate(portCode.iata, None)(global)(LocalDate(2023, 6, 10))).futureValue
 
       result should be(75)
     }
@@ -151,11 +162,17 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       insertHourlyPax(T2, 50, 25, LocalDate(2023, 6, 10))
       insertHourlyPax(T3, 50, 25, LocalDate(2023, 6, 10))
 
-      val resultT2 = TestDatabase.run(dao.totalForPortAndDate(portCode.iata, Option(T2.toString))(global)(LocalDate(2023, 6, 10))).futureValue
+      val resultT2 = TestDatabase.run(dao.totalForPortAndDate(
+        portCode.iata,
+        Option(T2.toString)
+      )(global)(LocalDate(2023, 6, 10))).futureValue
 
       resultT2 should be(75)
 
-      val resultT3 = TestDatabase.run(dao.totalForPortAndDate(portCode.iata, Option(T3.toString))(global)(LocalDate(2023, 6, 10))).futureValue
+      val resultT3 = TestDatabase.run(dao.totalForPortAndDate(
+        portCode.iata,
+        Option(T3.toString)
+      )(global)(LocalDate(2023, 6, 10))).futureValue
 
       resultT3 should be(75)
     }
@@ -165,19 +182,25 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       insertHourlyPax(T2, 50, 25, LocalDate(2023, 6, 10))
       insertHourlyPax(T3, 100, 50, LocalDate(2023, 6, 10))
 
-      val resultT2 = TestDatabase.run(dao.hourlyForPortAndDate(portCode.iata, Option(T2.toString))(global)(LocalDate(2023, 6, 10))).futureValue
+      val resultT2 = TestDatabase.run(dao.hourlyForPortAndDate(
+        portCode.iata,
+        Option(T2.toString)
+      )(global)(LocalDate(2023, 6, 10))).futureValue
 
       resultT2 should be(Map(
         SDate(2023, 6, 9, 23, 0).millisSinceEpoch -> Map(EeaDesk -> 50),
-        SDate(2023, 6, 10, 1, 0).millisSinceEpoch -> Map(EGate -> 25))
-      )
+        SDate(2023, 6, 10, 1, 0).millisSinceEpoch -> Map(EGate -> 25)
+      ))
 
-      val resultT3 = TestDatabase.run(dao.hourlyForPortAndDate(portCode.iata, Option(T3.toString))(global)(LocalDate(2023, 6, 10))).futureValue
+      val resultT3 = TestDatabase.run(dao.hourlyForPortAndDate(
+        portCode.iata,
+        Option(T3.toString)
+      )(global)(LocalDate(2023, 6, 10))).futureValue
 
       resultT3 should be(Map(
         SDate(2023, 6, 9, 23, 0).millisSinceEpoch -> Map(EeaDesk -> 100),
-        SDate(2023, 6, 10, 1, 0).millisSinceEpoch -> Map(EGate -> 50))
-      )
+        SDate(2023, 6, 10, 1, 0).millisSinceEpoch -> Map(EGate -> 50)
+      ))
     }
   }
 
@@ -185,7 +208,8 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
     "return the total passengers for a port and local date (spanning 2 utc dates)" in {
       insertHourlyPax(T2, 50, 25, LocalDate(2023, 6, 10))
 
-      val result = TestDatabase.run(dao.queueTotalsForPortAndDate(portCode.iata, None)(global)(LocalDate(2023, 6, 10))).futureValue
+      val result =
+        TestDatabase.run(dao.queueTotalsForPortAndDate(portCode.iata, None)(global)(LocalDate(2023, 6, 10))).futureValue
 
       result should be(Map(EeaDesk -> 50, EGate -> 25))
     }
@@ -193,7 +217,8 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
     "return the total passengers for a port and local date during GMT" in {
       insertHourlyPax(T2, 50, 25, LocalDate(2023, 1, 10))
 
-      val result = TestDatabase.run(dao.queueTotalsForPortAndDate(portCode.iata, None)(global)(LocalDate(2023, 1, 10))).futureValue
+      val result =
+        TestDatabase.run(dao.queueTotalsForPortAndDate(portCode.iata, None)(global)(LocalDate(2023, 1, 10))).futureValue
 
       val before2300 = 25
       val after2300 = 10
@@ -206,7 +231,8 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       val clockChangeDate2023 = LocalDate(2023, 10, 29)
       insertHourlyPax(T2, 50, 25, clockChangeDate2023)
 
-      val result = TestDatabase.run(dao.queueTotalsForPortAndDate(portCode.iata, None)(global)(clockChangeDate2023)).futureValue
+      val result =
+        TestDatabase.run(dao.queueTotalsForPortAndDate(portCode.iata, None)(global)(clockChangeDate2023)).futureValue
 
       val before2300 = 25
       val after2300 = 10
@@ -220,11 +246,17 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       insertHourlyPax(T2, 50, 25, LocalDate(2023, 6, 10))
       insertHourlyPax(T3, 100, 50, LocalDate(2023, 6, 10))
 
-      val resultT2 = TestDatabase.run(dao.queueTotalsForPortAndDate(portCode.iata, Option(T2.toString))(global)(LocalDate(2023, 6, 10))).futureValue
+      val resultT2 = TestDatabase.run(dao.queueTotalsForPortAndDate(
+        portCode.iata,
+        Option(T2.toString)
+      )(global)(LocalDate(2023, 6, 10))).futureValue
 
       resultT2 should be(Map(EeaDesk -> 50, EGate -> 25))
 
-      val resultT3 = TestDatabase.run(dao.queueTotalsForPortAndDate(portCode.iata, Option(T3.toString))(global)(LocalDate(2023, 6, 10))).futureValue
+      val resultT3 = TestDatabase.run(dao.queueTotalsForPortAndDate(
+        portCode.iata,
+        Option(T3.toString)
+      )(global)(LocalDate(2023, 6, 10))).futureValue
 
       resultT3 should be(Map(EeaDesk -> 100, EGate -> 50))
     }
@@ -238,17 +270,18 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       val paxHourly = List(
         PassengersHourly(portCode, terminal, EeaDesk, UtcDate(2020, 1, 1), 1, 1),
         PassengersHourly(portCode, terminal, EeaDesk, UtcDate(2020, 1, 2), 2, 2),
-        PassengersHourly(portCode, terminal, EeaDesk, UtcDate(2020, 1, 3), 3, 3),
+        PassengersHourly(portCode, terminal, EeaDesk, UtcDate(2020, 1, 3), 3, 3)
       ).map(ph => PassengersHourlySerialiser.toRow(ph, 0L))
       Await.result(TestDatabase.run(dao.replaceHours(portCode)(terminal, paxHourly)), 2.second)
 
       Seq(
         (1, Seq(PassengersHourly(portCode, terminal, EeaDesk, UtcDate(2020, 1, 1), 1, 1))),
         (2, Seq(PassengersHourly(portCode, terminal, EeaDesk, UtcDate(2020, 1, 2), 2, 2))),
-        (3, Seq(PassengersHourly(portCode, terminal, EeaDesk, UtcDate(2020, 1, 3), 3, 3))),
+        (3, Seq(PassengersHourly(portCode, terminal, EeaDesk, UtcDate(2020, 1, 3), 3, 3)))
       ).map {
         case (day, expected) =>
-          val result = TestDatabase.run(dao.get(portCode.iata, terminal.toString, UtcDate(2020, 1, day).toISOString)).futureValue
+          val result =
+            TestDatabase.run(dao.get(portCode.iata, terminal.toString, UtcDate(2020, 1, day).toISOString)).futureValue
           result.toSet.map(PassengersHourlySerialiser.fromRow) should be(expected.toSet)
       }
 
@@ -258,10 +291,11 @@ class PassengersHourlyDaoTest extends AnyWordSpec with Matchers with BeforeAndAf
       Seq(
         (1, Seq.empty),
         (2, Seq.empty),
-        (3, Seq(PassengersHourly(portCode, terminal, EeaDesk, UtcDate(2020, 1, 3), 3, 3))),
+        (3, Seq(PassengersHourly(portCode, terminal, EeaDesk, UtcDate(2020, 1, 3), 3, 3)))
       ).map {
         case (day, expected) =>
-          val result = TestDatabase.run(dao.get(portCode.iata, terminal.toString, UtcDate(2020, 1, day).toISOString)).futureValue
+          val result =
+            TestDatabase.run(dao.get(portCode.iata, terminal.toString, UtcDate(2020, 1, day).toISOString)).futureValue
           result.toSet.map(PassengersHourlySerialiser.fromRow) should be(expected.toSet)
       }
     }

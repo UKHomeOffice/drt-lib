@@ -5,21 +5,22 @@ import uk.gov.homeoffice.drt.ports.Queues.Queue
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 import upickle.default._
 
-case class CrunchMinute(terminal: Terminal,
-                        queue: Queue,
-                        minute: Long,
-                        paxLoad: Double,
-                        workLoad: Double,
-                        deskRec: Int,
-                        waitTime: Int,
-                        maybePaxInQueue: Option[Int],
-                        deployedDesks: Option[Int] = None,
-                        deployedWait: Option[Int] = None,
-                        maybeDeployedPaxInQueue: Option[Int] = None,
-                        actDesks: Option[Int] = None,
-                        actWait: Option[Int] = None,
-                        lastUpdated: Option[Long] = None)
-  extends MinuteLike[CrunchMinute, TQM]
+case class CrunchMinute(
+    terminal: Terminal,
+    queue: Queue,
+    minute: Long,
+    paxLoad: Double,
+    workLoad: Double,
+    deskRec: Int,
+    waitTime: Int,
+    maybePaxInQueue: Option[Int],
+    deployedDesks: Option[Int] = None,
+    deployedWait: Option[Int] = None,
+    maybeDeployedPaxInQueue: Option[Int] = None,
+    actDesks: Option[Int] = None,
+    actWait: Option[Int] = None,
+    lastUpdated: Option[Long] = None
+) extends MinuteLike[CrunchMinute, TQM]
     with WithMinute with WithLastUpdated {
   def equals(candidate: CrunchMinute): Boolean = this.copy(lastUpdated = None) == candidate.copy(lastUpdated = None)
 

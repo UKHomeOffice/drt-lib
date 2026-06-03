@@ -3,7 +3,7 @@ package uk.gov.homeoffice.drt.actor.serialisation
 import org.scalatest.wordspec.AnyWordSpec
 import scalapb.GeneratedMessage
 import uk.gov.homeoffice.drt.actor.ConfigActor
-import uk.gov.homeoffice.drt.actor.ConfigActor.{RemoveConfig, SetUpdate}
+import uk.gov.homeoffice.drt.actor.ConfigActor.{ RemoveConfig, SetUpdate }
 import uk.gov.homeoffice.drt.ports.Queues.Queue
 import uk.gov.homeoffice.drt.ports.config.slas.SlaConfigs
 
@@ -19,7 +19,6 @@ class RemoveConfigSerialisationSpec extends AnyWordSpec {
 
     override def deserialiseState(a: GeneratedMessage): SlaConfigs = ???
   }
-
 
   "RemoveUpdate" should {
     "serialise and deserialise without loss" in {

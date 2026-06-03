@@ -18,7 +18,7 @@ class PassengersSummaryFormatSpec extends AnyWordSpec {
         Map(Queues.EeaDesk -> 1),
         Map(Queues.EeaDesk -> 2),
         Option(LocalDate(2020, 1, 1)),
-        Option(1),
+        Option(1)
       )
       val serialised = passengersSummary.toJson
       val deserialised = serialised.convertTo[PassengersSummary]

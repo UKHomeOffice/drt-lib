@@ -1,6 +1,6 @@
 package uk.gov.homeoffice.drt.db.serialisers
 
-import uk.gov.homeoffice.drt.db.tables.{CapacityHourly, CapacityHourlyRow}
+import uk.gov.homeoffice.drt.db.tables.{ CapacityHourly, CapacityHourlyRow }
 import uk.gov.homeoffice.drt.ports.PortCode
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 import uk.gov.homeoffice.drt.time.UtcDate
@@ -16,7 +16,7 @@ object CapacityHourlySerialiser {
         dateUtc.toISOString,
         hour,
         passengers,
-        new Timestamp(updatedAt),
+        new Timestamp(updatedAt)
       )
   }
 
@@ -27,7 +27,7 @@ object CapacityHourlySerialiser {
         Terminal(terminal),
         UtcDate.parse(dateUtc).getOrElse(throw new Exception(s"Could not parse date $dateUtc")),
         hour,
-        passengers,
+        passengers
       )
   }
 }

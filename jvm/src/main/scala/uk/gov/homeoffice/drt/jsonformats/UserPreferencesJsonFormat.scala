@@ -2,7 +2,7 @@ package uk.gov.homeoffice.drt.jsonformats
 
 import spray.json._
 import uk.gov.homeoffice.drt.models.UserPreferences
-import uk.gov.homeoffice.drt.models.UserPreferences.{deserializeMap, serializeMap}
+import uk.gov.homeoffice.drt.models.UserPreferences.{ deserializeMap, serializeMap }
 
 object UserPreferencesJsonFormat extends DefaultJsonProtocol {
   implicit val userPreferencesFormat: RootJsonFormat[UserPreferences] = new RootJsonFormat[UserPreferences] {
@@ -11,8 +11,10 @@ object UserPreferencesJsonFormat extends DefaultJsonProtocol {
       "hidePaxDataSourceDescription" -> JsBoolean(obj.hidePaxDataSourceDescription),
       "showStaffingShiftView" -> JsBoolean(obj.showStaffingShiftView),
       "desksAndQueuesIntervalMinutes" -> JsNumber(obj.desksAndQueuesIntervalMinutes),
-      "portDashboardIntervalMinutes" -> JsString(serializeMap(obj.portDashboardIntervalMinutes, (value: Int) => value.toString)),
-      "portDashboardTerminals" -> JsString(serializeMap(obj.portDashboardTerminals, (values: Set[String]) => values.mkString(","))),
+      "portDashboardIntervalMinutes" ->
+        JsString(serializeMap(obj.portDashboardIntervalMinutes, (value: Int) => value.toString)),
+      "portDashboardTerminals" ->
+        JsString(serializeMap(obj.portDashboardTerminals, (values: Set[String]) => values.mkString(",")))
     )
 
     def read(json: JsValue): UserPreferences = json.asJsObject.getFields(
@@ -24,13 +26,13 @@ object UserPreferencesJsonFormat extends DefaultJsonProtocol {
       "portDashboardTerminals"
     ) match {
       case Seq(
-      JsNumber(staffPlanningIntervalMinutes),
-      JsBoolean(hidePaxDataSourceDescription),
-      JsBoolean(showStaffingShiftView),
-      JsNumber(desksAndQueuesIntervalMinutes),
-      JsString(portDashboardIntervalMinutes),
-      JsString(portDashboardTerminals)
-      ) =>
+            JsNumber(staffPlanningIntervalMinutes),
+            JsBoolean(hidePaxDataSourceDescription),
+            JsBoolean(showStaffingShiftView),
+            JsNumber(desksAndQueuesIntervalMinutes),
+            JsString(portDashboardIntervalMinutes),
+            JsString(portDashboardTerminals)
+          ) =>
         UserPreferences(
           staffPlanningIntervalMinutes.toInt,
           hidePaxDataSourceDescription,

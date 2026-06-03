@@ -3,15 +3,17 @@ package uk.gov.homeoffice.drt.arrivals
 import ujson.Value.Value
 import uk.gov.homeoffice.drt.arrivals.SplitStyle.PaxNumbers
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSource
-import uk.gov.homeoffice.drt.ports.{ApiPaxTypeAndQueueCount, Queues}
-import upickle.default.{ReadWriter, read, readwriter, writeJs}
+import uk.gov.homeoffice.drt.ports.{ ApiPaxTypeAndQueueCount, Queues }
+import upickle.default.{ read, readwriter, writeJs, ReadWriter }
 
 import scala.util.Try
 
-case class Splits(splits: Set[ApiPaxTypeAndQueueCount],
-                  source: SplitSource,
-                  maybeEventType: Option[EventType],
-                  splitStyle: SplitStyle = PaxNumbers) {
+case class Splits(
+    splits: Set[ApiPaxTypeAndQueueCount],
+    source: SplitSource,
+    maybeEventType: Option[EventType],
+    splitStyle: SplitStyle = PaxNumbers
+) {
   lazy val totalPax: Int = Math.round(Splits.totalPax(splits)).toInt
   lazy val transPax: Int = Math.round(Splits.transferPax(splits)).toInt
   lazy val totalExcludingTransferPax: Double = totalPax - transPax
@@ -27,7 +29,8 @@ case class Splits(splits: Set[ApiPaxTypeAndQueueCount],
 
 object Splits {
 
-  def transferPax(splits: Set[ApiPaxTypeAndQueueCount]): Double = splits.filter(s => s.queueType == Queues.Transfer).toList.map(_.paxCount).sum
+  def transferPax(splits: Set[ApiPaxTypeAndQueueCount]): Double =
+    splits.filter(s => s.queueType == Queues.Transfer).toList.map(_.paxCount).sum
 
   def totalPax(splits: Set[ApiPaxTypeAndQueueCount]): Double = splits.toList.map(s => {
     s.paxCount
@@ -35,13 +38,21 @@ object Splits {
 
   implicit val splitsReadWriter: ReadWriter[Splits] =
     readwriter[Value].bimap[Splits](
-      (splits: Splits) => ujson.Obj.from(Seq(
-        "splits" -> Try(writeJs(splits.splits)).getOrElse(throw new Exception(s"Failed to write splits.splits: ${splits.splits}")),
-        "source" -> Try(writeJs(splits.source)).getOrElse(throw new Exception(s"Failed to write splits.source: ${splits.source}")),
-        "maybeEventType" -> Try(writeJs(splits.maybeEventType)).getOrElse(throw new Exception(s"Failed to write splits.maybeEventType: ${splits.maybeEventType}")),
-        "splitStyle" -> Try(writeJs(splits.splitStyle)).getOrElse(throw new Exception(s"Failed to write splits.splitStyle: ${splits.splitStyle}")),
-        )
-      ),
+      (splits: Splits) =>
+        ujson.Obj.from(Seq(
+          "splits" -> Try(
+            writeJs(splits.splits)
+          ).getOrElse(throw new Exception(s"Failed to write splits.splits: ${splits.splits}")),
+          "source" -> Try(
+            writeJs(splits.source)
+          ).getOrElse(throw new Exception(s"Failed to write splits.source: ${splits.source}")),
+          "maybeEventType" -> Try(
+            writeJs(splits.maybeEventType)
+          ).getOrElse(throw new Exception(s"Failed to write splits.maybeEventType: ${splits.maybeEventType}")),
+          "splitStyle" -> Try(
+            writeJs(splits.splitStyle)
+          ).getOrElse(throw new Exception(s"Failed to write splits.splitStyle: ${splits.splitStyle}"))
+        )),
       json => {
         val splits = read[Set[ApiPaxTypeAndQueueCount]](json("splits"))
         val source = read[SplitSource](json("source"))

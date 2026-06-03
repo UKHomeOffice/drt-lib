@@ -3,19 +3,21 @@ package uk.gov.homeoffice.drt.db.dao
 import slick.dbio.Effect
 import slick.jdbc.PostgresProfile.api._
 import slick.sql.FixedSqlAction
-import uk.gov.homeoffice.drt.db.tables.{PassengersHourlyRow, PassengersHourlyTable}
+import uk.gov.homeoffice.drt.db.tables.{ PassengersHourlyRow, PassengersHourlyTable }
 import uk.gov.homeoffice.drt.ports.PortCode
 import uk.gov.homeoffice.drt.ports.Queues.Queue
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import uk.gov.homeoffice.drt.time.{LocalDate, SDate, UtcDate}
+import uk.gov.homeoffice.drt.time.{ LocalDate, SDate, UtcDate }
 
 import scala.concurrent.ExecutionContext
-
 
 object PassengersHourlyDao {
   val table: TableQuery[PassengersHourlyTable] = TableQuery[PassengersHourlyTable]
 
-  def replaceHours(port: PortCode): (Terminal, Iterable[PassengersHourlyRow]) => DBIOAction[Unit, NoStream, Effect.Write with Effect.Transactional] =
+  def replaceHours(port: PortCode): (
+      Terminal,
+      Iterable[PassengersHourlyRow]
+  ) => DBIOAction[Unit, NoStream, Effect.Write with Effect.Transactional] =
     (terminal, rows) => {
       val validRows = rows.filter(r => r.portCode == port.iata && r.terminal == terminal.toString)
 
@@ -38,27 +40,32 @@ object PassengersHourlyDao {
         val insertAction: FixedSqlAction[Option[Int], NoStream, Effect.Write] = table ++= validRows
 
         DBIO.seq(deleteAction, insertAction).transactionally
-      }
-      else DBIO.successful()
+      } else DBIO.successful()
     }
 
-  def get(portCode: String, terminal: String, date: String): DBIOAction[Seq[PassengersHourlyRow], NoStream, Effect.Read] =
+  def get(
+      portCode: String,
+      terminal: String,
+      date: String
+  ): DBIOAction[Seq[PassengersHourlyRow], NoStream, Effect.Read] =
     table
       .filter(_.port === portCode)
       .filter(_.terminal === terminal)
       .filter(_.dateUtc === date)
       .result
 
-  def totalForPortAndDate(port: String, maybeTerminal: Option[String])
-                         (implicit ec: ExecutionContext): LocalDate => DBIOAction[Int, NoStream, Effect.Read] =
+  def totalForPortAndDate(port: String, maybeTerminal: Option[String])(implicit
+      ec: ExecutionContext
+  ): LocalDate => DBIOAction[Int, NoStream, Effect.Read] =
     localDate =>
       filterPortTerminalDate(port, maybeTerminal, localDate)
         .map(_.map {
           _.passengers
         }.sum)
 
-  def queueTotalsForPortAndDate(port: String, maybeTerminal: Option[String])
-                               (implicit ec: ExecutionContext): LocalDate => DBIOAction[Map[Queue, Int], NoStream, Effect.Read] =
+  def queueTotalsForPortAndDate(port: String, maybeTerminal: Option[String])(implicit
+      ec: ExecutionContext
+  ): LocalDate => DBIOAction[Map[Queue, Int], NoStream, Effect.Read] =
     localDate => filterPortTerminalDate(port, maybeTerminal, localDate).map(rowsToQueueTotals)
 
   private def rowsToQueueTotals(rows: Seq[PassengersHourlyRow]): Map[Queue, Int] =
@@ -69,8 +76,9 @@ object PassengersHourlyDao {
           (Queue(queue), queueRows.map(_.passengers).sum)
       }
 
-  def hourlyForPortAndDate(port: String, maybeTerminal: Option[String])
-                          (implicit ec: ExecutionContext): LocalDate => DBIOAction[Map[Long, Map[Queue, Int]], NoStream, Effect.Read] =
+  def hourlyForPortAndDate(port: String, maybeTerminal: Option[String])(implicit
+      ec: ExecutionContext
+  ): LocalDate => DBIOAction[Map[Long, Map[Queue, Int]], NoStream, Effect.Read] =
     localDate =>
       filterPortTerminalDate(port, maybeTerminal, localDate)
         .map {
@@ -93,13 +101,15 @@ object PassengersHourlyDao {
 
   private def filterLocalDate(rows: Seq[PassengersHourlyRow], localDate: LocalDate): Seq[PassengersHourlyRow] =
     rows.filter { row =>
-      val utcDate = UtcDate.parse(row.dateUtc).getOrElse(throw new Exception(s"Failed to parse UtcDate from ${row.dateUtc}"))
+      val utcDate =
+        UtcDate.parse(row.dateUtc).getOrElse(throw new Exception(s"Failed to parse UtcDate from ${row.dateUtc}"))
       val rowLocalDate = SDate(utcDate).addHours(row.hour).toLocalDate
       rowLocalDate == localDate
     }
 
-  private def filterPortTerminalDate(port: String, maybeTerminal: Option[String], localDate: LocalDate)
-                                    (implicit ec: ExecutionContext): DBIOAction[Seq[PassengersHourlyRow], NoStream, Effect.Read] = {
+  private def filterPortTerminalDate(port: String, maybeTerminal: Option[String], localDate: LocalDate)(implicit
+      ec: ExecutionContext
+  ): DBIOAction[Seq[PassengersHourlyRow], NoStream, Effect.Read] = {
     val sdate = SDate(localDate)
     val startUtcDate = sdate.getLocalLastMidnight.toUtcDate
     val endUtcDate = sdate.getLocalNextMidnight.addMinutes(-1).toUtcDate

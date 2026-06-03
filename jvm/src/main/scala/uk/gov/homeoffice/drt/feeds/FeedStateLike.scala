@@ -10,8 +10,8 @@ trait FeedStateLike {
   def addStatus(newStatus: FeedStatus): FeedSourceStatuses = {
     maybeSourceStatuses match {
       case Some(feedSourceStatuses) => feedSourceStatuses.copy(
-        feedStatuses = feedSourceStatuses.feedStatuses.add(newStatus)
-      )
+          feedStatuses = feedSourceStatuses.feedStatuses.add(newStatus)
+        )
       case None => FeedSourceStatuses(feedSource, FeedStatuses(List(), None, None, None).add(newStatus))
     }
   }

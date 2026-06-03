@@ -1,30 +1,33 @@
 package uk.gov.homeoffice.drt.services
 
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 import uk.gov.homeoffice.drt.Nationality
-import uk.gov.homeoffice.drt.models.CountryCodes.{B5JPlusCountries, EEACountries}
+import uk.gov.homeoffice.drt.models.CountryCodes.{ B5JPlusCountries, EEACountries }
 import uk.gov.homeoffice.drt.models.DocumentType
 import uk.gov.homeoffice.drt.ports.PaxTypes._
-import uk.gov.homeoffice.drt.ports.{PaxType, PortCode}
+import uk.gov.homeoffice.drt.ports.{ PaxType, PortCode }
 
 object PassengerTypeCalculator {
   val log: Logger = LoggerFactory.getLogger(getClass)
 
-  case class PaxTypeInfo(disembarkationPortCode: Option[PortCode],
-                         inTransitFlag: String,
-                         documentCountry: Nationality,
-                         documentType: Option[DocumentType],
-                         nationalityCode: Option[Nationality])
+  case class PaxTypeInfo(
+      disembarkationPortCode: Option[PortCode],
+      inTransitFlag: String,
+      documentCountry: Nationality,
+      documentType: Option[DocumentType],
+      nationalityCode: Option[Nationality]
+  )
 
   def isEea(country: Nationality): Boolean = EEACountries contains country.code
 
   def isB5JPlus(country: Nationality): Boolean = B5JPlusCountries contains country.code
 
   val countryAndDocumentTypes: PartialFunction[PaxTypeInfo, PaxType] = {
-    case PaxTypeInfo(_, _, country, Some(docType), _) if isEea(country) && docType == DocumentType.Passport => EeaMachineReadable
-    case PaxTypeInfo(_, _, country, _, _) if isEea(country) => EeaNonMachineReadable
+    case PaxTypeInfo(_, _, country, Some(docType), _) if isEea(country) && docType == DocumentType.Passport =>
+      EeaMachineReadable
+    case PaxTypeInfo(_, _, country, _, _) if isEea(country)                             => EeaNonMachineReadable
     case PaxTypeInfo(_, _, country, _, _) if !isEea(country) && isVisaNational(country) => VisaNational
-    case PaxTypeInfo(_, _, country, _, _) if !isEea(country) => NonVisaNational
+    case PaxTypeInfo(_, _, country, _, _) if !isEea(country)                            => NonVisaNational
   }
 
   def isVisaNational(countryCode: Nationality): Boolean = visaCountyCodes.contains(countryCode.code)

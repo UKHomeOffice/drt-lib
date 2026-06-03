@@ -2,8 +2,8 @@ package uk.gov.homeoffice.drt.actor.serialisation
 
 import uk.gov.homeoffice.drt.actor.ConfigActor.SetUpdate
 import uk.gov.homeoffice.drt.ports.Queues.Queue
-import uk.gov.homeoffice.drt.ports.config.slas.{SlaConfigs, SlasUpdate}
-import uk.gov.homeoffice.drt.ports.config.updates.{ConfigUpdate, Configs}
+import uk.gov.homeoffice.drt.ports.config.slas.{ SlaConfigs, SlasUpdate }
+import uk.gov.homeoffice.drt.ports.config.updates.{ ConfigUpdate, Configs }
 import uk.gov.homeoffice.drt.protobuf.messages.SlasUpdates._
 
 import scala.collection.immutable.SortedMap
@@ -14,7 +14,7 @@ object SlasMessageConversion {
     SlasUpdate(
       effectiveFrom = message.effectiveFrom.getOrElse(throw new Exception("No effectiveFrom in message")),
       configItem = queueSlasFromMessage(message.queueSlas),
-      maybeOriginalEffectiveFrom = message.maybeOriginalEffectiveFrom,
+      maybeOriginalEffectiveFrom = message.maybeOriginalEffectiveFrom
     ).asInstanceOf[ConfigUpdate[A]]
 
   private def queueSlasFromMessage(messages: Seq[SlasMessage]): Map[Queue, Int] =
@@ -29,7 +29,7 @@ object SlasMessageConversion {
       effectiveFrom = Option(effectiveFrom),
       queueSlas = config.map {
         case (queue, slas) => SlasMessage(Option(queue.toString), Option(slas))
-      }.toSeq,
+      }.toSeq
     )
 
   private def slasConfigFromMessage(message: SlasConfigMessage): (Long, Map[Queue, Int]) = {
@@ -39,14 +39,15 @@ object SlasMessageConversion {
     (effectiveFrom, configItem)
   }
 
-  def setSlasUpdatesToMessage(updates: SetUpdate[Map[Queue, Int]], createdAt: Long): SetSlaConfigMessage = SetSlaConfigMessage(
-    effectiveFrom = Option(updates.update.effectiveFrom),
-    queueSlas = updates.update.configItem.map {
-      case (queue, slas) => SlasMessage(Option(queue.toString), Option(slas))
-    }.toSeq,
-    maybeOriginalEffectiveFrom = updates.update.maybeOriginalEffectiveFrom,
-    createdAt = Option(createdAt),
-  )
+  def setSlasUpdatesToMessage(updates: SetUpdate[Map[Queue, Int]], createdAt: Long): SetSlaConfigMessage =
+    SetSlaConfigMessage(
+      effectiveFrom = Option(updates.update.effectiveFrom),
+      queueSlas = updates.update.configItem.map {
+        case (queue, slas) => SlasMessage(Option(queue.toString), Option(slas))
+      }.toSeq,
+      maybeOriginalEffectiveFrom = updates.update.maybeOriginalEffectiveFrom,
+      createdAt = Option(createdAt)
+    )
 
   def setSlasUpdatesFromMessage[A](message: SetSlaConfigMessage): SetUpdate[A] =
     SetUpdate(

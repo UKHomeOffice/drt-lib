@@ -1,7 +1,7 @@
 package uk.gov.homeoffice.drt.arrivals
 
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import uk.gov.homeoffice.drt.ports.{FeedSource, PortCode}
+import uk.gov.homeoffice.drt.ports.{ FeedSource, PortCode }
 
 sealed trait FeedArrival extends WithUnique[UniqueArrival] with Updatable[FeedArrival] {
   val operator: Option[String]
@@ -22,23 +22,24 @@ sealed trait FeedArrival extends WithUnique[UniqueArrival] with Updatable[FeedAr
   def update(feedArrival: FeedArrival): FeedArrival
 }
 
-case class ForecastArrival(operator: Option[String],
-                           maxPax: Option[Int],
-                           totalPax: Option[Int],
-                           transPax: Option[Int],
-                           terminal: Terminal,
-                           voyageNumber: Int,
-                           carrierCode: String,
-                           flightCodeSuffix: Option[String],
-                           origin: String,
-                           previousPort: Option[String],
-                           scheduled: Long,
-                          ) extends FeedArrival {
+case class ForecastArrival(
+    operator: Option[String],
+    maxPax: Option[Int],
+    totalPax: Option[Int],
+    transPax: Option[Int],
+    terminal: Terminal,
+    voyageNumber: Int,
+    carrierCode: String,
+    flightCodeSuffix: Option[String],
+    origin: String,
+    previousPort: Option[String],
+    scheduled: Long
+) extends FeedArrival {
   override def update(incoming: FeedArrival): FeedArrival = incoming match {
     case fa: ForecastArrival => fa
-    case la: LiveArrival => la.copy(
-      carrierCode = carrierCode,
-    )
+    case la: LiveArrival     => la.copy(
+        carrierCode = carrierCode
+      )
   }
 
   override def toArrival(feedSource: FeedSource): Arrival = Arrival(
@@ -71,44 +72,45 @@ case class ForecastArrival(operator: Option[String],
   )
 }
 
-case class LiveArrival(operator: Option[String],
-                       maxPax: Option[Int],
-                       totalPax: Option[Int],
-                       transPax: Option[Int],
-                       terminal: Terminal,
-                       voyageNumber: Int,
-                       carrierCode: String,
-                       flightCodeSuffix: Option[String],
-                       origin: String,
-                       previousPort: Option[String],
-                       scheduled: Long,
-                       estimated: Option[Long],
-                       touchdown: Option[Long],
-                       estimatedChox: Option[Long],
-                       actualChox: Option[Long],
-                       status: String,
-                       gate: Option[String],
-                       stand: Option[String],
-                       runway: Option[String],
-                       baggageReclaim: Option[String],
-                      ) extends FeedArrival {
+case class LiveArrival(
+    operator: Option[String],
+    maxPax: Option[Int],
+    totalPax: Option[Int],
+    transPax: Option[Int],
+    terminal: Terminal,
+    voyageNumber: Int,
+    carrierCode: String,
+    flightCodeSuffix: Option[String],
+    origin: String,
+    previousPort: Option[String],
+    scheduled: Long,
+    estimated: Option[Long],
+    touchdown: Option[Long],
+    estimatedChox: Option[Long],
+    actualChox: Option[Long],
+    status: String,
+    gate: Option[String],
+    stand: Option[String],
+    runway: Option[String],
+    baggageReclaim: Option[String]
+) extends FeedArrival {
   override def update(incoming: FeedArrival): FeedArrival = incoming match {
     case fa: ForecastArrival => fa.copy(
-      carrierCode = carrierCode,
-    )
+        carrierCode = carrierCode
+      )
     case la: LiveArrival => la.copy(
-      carrierCode = carrierCode,
-      flightCodeSuffix = la.flightCodeSuffix.orElse(flightCodeSuffix),
-      estimated = la.estimated.orElse(estimated),
-      touchdown = la.touchdown.orElse(touchdown),
-      estimatedChox = la.estimatedChox.orElse(estimatedChox),
-      actualChox = la.actualChox.orElse(actualChox),
-      gate = la.gate.orElse(gate),
-      stand = la.stand.orElse(stand),
-      runway = la.runway.orElse(runway),
-      baggageReclaim = la.baggageReclaim.orElse(baggageReclaim),
-      previousPort = la.previousPort,
-    )
+        carrierCode = carrierCode,
+        flightCodeSuffix = la.flightCodeSuffix.orElse(flightCodeSuffix),
+        estimated = la.estimated.orElse(estimated),
+        touchdown = la.touchdown.orElse(touchdown),
+        estimatedChox = la.estimatedChox.orElse(estimatedChox),
+        actualChox = la.actualChox.orElse(actualChox),
+        gate = la.gate.orElse(gate),
+        stand = la.stand.orElse(stand),
+        runway = la.runway.orElse(runway),
+        baggageReclaim = la.baggageReclaim.orElse(baggageReclaim),
+        previousPort = la.previousPort
+      )
   }
 
   override def toArrival(feedSource: FeedSource): Arrival = Arrival(

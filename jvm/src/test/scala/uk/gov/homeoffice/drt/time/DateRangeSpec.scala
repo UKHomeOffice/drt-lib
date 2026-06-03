@@ -84,7 +84,7 @@ class DateRangeSpec extends Specification {
         LocalDate(2020, 1, 30),
         LocalDate(2020, 1, 31),
         LocalDate(2020, 2, 1),
-        LocalDate(2020, 2, 2),
+        LocalDate(2020, 2, 2)
       )
     }
   }

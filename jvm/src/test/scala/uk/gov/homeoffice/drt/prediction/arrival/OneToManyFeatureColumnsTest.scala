@@ -2,10 +2,10 @@ package uk.gov.homeoffice.drt.prediction.arrival
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.homeoffice.drt.arrivals.{Arrival, ArrivalGeneratorShared}
-import uk.gov.homeoffice.drt.prediction.arrival.features.FeatureColumnsV1.{DayOfWeek, OneToMany}
+import uk.gov.homeoffice.drt.arrivals.{ Arrival, ArrivalGeneratorShared }
+import uk.gov.homeoffice.drt.prediction.arrival.features.FeatureColumnsV1.{ DayOfWeek, OneToMany }
 import uk.gov.homeoffice.drt.prediction.arrival.features.OneToManyFeature
-import uk.gov.homeoffice.drt.time.{LocalDate, SDate, SDateLike}
+import uk.gov.homeoffice.drt.time.{ LocalDate, SDate, SDateLike }
 
 class OneToManyFeatureColumnsTest extends AnyWordSpec with Matchers {
   implicit val sdateFromLong: Long => SDateLike = (ts: Long) => SDate(ts)

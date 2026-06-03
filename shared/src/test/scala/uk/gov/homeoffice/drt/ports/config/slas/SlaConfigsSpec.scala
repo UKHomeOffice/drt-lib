@@ -33,7 +33,7 @@ class SlaConfigsSpec extends AnyWordSpec {
     "return the last applicable config for a given date" in {
       val configs = SlaConfigs(SortedMap(
         150L -> Map(EeaDesk -> 25),
-        200L -> Map(EeaDesk -> 60),
+        200L -> Map(EeaDesk -> 60)
       ))
       assert(configs.configForDate(150L) == Option(Map(EeaDesk -> 25)))
       assert(configs.configForDate(200L) == Option(Map(EeaDesk -> 60)))
@@ -41,7 +41,7 @@ class SlaConfigsSpec extends AnyWordSpec {
     "return none when the given date has no prior config" in {
       val configs = SlaConfigs(SortedMap(
         100L -> Map(EeaDesk -> 25),
-        200L -> Map(EeaDesk -> 60),
+        200L -> Map(EeaDesk -> 60)
       ))
       assert(configs.configForDate(50L).isEmpty)
     }

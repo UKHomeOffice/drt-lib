@@ -3,32 +3,35 @@ package uk.gov.homeoffice.drt.db.serialisers
 import uk.gov.homeoffice.drt.db.tables.EgateSimulationRow
 import uk.gov.homeoffice.drt.ports.PortCode
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import uk.gov.homeoffice.drt.time.{SDate, SDateLike, UtcDate}
+import uk.gov.homeoffice.drt.time.{ SDate, SDateLike, UtcDate }
 
 import java.sql.Timestamp
 
-case class EgateSimulationRequest(portCode: PortCode,
-                                  terminal: Terminal,
-                                  startDate: UtcDate,
-                                  endDate: UtcDate,
-                                  uptakePercentage: Double,
-                                  parentChildRatio: Double,
-                                 )
+case class EgateSimulationRequest(
+    portCode: PortCode,
+    terminal: Terminal,
+    startDate: UtcDate,
+    endDate: UtcDate,
+    uptakePercentage: Double,
+    parentChildRatio: Double
+)
 
-case class EgateSimulationResponse(csvContent: String,
-                                   meanAbsolutePercentageError: Double,
-                                   standardDeviation: Double,
-                                   bias: Double,
-                                   correlationCoefficient: Double,
-                                   rSquaredError: Double,
-                                  )
+case class EgateSimulationResponse(
+    csvContent: String,
+    meanAbsolutePercentageError: Double,
+    standardDeviation: Double,
+    bias: Double,
+    correlationCoefficient: Double,
+    rSquaredError: Double
+)
 
-case class EgateSimulation(uuid: String,
-                           request: EgateSimulationRequest,
-                           status: String,
-                           response: Option[EgateSimulationResponse],
-                           createdAt: SDateLike,
-                          )
+case class EgateSimulation(
+    uuid: String,
+    request: EgateSimulationRequest,
+    status: String,
+    response: Option[EgateSimulationResponse],
+    createdAt: SDateLike
+)
 
 object EgateSimulationSerialisation {
   def apply(row: EgateSimulationRow): EgateSimulation = {
@@ -45,7 +48,7 @@ object EgateSimulationSerialisation {
       standardDeviation = standardDeviation,
       bias = bias,
       correlationCoefficient = correlationCoefficient,
-      rSquaredError = rSquaredError,
+      rSquaredError = rSquaredError
     )
 
     EgateSimulation(
@@ -56,11 +59,11 @@ object EgateSimulationSerialisation {
         startDate = SDate(row.startDate.getTime).toUtcDate,
         endDate = SDate(row.endDate.getTime).toUtcDate,
         uptakePercentage = row.uptakePercentage,
-        parentChildRatio = row.parentChildRatio,
+        parentChildRatio = row.parentChildRatio
       ),
       status = row.status,
       response = maybeResponse,
-      createdAt = SDate(row.createdAt.getTime),
+      createdAt = SDate(row.createdAt.getTime)
     )
   }
 
@@ -80,6 +83,6 @@ object EgateSimulationSerialisation {
       bias = simulation.response.map(_.bias),
       correlationCoefficient = simulation.response.map(_.correlationCoefficient),
       rSquaredError = simulation.response.map(_.rSquaredError),
-      createdAt = new Timestamp(simulation.createdAt.millisSinceEpoch),
+      createdAt = new Timestamp(simulation.createdAt.millisSinceEpoch)
     )
 }

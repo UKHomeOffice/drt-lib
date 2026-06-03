@@ -5,8 +5,7 @@ import uk.gov.homeoffice.drt.time.MilliDate.MillisSinceEpoch
 import uk.gov.homeoffice.drt.time._
 
 import scala.collection.immutable.NumericRange
-import scala.concurrent.duration.{DurationLong, FiniteDuration}
-
+import scala.concurrent.duration.{ DurationLong, FiniteDuration }
 
 case class TerminalUpdateRequest(terminal: Terminal, date: LocalDate) extends Ordered[TerminalUpdateRequest] {
   lazy val start: SDateLike = SDate(date)

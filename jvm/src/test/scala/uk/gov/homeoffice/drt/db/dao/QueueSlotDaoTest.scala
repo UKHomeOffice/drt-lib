@@ -8,7 +8,7 @@ import uk.gov.homeoffice.drt.models.CrunchMinute
 import uk.gov.homeoffice.drt.ports.PortCode
 import uk.gov.homeoffice.drt.ports.Queues.EeaDesk
 import uk.gov.homeoffice.drt.ports.Terminals.T2
-import uk.gov.homeoffice.drt.time.{SDate, UtcDate}
+import uk.gov.homeoffice.drt.time.{ SDate, UtcDate }
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -25,8 +25,10 @@ class QueueSlotDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter {
     Await.result(
       TestDatabase.run(DBIO.seq(
         dao.table.schema.dropIfExists,
-        dao.table.schema.createIfNotExists)
-      ), 2.second)
+        dao.table.schema.createIfNotExists
+      )),
+      2.second
+    )
   }
 
   "insertOrUpdate" should {
@@ -76,7 +78,7 @@ class QueueSlotDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter {
         maybePaxInQueue = Option(101),
         deployedDesks = Option(102),
         deployedWait = Option(103),
-        maybeDeployedPaxInQueue = Option(104),
+        maybeDeployedPaxInQueue = Option(104)
       )
 
       Await.result(TestDatabase.run(dao.insertOrUpdate(PortCode("LHR"), 15)(crunchMinute)), 2.second)
@@ -92,7 +94,7 @@ class QueueSlotDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter {
       val dates = Seq(
         UtcDate(2024, 11, 11),
         UtcDate(2024, 11, 12),
-        UtcDate(2024, 11, 13),
+        UtcDate(2024, 11, 13)
       )
 
       val crunchMinutes = dates.map(d => crunchMinute(SDate(d).millisSinceEpoch))

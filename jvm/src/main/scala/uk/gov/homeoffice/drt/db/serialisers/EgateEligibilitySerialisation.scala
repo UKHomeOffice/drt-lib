@@ -3,19 +3,19 @@ package uk.gov.homeoffice.drt.db.serialisers
 import uk.gov.homeoffice.drt.db.tables.EgateEligibilityRow
 import uk.gov.homeoffice.drt.ports.PortCode
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
-import uk.gov.homeoffice.drt.time.{SDate, SDateLike, UtcDate}
+import uk.gov.homeoffice.drt.time.{ SDate, SDateLike, UtcDate }
 
 import java.sql.Timestamp
 
-
-case class EgateEligibility(port: PortCode,
-                            terminal: Terminal,
-                            dateUtc: UtcDate,
-                            totalPassengers: Int,
-                            egateEligiblePct: Double,
-                            egateUnderAgePct: Double,
-                            createdAt: SDateLike,
-                          )
+case class EgateEligibility(
+    port: PortCode,
+    terminal: Terminal,
+    dateUtc: UtcDate,
+    totalPassengers: Int,
+    egateEligiblePct: Double,
+    egateUnderAgePct: Double,
+    createdAt: SDateLike
+)
 
 object EgateEligibilitySerialisation {
   def apply(row: EgateEligibilityRow): EgateEligibility =

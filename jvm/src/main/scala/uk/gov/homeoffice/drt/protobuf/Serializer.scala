@@ -2,21 +2,56 @@ package uk.gov.homeoffice.drt.protobuf
 
 import org.apache.pekko.serialization.SerializerWithStringManifest
 import scalapb.GeneratedMessage
-import uk.gov.homeoffice.drt.protobuf.messages.Alert.{Alert, AlertSnapshotMessage}
-import uk.gov.homeoffice.drt.protobuf.messages.CrunchState.{RemoveMergeArrivalsRequestMessage, _}
-import uk.gov.homeoffice.drt.protobuf.messages.EgateBanksUpdates.{PortEgateBanksUpdatesMessage, RemoveEgateBanksUpdateMessage, SetEgateBanksUpdateMessage}
-import uk.gov.homeoffice.drt.protobuf.messages.FeedArrivalsMessage.{ForecastArrivalStateSnapshotMessage, ForecastFeedArrivalsDiffMessage, LiveArrivalStateSnapshotMessage, LiveFeedArrivalsDiffMessage}
-import uk.gov.homeoffice.drt.protobuf.messages.FixedPointMessage.{FixedPointMessage, FixedPointsMessage, FixedPointsStateSnapshotMessage}
+import uk.gov.homeoffice.drt.protobuf.messages.Alert.{ Alert, AlertSnapshotMessage }
+import uk.gov.homeoffice.drt.protobuf.messages.CrunchState.{ RemoveMergeArrivalsRequestMessage, _ }
+import uk.gov.homeoffice.drt.protobuf.messages.EgateBanksUpdates.{
+  PortEgateBanksUpdatesMessage,
+  RemoveEgateBanksUpdateMessage,
+  SetEgateBanksUpdateMessage
+}
+import uk.gov.homeoffice.drt.protobuf.messages.FeedArrivalsMessage.{
+  ForecastArrivalStateSnapshotMessage,
+  ForecastFeedArrivalsDiffMessage,
+  LiveArrivalStateSnapshotMessage,
+  LiveFeedArrivalsDiffMessage
+}
+import uk.gov.homeoffice.drt.protobuf.messages.FixedPointMessage.{
+  FixedPointMessage,
+  FixedPointsMessage,
+  FixedPointsStateSnapshotMessage
+}
 import uk.gov.homeoffice.drt.protobuf.messages.FlightsMessage._
 import uk.gov.homeoffice.drt.protobuf.messages.FlightsSummary.FlightsSummaryMessage
-import uk.gov.homeoffice.drt.protobuf.messages.ModelAndFeatures.{ModelAndFeaturesMessage, ModelsAndFeaturesMessage, RemoveModelMessage}
-import uk.gov.homeoffice.drt.protobuf.messages.NeboPassengersMessage.{NeboArrivalMessage, NeboArrivalSnapshotMessage}
-import uk.gov.homeoffice.drt.protobuf.messages.PaxMessage.{OriginTerminalPaxCountsMessage, OriginTerminalPaxCountsMessages, PaxCountMessage}
-import uk.gov.homeoffice.drt.protobuf.messages.RedListUpdates.{AdditionMessage, RedListUpdateMessage, RedListUpdatesMessage, RemovalMessage, SetRedListUpdateMessage}
-import uk.gov.homeoffice.drt.protobuf.messages.RegisteredArrivalMessage.{RegisteredArrivalMessage, RegisteredArrivalsMessage}
-import uk.gov.homeoffice.drt.protobuf.messages.ShiftMessage.{ShiftMessage, ShiftStateSnapshotMessage, ShiftsMessage}
+import uk.gov.homeoffice.drt.protobuf.messages.ModelAndFeatures.{
+  ModelAndFeaturesMessage,
+  ModelsAndFeaturesMessage,
+  RemoveModelMessage
+}
+import uk.gov.homeoffice.drt.protobuf.messages.NeboPassengersMessage.{ NeboArrivalMessage, NeboArrivalSnapshotMessage }
+import uk.gov.homeoffice.drt.protobuf.messages.PaxMessage.{
+  OriginTerminalPaxCountsMessage,
+  OriginTerminalPaxCountsMessages,
+  PaxCountMessage
+}
+import uk.gov.homeoffice.drt.protobuf.messages.RedListUpdates.{
+  AdditionMessage,
+  RedListUpdateMessage,
+  RedListUpdatesMessage,
+  RemovalMessage,
+  SetRedListUpdateMessage
+}
+import uk.gov.homeoffice.drt.protobuf.messages.RegisteredArrivalMessage.{
+  RegisteredArrivalMessage,
+  RegisteredArrivalsMessage
+}
+import uk.gov.homeoffice.drt.protobuf.messages.ShiftMessage.{ ShiftMessage, ShiftStateSnapshotMessage, ShiftsMessage }
 import uk.gov.homeoffice.drt.protobuf.messages.SlasUpdates.SetSlaConfigMessage
-import uk.gov.homeoffice.drt.protobuf.messages.StaffMovementMessages.{RemoveStaffMovementMessage, StaffMovementMessage, StaffMovementsMessage, StaffMovementsStateSnapshotMessage}
+import uk.gov.homeoffice.drt.protobuf.messages.StaffMovementMessages.{
+  RemoveStaffMovementMessage,
+  StaffMovementMessage,
+  StaffMovementsMessage,
+  StaffMovementsStateSnapshotMessage
+}
 import uk.gov.homeoffice.drt.protobuf.messages.TerminalQueuesSummary.TerminalQueuesSummaryMessage
 import uk.gov.homeoffice.drt.protobuf.messages.VoyageManifest._
 import uk.gov.homeoffice.drt.protobuf.messages.config.Configs
@@ -101,73 +136,73 @@ class Serializer extends SerializerWithStringManifest {
 
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = {
     manifest.replace("server.protobuf", "uk.gov.homeoffice.drt.protobuf") match {
-      case CrunchDiff => CrunchDiffMessage.parseFrom(bytes)
-      case CrunchStateSnapshot => CrunchStateSnapshotMessage.parseFrom(bytes)
-      case Shifts => ShiftsMessage.parseFrom(bytes)
-      case ShiftStateSnapshot => ShiftStateSnapshotMessage.parseFrom(bytes)
-      case Shift => ShiftMessage.parseFrom(bytes)
-      case FixedPoints => FixedPointsMessage.parseFrom(bytes)
-      case FixedPointsStateSnapshot => FixedPointsStateSnapshotMessage.parseFrom(bytes)
-      case FixedPoint => FixedPointMessage.parseFrom(bytes)
-      case StaffMovements => StaffMovementsMessage.parseFrom(bytes)
-      case StaffMovementsStateSnapshot => StaffMovementsStateSnapshotMessage.parseFrom(bytes)
-      case StaffMovement => StaffMovementMessage.parseFrom(bytes)
-      case RemoveStaffMovement => RemoveStaffMovementMessage.parseFrom(bytes)
-      case FlightsDiff => FlightsDiffMessage.parseFrom(bytes)
-      case FlightStateSnapshot => FlightStateSnapshotMessage.parseFrom(bytes)
-      case Flight => FlightMessage.parseFrom(bytes)
-      case UniqueArrival => UniqueArrivalMessage.parseFrom(bytes)
-      case FeedStatus => FeedStatusMessage.parseFrom(bytes)
-      case FeedStatuses => FeedStatusesMessage.parseFrom(bytes)
-      case VoyageManifestStateSnapshot => VoyageManifestStateSnapshotMessage.parseFrom(bytes)
+      case CrunchDiff                   => CrunchDiffMessage.parseFrom(bytes)
+      case CrunchStateSnapshot          => CrunchStateSnapshotMessage.parseFrom(bytes)
+      case Shifts                       => ShiftsMessage.parseFrom(bytes)
+      case ShiftStateSnapshot           => ShiftStateSnapshotMessage.parseFrom(bytes)
+      case Shift                        => ShiftMessage.parseFrom(bytes)
+      case FixedPoints                  => FixedPointsMessage.parseFrom(bytes)
+      case FixedPointsStateSnapshot     => FixedPointsStateSnapshotMessage.parseFrom(bytes)
+      case FixedPoint                   => FixedPointMessage.parseFrom(bytes)
+      case StaffMovements               => StaffMovementsMessage.parseFrom(bytes)
+      case StaffMovementsStateSnapshot  => StaffMovementsStateSnapshotMessage.parseFrom(bytes)
+      case StaffMovement                => StaffMovementMessage.parseFrom(bytes)
+      case RemoveStaffMovement          => RemoveStaffMovementMessage.parseFrom(bytes)
+      case FlightsDiff                  => FlightsDiffMessage.parseFrom(bytes)
+      case FlightStateSnapshot          => FlightStateSnapshotMessage.parseFrom(bytes)
+      case Flight                       => FlightMessage.parseFrom(bytes)
+      case UniqueArrival                => UniqueArrivalMessage.parseFrom(bytes)
+      case FeedStatus                   => FeedStatusMessage.parseFrom(bytes)
+      case FeedStatuses                 => FeedStatusesMessage.parseFrom(bytes)
+      case VoyageManifestStateSnapshot  => VoyageManifestStateSnapshotMessage.parseFrom(bytes)
       case VoyageManifestLatestFileName => VoyageManifestLatestFileNameMessage.parseFrom(bytes)
-      case VoyageManifests => VoyageManifestsMessage.parseFrom(bytes)
-      case VoyageManifest => VoyageManifestMessage.parseFrom(bytes)
-      case AlertSnapshot => AlertSnapshotMessage.parseFrom(bytes)
-      case Alerts => Alert.parseFrom(bytes)
-      case RegisteredArrival => RegisteredArrivalMessage.parseFrom(bytes)
-      case RegisteredArrivals => RegisteredArrivalsMessage.parseFrom(bytes)
-      case TerminalQueuesSummary => TerminalQueuesSummaryMessage.parseFrom(bytes)
-      case FlightsSummary => FlightsSummaryMessage.parseFrom(bytes)
-      case CrunchMinutes => CrunchMinutesMessage.parseFrom(bytes)
-      case StaffMinutes => StaffMinutesMessage.parseFrom(bytes)
-      case PaxCount => PaxCountMessage.parseFrom(bytes)
-      case OriginTerminalPaxCounts => OriginTerminalPaxCountsMessage.parseFrom(bytes)
-      case OriginTerminalPaxCountsMgs => OriginTerminalPaxCountsMessages.parseFrom(bytes)
-      case Days => DaysMessage.parseFrom(bytes)
-      case RemoveDay => RemoveDayMessage.parseFrom(bytes)
-      case FlightsWithSplits => FlightsWithSplitsMessage.parseFrom(bytes)
-      case FlightsWithSplitsDiff => FlightsWithSplitsDiffMessage.parseFrom(bytes)
-      case SplitsForArrivals => SplitsForArrivalsMessage.parseFrom(bytes)
-      case CrunchRequest => CrunchRequestMessage.parseFrom(bytes)
-      case CrunchRequests => CrunchRequestsMessage.parseFrom(bytes)
-      case MergeArrivalsRequest => MergeArrivalsRequestMessage.parseFrom(bytes)
-      case MergeArrivalsRequests => MergeArrivalsRequestsMessage.parseFrom(bytes)
-      case RemoveCrunchRequest => RemoveCrunchRequestMessage.parseFrom(bytes)
-      case RemoveMergeArrivalsRequest => RemoveMergeArrivalsRequestMessage.parseFrom(bytes)
-      case SetRedListUpdate => SetRedListUpdateMessage.parseFrom(bytes)
-      case RedListUpdates => RedListUpdatesMessage.parseFrom(bytes)
-      case RedListUpdate => RedListUpdateMessage.parseFrom(bytes)
-      case Addition => AdditionMessage.parseFrom(bytes)
-      case Removal => RemovalMessage.parseFrom(bytes)
-      case RemoveUpdate => messages.RedListUpdates.RemoveUpdateMessage.parseFrom(bytes)
-      case SetEgateBanksUpdate => SetEgateBanksUpdateMessage.parseFrom(bytes)
-      case RemoveEgateBanksUpdate => RemoveEgateBanksUpdateMessage.parseFrom(bytes)
-      case PortEgateBanksUpdates => PortEgateBanksUpdatesMessage.parseFrom(bytes)
-      case NeboArrival => NeboArrivalMessage.parseFrom(bytes)
-      case NeboArrivalSnapshot => NeboArrivalSnapshotMessage.parseFrom(bytes)
-      case ModelAndFeatures => ModelAndFeaturesMessage.parseFrom(bytes)
-      case ModelsAndFeatures => ModelsAndFeaturesMessage.parseFrom(bytes)
-      case RemoveModel => RemoveModelMessage.parseFrom(bytes)
-      case MaybeManifestLike => MaybeManifestLikeMessage.parseFrom(bytes)
-      case ManifestLike => ManifestLikeMessage.parseFrom(bytes)
-      case PassengersMinute => PassengersMinuteMessage.parseFrom(bytes)
-      case PassengersMinutes => PassengersMinutesMessage.parseFrom(bytes)
-      case SetSlasUpdate => SetSlaConfigMessage.parseFrom(bytes)
-      case RemoveSlasUpdate => Configs.RemoveConfigMessage.parseFrom(bytes)
-      case LiveFeedArrivalsDiff => LiveFeedArrivalsDiffMessage.parseFrom(bytes)
-      case ForecastFeedArrivalsDiff => ForecastFeedArrivalsDiffMessage.parseFrom(bytes)
-      case LiveArrivalStateSnapshot => LiveArrivalStateSnapshotMessage.parseFrom(bytes)
+      case VoyageManifests              => VoyageManifestsMessage.parseFrom(bytes)
+      case VoyageManifest               => VoyageManifestMessage.parseFrom(bytes)
+      case AlertSnapshot                => AlertSnapshotMessage.parseFrom(bytes)
+      case Alerts                       => Alert.parseFrom(bytes)
+      case RegisteredArrival            => RegisteredArrivalMessage.parseFrom(bytes)
+      case RegisteredArrivals           => RegisteredArrivalsMessage.parseFrom(bytes)
+      case TerminalQueuesSummary        => TerminalQueuesSummaryMessage.parseFrom(bytes)
+      case FlightsSummary               => FlightsSummaryMessage.parseFrom(bytes)
+      case CrunchMinutes                => CrunchMinutesMessage.parseFrom(bytes)
+      case StaffMinutes                 => StaffMinutesMessage.parseFrom(bytes)
+      case PaxCount                     => PaxCountMessage.parseFrom(bytes)
+      case OriginTerminalPaxCounts      => OriginTerminalPaxCountsMessage.parseFrom(bytes)
+      case OriginTerminalPaxCountsMgs   => OriginTerminalPaxCountsMessages.parseFrom(bytes)
+      case Days                         => DaysMessage.parseFrom(bytes)
+      case RemoveDay                    => RemoveDayMessage.parseFrom(bytes)
+      case FlightsWithSplits            => FlightsWithSplitsMessage.parseFrom(bytes)
+      case FlightsWithSplitsDiff        => FlightsWithSplitsDiffMessage.parseFrom(bytes)
+      case SplitsForArrivals            => SplitsForArrivalsMessage.parseFrom(bytes)
+      case CrunchRequest                => CrunchRequestMessage.parseFrom(bytes)
+      case CrunchRequests               => CrunchRequestsMessage.parseFrom(bytes)
+      case MergeArrivalsRequest         => MergeArrivalsRequestMessage.parseFrom(bytes)
+      case MergeArrivalsRequests        => MergeArrivalsRequestsMessage.parseFrom(bytes)
+      case RemoveCrunchRequest          => RemoveCrunchRequestMessage.parseFrom(bytes)
+      case RemoveMergeArrivalsRequest   => RemoveMergeArrivalsRequestMessage.parseFrom(bytes)
+      case SetRedListUpdate             => SetRedListUpdateMessage.parseFrom(bytes)
+      case RedListUpdates               => RedListUpdatesMessage.parseFrom(bytes)
+      case RedListUpdate                => RedListUpdateMessage.parseFrom(bytes)
+      case Addition                     => AdditionMessage.parseFrom(bytes)
+      case Removal                      => RemovalMessage.parseFrom(bytes)
+      case RemoveUpdate                 => messages.RedListUpdates.RemoveUpdateMessage.parseFrom(bytes)
+      case SetEgateBanksUpdate          => SetEgateBanksUpdateMessage.parseFrom(bytes)
+      case RemoveEgateBanksUpdate       => RemoveEgateBanksUpdateMessage.parseFrom(bytes)
+      case PortEgateBanksUpdates        => PortEgateBanksUpdatesMessage.parseFrom(bytes)
+      case NeboArrival                  => NeboArrivalMessage.parseFrom(bytes)
+      case NeboArrivalSnapshot          => NeboArrivalSnapshotMessage.parseFrom(bytes)
+      case ModelAndFeatures             => ModelAndFeaturesMessage.parseFrom(bytes)
+      case ModelsAndFeatures            => ModelsAndFeaturesMessage.parseFrom(bytes)
+      case RemoveModel                  => RemoveModelMessage.parseFrom(bytes)
+      case MaybeManifestLike            => MaybeManifestLikeMessage.parseFrom(bytes)
+      case ManifestLike                 => ManifestLikeMessage.parseFrom(bytes)
+      case PassengersMinute             => PassengersMinuteMessage.parseFrom(bytes)
+      case PassengersMinutes            => PassengersMinutesMessage.parseFrom(bytes)
+      case SetSlasUpdate                => SetSlaConfigMessage.parseFrom(bytes)
+      case RemoveSlasUpdate             => Configs.RemoveConfigMessage.parseFrom(bytes)
+      case LiveFeedArrivalsDiff         => LiveFeedArrivalsDiffMessage.parseFrom(bytes)
+      case ForecastFeedArrivalsDiff     => ForecastFeedArrivalsDiffMessage.parseFrom(bytes)
+      case LiveArrivalStateSnapshot     => LiveArrivalStateSnapshotMessage.parseFrom(bytes)
       case ForecastArrivalStateSnapshot => ForecastArrivalStateSnapshotMessage.parseFrom(bytes)
     }
   }

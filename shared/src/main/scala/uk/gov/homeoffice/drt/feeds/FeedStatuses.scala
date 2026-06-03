@@ -1,10 +1,9 @@
 package uk.gov.homeoffice.drt.feeds
 
-import uk.gov.homeoffice.drt.time.{MilliTimes, SDateLike}
-import upickle.default.{macroRW, ReadWriter => RW}
+import uk.gov.homeoffice.drt.time.{ MilliTimes, SDateLike }
+import upickle.default.{ macroRW, ReadWriter => RW }
 
 import scala.concurrent.duration.FiniteDuration
-
 
 sealed trait FeedStatus {
   val date: Long
@@ -40,10 +39,11 @@ case object Green extends RagStatus {
 }
 
 case class FeedStatuses(
-                         statuses: List[FeedStatus],
-                         lastSuccessAt: Option[Long],
-                         lastFailureAt: Option[Long],
-                         lastUpdatesAt: Option[Long]) {
+    statuses: List[FeedStatus],
+    lastSuccessAt: Option[Long],
+    lastFailureAt: Option[Long],
+    lastUpdatesAt: Option[Long]
+) {
   def hasConnectedAtLeastOnce: Boolean = lastSuccessAt.isDefined
 
   def addStatus(createdAt: SDateLike, updateCount: Int): FeedStatuses = {
@@ -72,13 +72,15 @@ case class FeedStatuses(
 object FeedStatuses {
   implicit val rw: RW[FeedStatuses] = macroRW
 
-  def ragStatus(now: Long,
-                lastSuccessThreshold: Option[FiniteDuration],
-                statuses: FeedStatuses): RagStatus = (statuses.lastSuccessAt, statuses.lastFailureAt, statuses.lastUpdatesAt, lastSuccessThreshold) match {
-    case (None, Some(_), _, _) => Red
-    case (Some(lastSuccess), Some(lastFailure), _, _) if lastFailure > lastSuccess => Red
+  def ragStatus(
+      now: Long,
+      lastSuccessThreshold: Option[FiniteDuration],
+      statuses: FeedStatuses
+  ): RagStatus = (statuses.lastSuccessAt, statuses.lastFailureAt, statuses.lastUpdatesAt, lastSuccessThreshold) match {
+    case (None, Some(_), _, _)                                                              => Red
+    case (Some(lastSuccess), Some(lastFailure), _, _) if lastFailure > lastSuccess          => Red
     case (_, _, Some(lastUpdate), Some(threshold)) if lastUpdate < now - threshold.toMillis => Red
-    case (Some(_), Some(f), _, _) if f > now - (5 * MilliTimes.oneMinuteMillis) => Amber
-    case _ => Green
+    case (Some(_), Some(f), _, _) if f > now - (5 * MilliTimes.oneMinuteMillis)             => Amber
+    case _                                                                                  => Green
   }
 }

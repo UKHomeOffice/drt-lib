@@ -6,10 +6,10 @@ import java.sql.Timestamp
 import slick.jdbc.PostgresProfile.api._
 
 case class ShiftMetaInfoRow(
-                             port: String,
-                             terminal: String,
-                             shiftAssignmentsMigratedAt: Option[java.sql.Timestamp]
-                           ) {
+    port: String,
+    terminal: String,
+    shiftAssignmentsMigratedAt: Option[java.sql.Timestamp]
+) {
   def shiftAssignmentsMigratedAtLong: Option[Long] = shiftAssignmentsMigratedAt.map(_.getTime)
 }
 

@@ -1,11 +1,13 @@
 package uk.gov.homeoffice.drt.models
 
-case class UserPreferences(userSelectedPlanningTimePeriod: Int,
-                           hidePaxDataSourceDescription: Boolean,
-                           showStaffingShiftView: Boolean,
-                           desksAndQueuesIntervalMinutes: Int,
-                           portDashboardIntervalMinutes: Map[String, Int],
-                           portDashboardTerminals: Map[String, Set[String]])
+case class UserPreferences(
+    userSelectedPlanningTimePeriod: Int,
+    hidePaxDataSourceDescription: Boolean,
+    showStaffingShiftView: Boolean,
+    desksAndQueuesIntervalMinutes: Int,
+    portDashboardIntervalMinutes: Map[String, Int],
+    portDashboardTerminals: Map[String, Set[String]]
+)
 
 object UserPreferences {
 
@@ -18,8 +20,8 @@ object UserPreferences {
       case Some(s) if s.nonEmpty =>
         s.split(";").map(_.split(":") match {
           case Array(key, value) if key.nonEmpty && value.nonEmpty => key -> valueParser(value)
-          case Array(key) => key -> valueParser("")
-          case _ => throw new IllegalArgumentException(s"Invalid format: $s")
+          case Array(key)                                          => key -> valueParser("")
+          case _                                                   => throw new IllegalArgumentException(s"Invalid format: $s")
         }).toMap
       case _ => Map.empty[String, V]
     }

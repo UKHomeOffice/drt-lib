@@ -5,7 +5,7 @@ import org.apache.pekko.stream.Materializer
 import org.slf4j.LoggerFactory
 import uk.gov.homeoffice.drt.HttpClient
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 trait SlackClient {
   def notify(message: String)(implicit ec: ExecutionContext, mat: Materializer): Future[Unit]
@@ -24,14 +24,14 @@ case class SlackClientImpl(httpClient: HttpClient, webhookUrl: String) extends S
 
     val eventualResponse = httpClient.send(HttpRequest(method = HttpMethods.POST, uri = webhookUrl, entity = entity))
 
-    eventualResponse.onComplete({
+    eventualResponse.onComplete {
       case scala.util.Success(HttpResponse(_, _, entity, _)) =>
         entity.dataBytes.runReduce(_ ++ _).foreach { body =>
           log.info(s"Slack response: ${body.utf8String}")
         }
       case scala.util.Failure(t) =>
         log.error(s"Error while sending slack message: $message", t)
-    })
+    }
 
     eventualResponse.map(_ => {})
   }

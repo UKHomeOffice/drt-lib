@@ -1,7 +1,7 @@
 package uk.gov.homeoffice.drt.jsonformats
 
-import spray.json.{DefaultJsonProtocol, JsArray, JsNumber, JsObject, JsString, JsValue, RootJsonFormat, enrichAny}
-import uk.gov.homeoffice.drt.models.{PassengersSummaries, PassengersSummary}
+import spray.json.{ enrichAny, DefaultJsonProtocol, JsArray, JsNumber, JsObject, JsString, JsValue, RootJsonFormat }
+import uk.gov.homeoffice.drt.models.{ PassengersSummaries, PassengersSummary }
 import uk.gov.homeoffice.drt.ports.Queues
 import uk.gov.homeoffice.drt.ports.Queues.Queue
 import uk.gov.homeoffice.drt.time.LocalDate
@@ -17,13 +17,28 @@ object PassengersSummaryFormat extends DefaultJsonProtocol {
       val obj = json.asJsObject
 
       obj.getFields("regionName", "portCode", "totalCapacity", "drtQueueCounts", "bxQueueCounts") match {
-        case Seq(JsString(regionName), JsString(portCode), JsNumber(totalCapacity), JsArray(drtQueueCounts), JsArray(bxQueueCounts)) =>
+        case Seq(
+              JsString(regionName),
+              JsString(portCode),
+              JsNumber(totalCapacity),
+              JsArray(drtQueueCounts),
+              JsArray(bxQueueCounts)
+            ) =>
           val drtQueueCountsMap = queueCountsMap(drtQueueCounts)
           val bxQueueCountsMap = queueCountsMap(bxQueueCounts)
           val maybeTerminalName = obj.fields.get("terminalName").map(_.convertTo[String])
           val maybeDate = obj.fields.get("date").map(_.convertTo[LocalDate])
           val maybeHour = obj.fields.get("hour").map(_.convertTo[Int])
-          PassengersSummary(regionName, portCode, maybeTerminalName, totalCapacity.toInt, drtQueueCountsMap, bxQueueCountsMap, maybeDate, maybeHour)
+          PassengersSummary(
+            regionName,
+            portCode,
+            maybeTerminalName,
+            totalCapacity.toInt,
+            drtQueueCountsMap,
+            bxQueueCountsMap,
+            maybeDate,
+            maybeHour
+          )
         case _ => throw new Exception("PassengersSummary expected")
       }
     }
@@ -38,7 +53,7 @@ object PassengersSummaryFormat extends DefaultJsonProtocol {
         "portCode" -> JsString(obj.portCode),
         "totalCapacity" -> JsNumber(obj.totalCapacity),
         "drtQueueCounts" -> queueCounts(obj.drtQueueCounts),
-        "bxQueueCounts" -> queueCounts(obj.bxQueueCounts),
+        "bxQueueCounts" -> queueCounts(obj.bxQueueCounts)
       ) ++ maybeTerminal ++ maybeDate ++ maybeHour
 
       JsObject(fields)
@@ -57,10 +72,10 @@ object PassengersSummaryFormat extends DefaultJsonProtocol {
   private def queueCounts(queueCounts: Map[Queue, Int]): JsArray =
     JsArray(queueCounts.map {
       case (queue, count) => JsObject(Map(
-        "queueName" -> JsString(queue.toString),
-        "queueDisplayName" -> JsString(Queues.displayName(queue)),
-        "count" -> JsNumber(count)
-      ))
+          "queueName" -> JsString(queue.toString),
+          "queueDisplayName" -> JsString(Queues.displayName(queue)),
+          "count" -> JsNumber(count)
+        ))
     }.toVector)
 
   implicit val passengersSummariesFormat: RootJsonFormat[PassengersSummaries] = jsonFormat1(PassengersSummaries.apply)

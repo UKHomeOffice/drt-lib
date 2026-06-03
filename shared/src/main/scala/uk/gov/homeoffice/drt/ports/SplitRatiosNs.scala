@@ -1,7 +1,16 @@
 package uk.gov.homeoffice.drt.ports
 
-import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.{AdvPaxInfo, ApiSplitsWithHistoricalEGateAndFTPercentages, ApiSplitsWithHistoricalEGateAndFTPercentages_Old, Historical, InvalidSource, PredictedSplitsWithHistoricalEGateAndFTPercentages, ScenarioSimulationSplits, TerminalAverage}
-import upickle.default.{ReadWriter, macroRW}
+import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.{
+  AdvPaxInfo,
+  ApiSplitsWithHistoricalEGateAndFTPercentages,
+  ApiSplitsWithHistoricalEGateAndFTPercentages_Old,
+  Historical,
+  InvalidSource,
+  PredictedSplitsWithHistoricalEGateAndFTPercentages,
+  ScenarioSimulationSplits,
+  TerminalAverage
+}
+import upickle.default.{ macroRW, ReadWriter }
 
 object SplitRatiosNs {
 
@@ -20,18 +29,18 @@ object SplitRatiosNs {
       macroRW[ScenarioSimulationSplits.type],
       macroRW[Historical.type],
       macroRW[TerminalAverage.type],
-      macroRW[InvalidSource.type],
+      macroRW[InvalidSource.type]
     )
 
     def apply(splitSource: String): SplitSource = splitSource match {
-      case "advPaxInfo" => AdvPaxInfo
-      case "ApiSplitsWithHistoricalEGatePercentage" => ApiSplitsWithHistoricalEGateAndFTPercentages_Old
-      case "ApiSplitsWithHistoricalEGateAndFTPercentages" => ApiSplitsWithHistoricalEGateAndFTPercentages
+      case "advPaxInfo"                                         => AdvPaxInfo
+      case "ApiSplitsWithHistoricalEGatePercentage"             => ApiSplitsWithHistoricalEGateAndFTPercentages_Old
+      case "ApiSplitsWithHistoricalEGateAndFTPercentages"       => ApiSplitsWithHistoricalEGateAndFTPercentages
       case "PredictedSplitsWithHistoricalEGateAndFTPercentages" => PredictedSplitsWithHistoricalEGateAndFTPercentages
-      case "ScenarioSimulationSplits" => ScenarioSimulationSplits
-      case "Historical" => Historical
-      case "TerminalAverage" => TerminalAverage
-      case _ => InvalidSource
+      case "ScenarioSimulationSplits"                           => ScenarioSimulationSplits
+      case "Historical"                                         => Historical
+      case "TerminalAverage"                                    => TerminalAverage
+      case _                                                    => InvalidSource
     }
     def apply(id: Int): SplitSource = id match {
       case 1 => AdvPaxInfo

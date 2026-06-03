@@ -20,15 +20,19 @@ class ABFeatureDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter {
     Await.result(
       TestDatabase.run(DBIO.seq(
         abFeatureDao.table.schema.dropIfExists,
-        abFeatureDao.table.schema.createIfNotExists)
-      ), 2.second)
+        abFeatureDao.table.schema.createIfNotExists
+      )),
+      2.second
+    )
   }
 
   def getABFeatureRow: ABFeatureRow = {
-    ABFeatureRow(email = "test@test.com",
+    ABFeatureRow(
+      email = "test@test.com",
       functionName = "feedback",
       presentedAt = new Timestamp(Instant.now().toEpochMilli),
-      abVersion = "A")
+      abVersion = "A"
+    )
   }
 
   "ABFeatureDao" should {
@@ -56,11 +60,12 @@ class ABFeatureDaoTest extends AnyWordSpec with Matchers with BeforeAndAfter {
     "should return AB Features for a given functionName and email" in {
       val abFeatureRow = getABFeatureRow
 
-      val arrivalFeature = abFeatureRow.copy(functionName = "arrival",email="test1@test.com")
+      val arrivalFeature = abFeatureRow.copy(functionName = "arrival", email = "test1@test.com")
       Await.result(abFeatureDao.insertOrUpdate(abFeatureRow), 1.second)
       Await.result(abFeatureDao.insertOrUpdate(arrivalFeature), 1.second)
 
-      val abFeatureSelectResult = Await.result(abFeatureDao.getABFeaturesByEmailForFunction("test1@test.com","arrival"), 1.second)
+      val abFeatureSelectResult =
+        Await.result(abFeatureDao.getABFeaturesByEmailForFunction("test1@test.com", "arrival"), 1.second)
 
       abFeatureSelectResult should ===(Seq(arrivalFeature))
     }

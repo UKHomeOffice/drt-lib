@@ -5,25 +5,26 @@ import slick.lifted.Tag
 
 import java.sql.Timestamp
 
-case class QueueSlotRow(port: String,
-                        terminal: String,
-                        queue: String,
-                        slotStart: Timestamp,
-                        slotLengthMinutes: Int,
-                        slotDateUtc: String,
-                        paxLoad: Double,
-                        workLoad: Double,
-                        deskRec: Int,
-                        waitTime: Int,
-                        paxInQueue: Option[Int],
-                        deployedDesks: Option[Int],
-                        deployedWait: Option[Int],
-                        deployedPaxInQueue: Option[Int],
-                        updatedAt: Timestamp,
-                       )
+case class QueueSlotRow(
+    port: String,
+    terminal: String,
+    queue: String,
+    slotStart: Timestamp,
+    slotLengthMinutes: Int,
+    slotDateUtc: String,
+    paxLoad: Double,
+    workLoad: Double,
+    deskRec: Int,
+    waitTime: Int,
+    paxInQueue: Option[Int],
+    deployedDesks: Option[Int],
+    deployedWait: Option[Int],
+    deployedPaxInQueue: Option[Int],
+    updatedAt: Timestamp
+)
 
 class QueueSlotTable(tag: Tag)
-  extends Table[QueueSlotRow](tag, "queue_slot") {
+    extends Table[QueueSlotRow](tag, "queue_slot") {
 
   def port: Rep[String] = column[String]("port")
 
@@ -57,7 +58,8 @@ class QueueSlotTable(tag: Tag)
 
   def pk = primaryKey("pk_queue_slot", (port, terminal, queue, slotStart, slotLengthMinutes))
 
-  def portTerminalQueueDateIndex = index("idx_queue_slot_port_terminal_queue_date", (port, terminal, queue, slotDateUtc), unique = false)
+  def portTerminalQueueDateIndex =
+    index("idx_queue_slot_port_terminal_queue_date", (port, terminal, queue, slotDateUtc), unique = false)
 
   def portTerminalDateIndex = index("idx_queue_slot_port_terminal_date", (port, terminal, slotDateUtc), unique = false)
 
@@ -80,5 +82,6 @@ class QueueSlotTable(tag: Tag)
     deployedDesks,
     deployedWait,
     deployedPaxInQueue,
-    updatedAt).mapTo[QueueSlotRow]
+    updatedAt
+  ).mapTo[QueueSlotRow]
 }

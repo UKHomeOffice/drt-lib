@@ -4,7 +4,7 @@ import uk.gov.homeoffice.drt.auth.Roles.LGW
 import uk.gov.homeoffice.drt.ports.PaxTypes._
 import uk.gov.homeoffice.drt.ports.PaxTypesAndQueues._
 import uk.gov.homeoffice.drt.ports.Queues._
-import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{SplitRatio, SplitRatios, SplitSources}
+import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{ SplitRatio, SplitRatios, SplitSources }
 import uk.gov.homeoffice.drt.ports.Terminals._
 import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.time.LocalDate
@@ -38,7 +38,7 @@ object Lgw extends AirportConfigLike {
   private val queueRatios: Map[PaxType, Seq[(Queue, Double)]] = defaultQueueRatios ++ Map(
     EeaMachineReadable -> List(EGate -> egateUptake, EeaDesk -> (1.0 - egateUptake)),
     GBRNational -> List(EGate -> egateUptake, EeaDesk -> (1.0 - egateUptake)),
-    B5JPlusNational -> List(EGate -> egateUptake, EeaDesk -> (1.0 - egateUptake)),
+    B5JPlusNational -> List(EGate -> egateUptake, EeaDesk -> (1.0 - egateUptake))
   )
 
   val config: AirportConfig = AirportConfig(
@@ -54,14 +54,19 @@ object Lgw extends AirportConfigLike {
       NonEeaDesk -> 45
     ),
     defaultWalkTimeMillis = Map(N -> 180000L, S -> 180000L),
-    terminalPaxSplits = List(N, S).map(t => (t, SplitRatios(
-      SplitSources.TerminalAverage,
-      SplitRatio(eeaMachineReadableToDesk, 0.85 * 0.17),
-      SplitRatio(eeaMachineReadableToEGate, 0.85 * 0.83),
-      SplitRatio(eeaNonMachineReadableToDesk, 0d),
-      SplitRatio(visaNationalToDesk, 0.06),
-      SplitRatio(nonVisaNationalToDesk, 0.09)
-    ))).toMap,
+    terminalPaxSplits = List(N, S).map(t =>
+      (
+        t,
+        SplitRatios(
+          SplitSources.TerminalAverage,
+          SplitRatio(eeaMachineReadableToDesk, 0.85 * 0.17),
+          SplitRatio(eeaMachineReadableToEGate, 0.85 * 0.83),
+          SplitRatio(eeaNonMachineReadableToDesk, 0d),
+          SplitRatio(visaNationalToDesk, 0.06),
+          SplitRatio(nonVisaNationalToDesk, 0.09)
+        )
+      )
+    ).toMap,
     terminalProcessingTimes = Map(
       N -> Map(
         b5jsskToDesk -> ProcTimesNorth.b5jssk / 60,
@@ -89,18 +94,43 @@ object Lgw extends AirportConfigLike {
         eeaMachineReadableToEGate -> ProcTimesSouth.egates / 60,
         gbrNationalToEgate -> ProcTimesSouth.egates / 60,
         visaNationalToDesk -> ProcTimesSouth.vn / 60,
-        nonVisaNationalToDesk -> ProcTimesSouth.nvn / 60,
-      )),
+        nonVisaNationalToDesk -> ProcTimesSouth.nvn / 60
+      )
+    ),
     minMaxDesksByTerminalQueue24Hrs = Map(
       N -> Map(
-        Queues.EGate -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)),
-        Queues.EeaDesk -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13)),
-        Queues.NonEeaDesk -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15))
+        Queues.EGate ->
+          (
+            List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)
+          ),
+        Queues.EeaDesk ->
+          (
+            List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13)
+          ),
+        Queues.NonEeaDesk ->
+          (
+            List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15)
+          )
       ),
       S -> Map(
-        Queues.EGate -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)),
-        Queues.EeaDesk -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(15, 15, 15, 15, 15, 15, 13, 10, 10, 10, 10, 10, 10, 10, 10, 13, 13, 13, 13, 13, 13, 13, 13, 13)),
-        Queues.NonEeaDesk -> (List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), List(10, 10, 10, 10, 10, 10, 12, 15, 15, 15, 15, 15, 15, 15, 15, 13, 13, 13, 13, 13, 13, 13, 13, 13))
+        Queues.EGate ->
+          (
+            List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)
+          ),
+        Queues.EeaDesk ->
+          (
+            List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(15, 15, 15, 15, 15, 15, 13, 10, 10, 10, 10, 10, 10, 10, 10, 13, 13, 13, 13, 13, 13, 13, 13, 13)
+          ),
+        Queues.NonEeaDesk ->
+          (
+            List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            List(10, 10, 10, 10, 10, 10, 12, 15, 15, 15, 15, 15, 15, 15, 15, 13, 13, 13, 13, 13, 13, 13, 13, 13)
+          )
       )
     ),
     eGateBankSizes = Map(

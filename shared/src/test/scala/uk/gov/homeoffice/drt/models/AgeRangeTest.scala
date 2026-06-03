@@ -29,7 +29,8 @@ class AgeRangeTest extends AnyWordSpec with Matchers {
       val ageRange6 = AgeRange(66, None)
       val unknownAge = UnknownAge
 
-      val ageRanges: List[PaxAgeRange] = List(ageRange4, unknownAge, ageRange1, ageRange6, ageRange3, ageRange5, ageRange2)
+      val ageRanges: List[PaxAgeRange] =
+        List(ageRange4, unknownAge, ageRange1, ageRange6, ageRange3, ageRange5, ageRange2)
       val sortedAgeRanges = ageRanges.sorted
 
       sortedAgeRanges should ===(List(ageRange1, ageRange2, ageRange3, ageRange4, ageRange5, ageRange6, unknownAge))

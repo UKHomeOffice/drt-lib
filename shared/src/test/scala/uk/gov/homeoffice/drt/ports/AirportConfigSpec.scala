@@ -3,7 +3,7 @@ package uk.gov.homeoffice.drt.ports
 import org.specs2.mutable.Specification
 import org.specs2.specification.core.Fragment
 import uk.gov.homeoffice.drt.ports.Queues._
-import uk.gov.homeoffice.drt.ports.Terminals.{T1, T2, Terminal}
+import uk.gov.homeoffice.drt.ports.Terminals.{ T1, T2, Terminal }
 import uk.gov.homeoffice.drt.ports.config._
 
 class AirportConfigSpec extends Specification {

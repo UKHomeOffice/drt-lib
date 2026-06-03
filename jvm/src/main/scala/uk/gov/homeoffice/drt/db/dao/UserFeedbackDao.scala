@@ -4,9 +4,9 @@ import org.apache.pekko.stream.scaladsl.Source
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.TableQuery
 import uk.gov.homeoffice.drt.db.CentralDatabase
-import uk.gov.homeoffice.drt.db.tables.{UserFeedbackRow, UserFeedbackTable}
+import uk.gov.homeoffice.drt.db.tables.{ UserFeedbackRow, UserFeedbackTable }
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 trait IUserFeedbackDao {
   def insertOrUpdate(userFeedbackRow: UserFeedbackRow): Future[Int]
@@ -34,5 +34,6 @@ case class UserFeedbackDao(appDb: CentralDatabase) extends IUserFeedbackDao {
     appDb.run(table.result).mapTo[Seq[UserFeedbackRow]]
   }
 
-  override def selectByEmail(email: String): Future[Seq[UserFeedbackRow]] = appDb.run(table.filter(_.email === email).result)
+  override def selectByEmail(email: String): Future[Seq[UserFeedbackRow]] =
+    appDb.run(table.filter(_.email === email).result)
 }

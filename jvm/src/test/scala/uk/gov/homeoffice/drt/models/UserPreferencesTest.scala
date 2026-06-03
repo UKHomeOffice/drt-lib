@@ -74,8 +74,10 @@ class UserPreferencesTest extends AnyWordSpec with Matchers {
       hidePaxDataSourceDescription = json("hidePaxDataSourceDescription").toBoolean,
       showStaffingShiftView = json("showStaffingShiftView").toBoolean,
       desksAndQueuesIntervalMinutes = json("desksAndQueuesIntervalMinutes").toInt,
-      portDashboardIntervalMinutes = UserPreferences.deserializeMap(Some(json("portDashboardIntervalMinutes")), _.toInt),
-      portDashboardTerminals = UserPreferences.deserializeMap(Some(json("portDashboardTerminals")), _.split(",").filter(_.nonEmpty).toSet)
+      portDashboardIntervalMinutes =
+        UserPreferences.deserializeMap(Some(json("portDashboardIntervalMinutes")), _.toInt),
+      portDashboardTerminals =
+        UserPreferences.deserializeMap(Some(json("portDashboardTerminals")), _.split(",").filter(_.nonEmpty).toSet)
     )
 
     prefs.userSelectedPlanningTimePeriod shouldEqual 60
@@ -101,8 +103,10 @@ class UserPreferencesTest extends AnyWordSpec with Matchers {
       hidePaxDataSourceDescription = json("hidePaxDataSourceDescription").toBoolean,
       showStaffingShiftView = json("showStaffingShiftView").toBoolean,
       desksAndQueuesIntervalMinutes = json("desksAndQueuesIntervalMinutes").toInt,
-      portDashboardIntervalMinutes = UserPreferences.deserializeMap(Some(json("portDashboardIntervalMinutes")), _.toInt),
-      portDashboardTerminals = UserPreferences.deserializeMap(Some(json("portDashboardTerminals")), _.split(",").filter(_.nonEmpty).toSet)
+      portDashboardIntervalMinutes =
+        UserPreferences.deserializeMap(Some(json("portDashboardIntervalMinutes")), _.toInt),
+      portDashboardTerminals =
+        UserPreferences.deserializeMap(Some(json("portDashboardTerminals")), _.split(",").filter(_.nonEmpty).toSet)
     )
 
     prefs.userSelectedPlanningTimePeriod shouldEqual 60

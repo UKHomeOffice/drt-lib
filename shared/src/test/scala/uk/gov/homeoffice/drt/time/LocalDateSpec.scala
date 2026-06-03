@@ -8,7 +8,7 @@ class LocalDateSpec extends Specification {
     val validDateString = "2020-03-01"
     val result = LocalDate.parse(validDateString)
 
-    result === Some(LocalDate(2020,3,1))
+    result === Some(LocalDate(2020, 3, 1))
   }
 
   "Given an invalid date string when parse the date I should get back None" >> {

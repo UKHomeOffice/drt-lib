@@ -26,42 +26,42 @@ object Terminals {
       macroRW[S.type],
       macroRW[MainApron.type],
       macroRW[CTA.type],
-      macroRW[InvalidTerminal.type],
+      macroRW[InvalidTerminal.type]
     )
 
     def apply(terminalName: String): Terminal = terminalName.toLowerCase match {
-      case "t1" => T1
-      case "t2" => T2
-      case "t3" => T3
-      case "t4" => T4
-      case "t5" => T5
-      case "a1" => A1
-      case "a2" => A2
-      case "1i" => T1
-      case "2i" => T2
-      case "1d" => T1
-      case "2d" => T2
-      case "5d" => T5
-      case "3i" => T3
-      case "4i" => T4
-      case "5i" => T5
-      case "ter" => T1
-      case "1" => T1
-      case "n" => N
-      case "s" => S
-      case "mt" => T1
-      case "cta" => CTA
+      case "t1"        => T1
+      case "t2"        => T2
+      case "t3"        => T3
+      case "t4"        => T4
+      case "t5"        => T5
+      case "a1"        => A1
+      case "a2"        => A2
+      case "1i"        => T1
+      case "2i"        => T2
+      case "1d"        => T1
+      case "2d"        => T2
+      case "5d"        => T5
+      case "3i"        => T3
+      case "4i"        => T4
+      case "5i"        => T5
+      case "ter"       => T1
+      case "1"         => T1
+      case "n"         => N
+      case "s"         => S
+      case "mt"        => T1
+      case "cta"       => CTA
       case "mainapron" => MainApron
-      case "sen" => T1
-      case _ => InvalidTerminal
+      case "sen"       => T1
+      case _           => InvalidTerminal
     }
 
     def numberString(terminal: Terminal): String = terminal match {
-      case T1 => "1"
-      case T2 => "2"
-      case T3 => "3"
-      case T4 => "4"
-      case T5 => "5"
+      case T1     => "1"
+      case T2     => "2"
+      case T3     => "3"
+      case T4     => "4"
+      case T5     => "5"
       case others => others.toString
     }
   }

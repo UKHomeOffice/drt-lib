@@ -1,11 +1,10 @@
 package uk.gov.homeoffice.drt.db.tables
 
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.{ProvenShape, Tag}
+import slick.lifted.{ ProvenShape, Tag }
 import uk.gov.homeoffice.drt.ABFeature
 
 import java.sql.Timestamp
-
 
 case class ABFeatureRow(email: String, functionName: String, presentedAt: Timestamp, abVersion: String) {
   def toABFeature = ABFeature(email, functionName, presentedAt.getTime, abVersion)

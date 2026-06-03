@@ -12,9 +12,9 @@ object AppEnvironment {
   case object OtherEnv extends AppEnvironment
 
   def apply(envStr: String): AppEnvironment = envStr.toLowerCase match {
-    case "prod" => ProdEnv
+    case "prod"    => ProdEnv
     case "preprod" => PreProdEnv
-    case "test" => TestEnv
-    case _ => OtherEnv
+    case "test"    => TestEnv
+    case _         => OtherEnv
   }
 }

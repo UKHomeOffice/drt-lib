@@ -1,10 +1,9 @@
 package uk.gov.homeoffice.drt.ports.config.slas
 
 import uk.gov.homeoffice.drt.ports.Queues.Queue
-import uk.gov.homeoffice.drt.ports.config.updates.{ConfigUpdate, Configs}
+import uk.gov.homeoffice.drt.ports.config.updates.{ ConfigUpdate, Configs }
 
 import scala.collection.immutable.SortedMap
-
 
 case class SlaConfigs(configs: SortedMap[Long, Map[Queue, Int]]) extends Configs[Map[Queue, Int]] {
   override def configForDate(at: Long): Option[Map[Queue, Int]] = {
@@ -28,6 +27,3 @@ object SlaConfigs {
   implicit val rw: upickle.default.ReadWriter[SlaConfigs] = upickle.default.macroRW
   val empty: SlaConfigs = SlaConfigs(SortedMap())
 }
-
-
-

@@ -1,10 +1,9 @@
 package uk.gov.homeoffice.drt.actor
 
 import org.apache.pekko.persistence.SaveSnapshotSuccess
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 import scalapb.GeneratedMessage
 import uk.gov.homeoffice.drt.time.SDate
-
 
 trait PartitionActor[S] extends RecoveryActorLike {
   def emptyState: S
@@ -21,7 +20,7 @@ trait PartitionActor[S] extends RecoveryActorLike {
   def maybePointInTime: Option[Long]
 
   private lazy val loggerSuffix: String = maybePointInTime match {
-    case None => ""
+    case None      => ""
     case Some(pit) => f"@${SDate(pit).toISOString}"
   }
 
@@ -63,4 +62,3 @@ trait PartitionActor[S] extends RecoveryActorLike {
   }
   override def receiveCommand: Receive = processQuery orElse receiveEvent
 }
-

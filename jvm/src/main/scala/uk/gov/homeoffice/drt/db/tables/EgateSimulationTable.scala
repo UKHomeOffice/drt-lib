@@ -4,23 +4,23 @@ import slick.jdbc.PostgresProfile.api._
 
 import java.sql.Timestamp
 
-case class EgateSimulationRow(uuid: String,
-                              port: String,
-                              terminal: String,
-                              startDate: Timestamp,
-                              endDate: Timestamp,
-                              uptakePercentage: Double,
-                              parentChildRatio: Double,
-                              status: String,
-                              csvContent: Option[String],
-                              meanAbsolutePercentageError: Option[Double],
-                              standardDeviation: Option[Double],
-                              bias: Option[Double],
-                              correlationCoefficient: Option[Double],
-                              rSquaredError: Option[Double],
-                              createdAt: Timestamp,
-                             )
-
+case class EgateSimulationRow(
+    uuid: String,
+    port: String,
+    terminal: String,
+    startDate: Timestamp,
+    endDate: Timestamp,
+    uptakePercentage: Double,
+    parentChildRatio: Double,
+    status: String,
+    csvContent: Option[String],
+    meanAbsolutePercentageError: Option[Double],
+    standardDeviation: Option[Double],
+    bias: Option[Double],
+    correlationCoefficient: Option[Double],
+    rSquaredError: Option[Double],
+    createdAt: Timestamp
+)
 
 class EgateSimulationTable(tag: Tag) extends Table[EgateSimulationRow](tag, "egate_simulation") {
   def uuid: Rep[String] = column[String]("id", O.Length(255, varying = true))
@@ -53,9 +53,24 @@ class EgateSimulationTable(tag: Tag) extends Table[EgateSimulationRow](tag, "ega
 
   def createdAt: Rep[Timestamp] = column[Timestamp]("created_at")
 
-
-  def * = (uuid, port, terminal, startDate, endDate, uptakePercentage, parentChildRatio, status, csvContent,
-    meanAbsolutePercentageError, standardDeviation, bias, correlationCoefficient, rSquaredError, createdAt) <> (EgateSimulationRow.tupled, EgateSimulationRow.unapply)
+  def * =
+    (
+      uuid,
+      port,
+      terminal,
+      startDate,
+      endDate,
+      uptakePercentage,
+      parentChildRatio,
+      status,
+      csvContent,
+      meanAbsolutePercentageError,
+      standardDeviation,
+      bias,
+      correlationCoefficient,
+      rSquaredError,
+      createdAt
+    ) <> (EgateSimulationRow.tupled, EgateSimulationRow.unapply)
 
   val key = primaryKey("egate_simulation_idx", (port, terminal, startDate, endDate, uptakePercentage, parentChildRatio))
 

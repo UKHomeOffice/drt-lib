@@ -7,8 +7,8 @@ import scalapb.GeneratedMessage
 import uk.gov.homeoffice.drt.time.MilliDate.MillisSinceEpoch
 import uk.gov.homeoffice.drt.time.SDate
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Try}
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.{ Failure, Try }
 
 object Sizes {
   val oneMegaByte: Int = 1024 * 1024
@@ -62,10 +62,11 @@ trait RecoveryActorLike extends PersistentActor with RecoveryLogging {
 
   def persistAndMaybeSnapshot(message: GeneratedMessage): Unit = persistAndMaybeSnapshotWithAck(message, List())
 
-  def persistAndMaybeSnapshotWithAck(messageToPersist: GeneratedMessage,
-                                     acks: List[(ActorRef, Any)],
-                                     maybePostPersist: Option[() => Future[_]] = None,
-                                    ): Unit = {
+  def persistAndMaybeSnapshotWithAck(
+      messageToPersist: GeneratedMessage,
+      acks: List[(ActorRef, Any)],
+      maybePostPersist: Option[() => Future[_]] = None
+  ): Unit = {
     implicit val ec = context.dispatcher
 
     persist(messageToPersist) { message =>
@@ -75,27 +76,35 @@ trait RecoveryActorLike extends PersistentActor with RecoveryLogging {
 
       bytesSinceSnapshotCounter += messageBytes
       messagesPersistedSinceSnapshotCounter += 1
-      logCounters(bytesSinceSnapshotCounter, messagesPersistedSinceSnapshotCounter, snapshotBytesThreshold, maybeSnapshotInterval)
+      logCounters(
+        bytesSinceSnapshotCounter,
+        messagesPersistedSinceSnapshotCounter,
+        snapshotBytesThreshold,
+        maybeSnapshotInterval
+      )
 
       if (shouldTakeSnapshot) {
         takeSnapshot(stateToMessage)
         maybeAckAfterSnapshot = acks
       } else {
-        val executeAcks = () => acks.foreach {
-          case (replyTo, ackMsg) =>
-            replyTo ! ackMsg
-        }
+        val executeAcks = () =>
+          acks.foreach {
+            case (replyTo, ackMsg) =>
+              replyTo ! ackMsg
+          }
 
         maybePostPersist match {
           case Some(postPersist) => postPersist().foreach(_ => executeAcks())
-          case None => executeAcks()
+          case None              => executeAcks()
         }
       }
     }
   }
 
   def takeSnapshot(stateToSnapshot: GeneratedMessage): Unit = {
-    log.debug(s"Snapshotting ${stateToSnapshot.serializedSize} bytes of ${stateToSnapshot.getClass}. Resetting counters to zero")
+    log.debug(
+      s"Snapshotting ${stateToSnapshot.serializedSize} bytes of ${stateToSnapshot.getClass}. Resetting counters to zero"
+    )
     saveSnapshot(stateToSnapshot)
 
     bytesSinceSnapshotCounter = 0
@@ -104,11 +113,13 @@ trait RecoveryActorLike extends PersistentActor with RecoveryLogging {
   }
 
   def shouldTakeSnapshot: Boolean = {
-    val shouldSnapshotByCount = maybeSnapshotInterval.isDefined && messagesPersistedSinceSnapshotCounter >= maybeSnapshotInterval.get
+    val shouldSnapshotByCount = maybeSnapshotInterval.isDefined &&
+      messagesPersistedSinceSnapshotCounter >= maybeSnapshotInterval.get
     val shouldSnapshotByBytes = bytesSinceSnapshotCounter > snapshotBytesThreshold
 
     if (shouldSnapshotByCount) log.debug(f"Snapshot interval reached (${maybeSnapshotInterval.getOrElse(0)})")
-    if (shouldSnapshotByBytes) log.debug(f"Snapshot bytes threshold reached (${snapshotBytesThreshold.toDouble / Sizes.oneMegaByte}%.2fMB)")
+    if (shouldSnapshotByBytes)
+      log.debug(f"Snapshot bytes threshold reached (${snapshotBytesThreshold.toDouble / Sizes.oneMegaByte}%.2fMB)")
 
     shouldSnapshotByBytes || shouldSnapshotByCount
   }
@@ -144,4 +155,3 @@ trait RecoveryActorLike extends PersistentActor with RecoveryLogging {
       log.error(s"$message (very slow)")
   }
 }
-

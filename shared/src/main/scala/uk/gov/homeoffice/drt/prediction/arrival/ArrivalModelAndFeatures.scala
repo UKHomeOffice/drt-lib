@@ -4,9 +4,12 @@ import uk.gov.homeoffice.drt.arrivals.Arrival
 import uk.gov.homeoffice.drt.prediction.ModelAndFeatures
 import uk.gov.homeoffice.drt.time.SDateLike
 
-
 trait ArrivalModelAndFeatures extends ModelAndFeatures {
-  def maybePrediction(arrival: Arrival, minimumImprovementPctThreshold: Int, upperValueThreshold: Option[Int]): Option[Int] =
+  def maybePrediction(
+      arrival: Arrival,
+      minimumImprovementPctThreshold: Int,
+      upperValueThreshold: Option[Int]
+  ): Option[Int] =
     if (improvementPct > minimumImprovementPctThreshold) {
       for {
         valueThreshold <- upperValueThreshold
@@ -41,12 +44,23 @@ trait ArrivalModelAndFeatures extends ModelAndFeatures {
     maybeMaybePrediction.flatten
   }
 
-  def updatePrediction(arrival: Arrival, minimumImprovementPctThreshold: Int, upperThreshold: Option[Int], now: SDateLike): Arrival = {
+  def updatePrediction(
+      arrival: Arrival,
+      minimumImprovementPctThreshold: Int,
+      upperThreshold: Option[Int],
+      now: SDateLike
+  ): Arrival = {
     val updatedPredictions = maybePrediction(arrival, minimumImprovementPctThreshold, upperThreshold) match {
       case None =>
-        arrival.Predictions.copy(predictions = arrival.Predictions.predictions.removed(targetName), lastUpdated = now.millisSinceEpoch)
+        arrival.Predictions.copy(
+          predictions = arrival.Predictions.predictions.removed(targetName),
+          lastUpdated = now.millisSinceEpoch
+        )
       case Some(update) if !arrival.Predictions.predictions.get(targetName).contains(update) =>
-        arrival.Predictions.copy(predictions = arrival.Predictions.predictions.updated(targetName, update), lastUpdated = now.millisSinceEpoch)
+        arrival.Predictions.copy(
+          predictions = arrival.Predictions.predictions.updated(targetName, update),
+          lastUpdated = now.millisSinceEpoch
+        )
       case Some(_) =>
         arrival.Predictions
     }

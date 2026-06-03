@@ -3,17 +3,17 @@ package uk.gov.homeoffice.drt.actor
 import org.apache.pekko.actor.ActorRef
 import org.apache.pekko.persistence._
 import org.apache.pekko.util.Timeout
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 import scalapb.GeneratedMessage
 import uk.gov.homeoffice.drt.actor.ConfigActor._
 import uk.gov.homeoffice.drt.actor.acking.AckingReceiver.StreamCompleted
-import uk.gov.homeoffice.drt.actor.commands.Commands.{AddUpdatesSubscriber, GetState}
+import uk.gov.homeoffice.drt.actor.commands.Commands.{ AddUpdatesSubscriber, GetState }
 import uk.gov.homeoffice.drt.actor.commands.TerminalUpdateRequest
-import uk.gov.homeoffice.drt.actor.serialisation.{ConfigDeserialiser, ConfigSerialiser, EmptyConfig}
-import uk.gov.homeoffice.drt.ports.config.updates.{ConfigUpdate, Configs}
+import uk.gov.homeoffice.drt.actor.serialisation.{ ConfigDeserialiser, ConfigSerialiser, EmptyConfig }
+import uk.gov.homeoffice.drt.ports.config.updates.{ ConfigUpdate, Configs }
 import uk.gov.homeoffice.drt.protobuf.messages.config.Configs.RemoveConfigMessage
 import uk.gov.homeoffice.drt.time.MilliDate.MillisSinceEpoch
-import uk.gov.homeoffice.drt.time.{LocalDate, SDate, SDateLike}
+import uk.gov.homeoffice.drt.time.{ LocalDate, SDate, SDateLike }
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration.DurationInt
@@ -23,7 +23,7 @@ object ConfigActor {
 
   case class SetUpdate[A](update: ConfigUpdate[A]) extends Command {
     lazy val firstMinuteAffected: Long = update.maybeOriginalEffectiveFrom match {
-      case None => update.effectiveFrom
+      case None                        => update.effectiveFrom
       case Some(originalEffectiveFrom) =>
         if (update.effectiveFrom < originalEffectiveFrom)
           update.effectiveFrom
@@ -34,16 +34,16 @@ object ConfigActor {
   case class RemoveConfig(effectiveFrom: MillisSinceEpoch) extends Command
 }
 
-class ConfigActor[A, B <: Configs[A]](val persistenceId: String,
-                                      val now: () => SDateLike,
-                                      updateRequests: LocalDate => Iterable[TerminalUpdateRequest],
-                                      maxForecastDays: Int,
-                                     )
-                                     (implicit
-                                      emptyProvider: EmptyConfig[A, B],
-                                      serialiser: ConfigSerialiser[A, B],
-                                      deserialiser: ConfigDeserialiser[A, B],
-                                     ) extends RecoveryActorLike with PersistentDrtActor[B] {
+class ConfigActor[A, B <: Configs[A]](
+    val persistenceId: String,
+    val now: () => SDateLike,
+    updateRequests: LocalDate => Iterable[TerminalUpdateRequest],
+    maxForecastDays: Int
+)(implicit
+    emptyProvider: EmptyConfig[A, B],
+    serialiser: ConfigSerialiser[A, B],
+    deserialiser: ConfigDeserialiser[A, B]
+) extends RecoveryActorLike with PersistentDrtActor[B] {
   override val log: Logger = LoggerFactory.getLogger(getClass)
 
   override val maybeSnapshotInterval: Option[Int] = None

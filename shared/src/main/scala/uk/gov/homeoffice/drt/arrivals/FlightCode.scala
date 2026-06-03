@@ -2,9 +2,11 @@ package uk.gov.homeoffice.drt.arrivals
 
 import scala.util.matching.Regex
 
-case class FlightCode(carrierCode: CarrierCode,
-                      voyageNumberLike: VoyageNumberLike,
-                      maybeFlightCodeSuffix: Option[FlightCodeSuffix]) {
+case class FlightCode(
+    carrierCode: CarrierCode,
+    voyageNumberLike: VoyageNumberLike,
+    maybeFlightCodeSuffix: Option[FlightCodeSuffix]
+) {
 
   val suffixString: String = maybeFlightCodeSuffix.map(_.suffix).getOrElse("")
 
@@ -19,7 +21,7 @@ object FlightCode {
   def flightCodeToParts(code: String): (CarrierCode, VoyageNumberLike, Option[FlightCodeSuffix]) = code match {
     case iataRe(cc, vn, suffix) => stringsToComponents(cc, vn, suffix)
     case icaoRe(cc, vn, suffix) => stringsToComponents(cc, vn, suffix)
-    case _ => (CarrierCode(""), VoyageNumber(0), None)
+    case _                      => (CarrierCode(""), VoyageNumber(0), None)
   }
 
   def apply(rawIATA: String, rawICAO: String): FlightCode = {
@@ -37,12 +39,14 @@ object FlightCode {
   def bestCode(rawIATA: String, rawICAO: String): String = (rawIATA, rawICAO) match {
     case (iata, _) if iata != "" => iata
     case (_, icao) if icao != "" => icao
-    case _ => ""
+    case _                       => ""
   }
 
-  private def stringsToComponents(cc: String,
-                                  vn: String,
-                                  suffix: String): (CarrierCode, VoyageNumberLike, Option[FlightCodeSuffix]) = {
+  private def stringsToComponents(
+      cc: String,
+      vn: String,
+      suffix: String
+  ): (CarrierCode, VoyageNumberLike, Option[FlightCodeSuffix]) = {
     val carrierCode = CarrierCode(cc)
     val voyageNumber = VoyageNumber(vn)
     val arrivalSuffix = if (suffix.nonEmpty) Option(FlightCodeSuffix(suffix)) else None

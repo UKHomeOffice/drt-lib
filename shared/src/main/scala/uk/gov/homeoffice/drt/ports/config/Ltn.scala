@@ -44,23 +44,27 @@ object Ltn extends AirportConfigLike {
       eeaMachineReadableToEGate -> ProcTimes.egates / 60,
       gbrNationalToEgate -> ProcTimes.egates / 60,
       visaNationalToDesk -> ProcTimes.vn / 60,
-      nonVisaNationalToDesk -> ProcTimes.nvn / 60,
+      nonVisaNationalToDesk -> ProcTimes.nvn / 60
     )),
     minMaxDesksByTerminalQueue24Hrs = Map(
       T1 -> Map(
         Queues.EGate -> (List.fill(24)(1), List.fill(24)(2)),
-        Queues.EeaDesk -> (List.fill(24)(1), List(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9)),
-        Queues.NonEeaDesk -> (List.fill(24)(1), List(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5))
+        Queues.EeaDesk ->
+          (List.fill(24)(1), List(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9)),
+        Queues.NonEeaDesk ->
+          (List.fill(24)(1), List(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5))
       )
     ),
     eGateBankSizes = Map(T1 -> Iterable(10, 5)),
     hasEstChox = false,
     role = LTN,
     terminalPaxTypeQueueAllocation = Map(
-      T1 -> (defaultQueueRatios + (EeaMachineReadable -> List(
-        EGate -> 0.7922,
-        EeaDesk -> (1.0 - 0.7922)
-      )))
+      T1 ->
+        (defaultQueueRatios +
+          (EeaMachineReadable -> List(
+            EGate -> 0.7922,
+            EeaDesk -> (1.0 - 0.7922)
+          )))
     ),
     flexedQueues = Set(EeaDesk, NonEeaDesk),
     desksByTerminal = Map(T1 -> 13),

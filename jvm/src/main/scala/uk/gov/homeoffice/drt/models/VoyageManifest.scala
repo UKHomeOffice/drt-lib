@@ -2,12 +2,12 @@ package uk.gov.homeoffice.drt.models
 
 import org.joda.time.DateTime
 import uk.gov.homeoffice.drt.Nationality
-import uk.gov.homeoffice.drt.arrivals.{CarrierCode, EventType, VoyageNumber, VoyageNumberLike}
-import uk.gov.homeoffice.drt.ports.{PaxAge, PortCode, SplitRatiosNs}
+import uk.gov.homeoffice.drt.arrivals.{ CarrierCode, EventType, VoyageNumber, VoyageNumberLike }
+import uk.gov.homeoffice.drt.ports.{ PaxAge, PortCode, SplitRatiosNs }
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSource
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.SplitSources.ApiSplitsWithHistoricalEGateAndFTPercentages
 import uk.gov.homeoffice.drt.time.SDate.JodaSDate
-import uk.gov.homeoffice.drt.time.{SDate, SDateLike}
+import uk.gov.homeoffice.drt.time.{ SDate, SDateLike }
 
 import scala.util.Try
 
@@ -25,7 +25,7 @@ trait ManifestLike {
     if (nonUniquePassengers.exists(_.passengerIdentifier.exists(_.nonEmpty)))
       nonUniquePassengers
         .collect {
-          case p@ManifestPassengerProfile(_, _, _, _, Some(id)) if id.nonEmpty => p
+          case p @ ManifestPassengerProfile(_, _, _, _, Some(id)) if id.nonEmpty => p
         }
         .map { passengerInfo =>
           passengerInfo.passengerIdentifier -> passengerInfo
@@ -52,14 +52,16 @@ case class ManifestTimeOfArrival(time: String) {
   override def toString: String = time
 }
 
-case class VoyageManifest(EventCode: EventType,
-                          ArrivalPortCode: PortCode,
-                          DeparturePortCode: PortCode,
-                          VoyageNumber: VoyageNumberLike,
-                          CarrierCode: CarrierCode,
-                          ScheduledDateOfArrival: ManifestDateOfArrival,
-                          ScheduledTimeOfArrival: ManifestTimeOfArrival,
-                          PassengerList: List[PassengerInfoJson]) extends ManifestLike {
+case class VoyageManifest(
+    EventCode: EventType,
+    ArrivalPortCode: PortCode,
+    DeparturePortCode: PortCode,
+    VoyageNumber: VoyageNumberLike,
+    CarrierCode: CarrierCode,
+    ScheduledDateOfArrival: ManifestDateOfArrival,
+    ScheduledTimeOfArrival: ManifestTimeOfArrival,
+    PassengerList: List[PassengerInfoJson]
+) extends ManifestLike {
   def flightCode: String = CarrierCode.code + VoyageNumber
 
   def scheduleArrivalDateTime: Option[SDateLike] = Try(DateTime.parse(scheduleDateTimeString)).toOption.map(JodaSDate)
@@ -72,16 +74,18 @@ case class VoyageManifest(EventCode: EventType,
   override val departurePortCode: PortCode = DeparturePortCode
   override val voyageNumber: VoyageNumberLike = VoyageNumber
   override val carrierCode: CarrierCode = CarrierCode
-  override val nonUniquePassengers: List[ManifestPassengerProfile] = PassengerList.map(ManifestPassengerProfile(_, arrivalPortCode))
+  override val nonUniquePassengers: List[ManifestPassengerProfile] =
+    PassengerList.map(ManifestPassengerProfile(_, arrivalPortCode))
   override val maybeEventType: Option[EventType] = Option(EventCode)
 }
 
-
-case class ManifestPassengerProfile(nationality: Nationality,
-                                    documentType: Option[DocumentType],
-                                    age: Option[PaxAge],
-                                    inTransit: Boolean,
-                                    passengerIdentifier: Option[String])
+case class ManifestPassengerProfile(
+    nationality: Nationality,
+    documentType: Option[DocumentType],
+    age: Option[PaxAge],
+    inTransit: Boolean,
+    passengerIdentifier: Option[String]
+)
 
 object ManifestPassengerProfile {
   def apply(pij: PassengerInfoJson, portCode: PortCode): ManifestPassengerProfile =

@@ -1,22 +1,25 @@
 package uk.gov.homeoffice.drt.actor
 
-import org.apache.commons.csv.{CSVFormat, CSVParser}
+import org.apache.commons.csv.{ CSVFormat, CSVParser }
 import uk.gov.homeoffice.drt.ports.Terminals.Terminal
 
 import scala.io.Source
 import scala.jdk.CollectionConverters.IteratorHasAsScala
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 object WalkTimeProvider {
-  def apply(maybeGatesCsvPath: Option[String], maybeStandsCsvPath: Option[String]): (Terminal, String, String) => Option[Int] = {
+  def apply(
+      maybeGatesCsvPath: Option[String],
+      maybeStandsCsvPath: Option[String]
+  ): (Terminal, String, String) => Option[Int] = {
     val maybeGates = maybeGatesCsvPath.map(walkTimes)
     val maybeStands = maybeStandsCsvPath.map(walkTimes)
 
     (terminal: Terminal, gate: String, stand: String) => {
       (maybeGates, maybeStands) match {
-        case (None, None) => None
-        case (Some(gates), None) => gates.get((terminal, gate))
-        case (None, Some(stands)) => stands.get((terminal, stand))
+        case (None, None)                => None
+        case (Some(gates), None)         => gates.get((terminal, gate))
+        case (None, Some(stands))        => stands.get((terminal, stand))
         case (Some(gates), Some(stands)) => stands.get((terminal, stand)).orElse(gates.get((terminal, gate)))
       }
     }
