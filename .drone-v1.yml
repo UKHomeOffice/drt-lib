@@ -8,6 +8,39 @@ platform:
   arch: amd64
 
 steps:
+  - name: Unit tests
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
+    commands:
+      - /root/entrypoint.sh
+      - sbt --error +test
+    environment:
+      JAVA_OPTS: -Xmx2g
+      ARTIFACTORY_PASSWORD:
+        from_secret: ARTIFACTORY_PASSWORD
+      ARTIFACTORY_USERNAME: drt_ci
+    when:
+      event:
+        - push
+
+  - name: Code coverage report
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
+    commands:
+      - /root/entrypoint.sh
+      - rm -rf target project/target .scoverage
+      - sbt -mem 4096 clean coverage test coverageReport
+    environment:
+      ARTIFACTORY_PASSWORD:
+        from_secret: ARTIFACTORY_PASSWORD
+      ARTIFACTORY_USERNAME: drt_ci
+      ENV_LOG_LEVEL: ERROR
+    when:
+      event:
+        - push
+    depends_on:
+      - Unit tests
+
   - name: Build library
     pull: if-not-exists
     image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
@@ -21,6 +54,8 @@ steps:
     when:
       event:
         - push
+    depends_on:
+      - Code coverage report
 
   - name: Publish library
     pull: if-not-exists
@@ -38,14 +73,32 @@ steps:
     depends_on:
       - Build library
 
-  - name: Unit tests
+  - name: Scapegoat
     pull: if-not-exists
     image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
     commands:
       - /root/entrypoint.sh
-      - sbt --error +test
+      - sbt scapegoat | true
     environment:
-      JAVA_OPTS: -Xmx2g
+      ARTIFACTORY_PASSWORD:
+        from_secret: ARTIFACTORY_PASSWORD
+      ARTIFACTORY_USERNAME: drt_ci
+      ENV_LOG_LEVEL: ERROR
+    when:
+      event:
+        - push
+    depends_on:
+      - Publish library
+
+  - name: Generate sbt lock
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
+    commands:
+      - /root/entrypoint.sh
+      - sbt dependencyLockWrite
+      - mkdir -p trivy-scan
+      - find . -name "*.sbt.lock" -exec sh -c 'for file; do mkdir -p "trivy-scan/$(dirname "$file")"; cp "$file" "trivy-scan/$file"; done' sh {} +
+    environment:
       ARTIFACTORY_PASSWORD:
         from_secret: ARTIFACTORY_PASSWORD
       ARTIFACTORY_USERNAME: drt_ci
@@ -54,6 +107,39 @@ steps:
         - push
     depends_on:
       - Publish library
+
+  - name: Trivy scan
+    pull: Always
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/trivy/client:latest
+    resources:
+      limits:
+        cpu: 1000
+        memory: 1024Mi
+    commands:
+      - ls -lah trivy-scan
+      - trivy fs --scanners vuln trivy-scan
+    environment:
+      TRIVY_CACHE_DIR: /tmp/trivy-cache
+    when:
+      event:
+        - push
+    depends_on:
+      - Generate sbt lock
+
+  - name: Sonar scanner
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/sonar-scanner:v7.3
+    commands:
+      - sonar-scanner -Dsonar.projectVersion=B${DRONE_BUILD_NUMBER}
+    environment:
+      DRONE_BUILD_NUMBER: ${DRONE_BUILD_NUMBER}
+    when:
+      branch:
+        - master
+      event:
+        - push
+    depends_on:
+      - Scapegoat
 
   - name: Slack notification
     pull: if-not-exists
@@ -69,81 +155,5 @@ steps:
       event:
         - push
     depends_on:
-      - Unit tests
-
-  - name: Code coverage report
-    pull: if-not-exists
-    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
-    commands:
-      - /root/entrypoint.sh
-      - rm -rf target project/target */target .scoverage
-      - sbt -mem 4096 clean coverage test coverageReport
-    environment:
-      ARTIFACTORY_PASSWORD:
-        from_secret: ARTIFACTORY_PASSWORD
-      ARTIFACTORY_USERNAME: drt_ci
-      ENV_LOG_LEVEL: ERROR
-    when:
-      event:
-        - push
-      branch:
-        - master
-    depends_on:
-      - Unit tests
-
-  - name: Scapegoat
-    pull: if-not-exists
-    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
-    commands:
-      - /root/entrypoint.sh
-      - sbt scapegoat | true
-    environment:
-      ARTIFACTORY_PASSWORD:
-        from_secret: ARTIFACTORY_PASSWORD
-      ARTIFACTORY_USERNAME: drt_ci
-      ENV_LOG_LEVEL: ERROR
-    when:
-      event:
-        - push
-      branch:
-        - master
-    depends_on:
-      - Code coverage report
-
-  - name: Dependency check
-    pull: if-not-exists
-    image: quay.io/ukhomeofficedigital/scala-sbt-nodejs:v1.4.0-debian12-jdk17-node20
-    commands:
-      - /root/entrypoint.sh
-      - sbt -Dlog4j2.level=info dependencyCheck
-    environment:
-      JAVA_OPTS: -Xmx2g
-      NVD_API_KEY:
-        from_secret: NVD_API_KEY_SECRET
-      ARTIFACTORY_PASSWORD:
-        from_secret: ARTIFACTORY_PASSWORD
-      ARTIFACTORY_USERNAME: drt_ci
-    when:
-      branch:
-        - master
-      event:
-        - push
-    depends_on:
-      - Code coverage report
-
-  - name: Sonar scanner
-    pull: if-not-exists
-    image: quay.io/ukhomeofficedigital/sonar-scanner:v7.3
-    commands:
-      - sonar-scanner -Dsonar.projectVersion=B${DRONE_BUILD_NUMBER}
-    environment:
-      DRONE_BUILD_NUMBER: ${DRONE_BUILD_NUMBER}
-    when:
-      branch:
-        - master
-      event:
-        - push
-    depends_on:
-      - Dependency check
-
+      - Sonar scanner
 ...
