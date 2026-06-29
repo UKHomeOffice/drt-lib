@@ -11,5 +11,6 @@ addSbtPlugin("com.timushev.sbt"       % "sbt-updates"              % "0.6.4")
 addSbtPlugin("com.thesamet"           % "sbt-protoc"               % "1.0.8")
 addSbtPlugin("org.johnnei.scapegoat" %% "sbt-scapegoat"            % "1.3.7")
 addSbtPlugin("net.nmoncho"            % "sbt-dependency-check"     % "1.9.0")
+addSbtPlugin("software.purpledragon"  % "sbt-dependency-lock"      % "1.5.1")
 
 libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.11.20"
