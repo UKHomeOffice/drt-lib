@@ -7,14 +7,17 @@ import uk.gov.homeoffice.drt.time.{ SDate, SDateLike }
 import scala.collection.SortedMap
 
 object PassengerInfo {
-  private val egateAgeEligibilityDateChange = "2023-07-25T00:00:00"
+  private val egateAgeEligibilityDateChange = "2026-07-08T09:00:00Z"
+
+  def isBeforeEgateAgeEligibilityDateChange(scheduled: Option[SDateLike]): Boolean =
+    scheduled.exists(_ < SDate(egateAgeEligibilityDateChange))
 
   def ageRangesForDate(scheduled: Option[SDateLike]): List[AgeRange] = {
     val egateEligibilityAgeRanges = scheduled match {
       case Some(date) if date < SDate(egateAgeEligibilityDateChange) =>
-        List(AgeRange(0, 11), AgeRange(12, 17))
-      case _ =>
         List(AgeRange(0, 9), AgeRange(10, 17))
+      case _ =>
+        List(AgeRange(0, 7), AgeRange(8, 17))
     }
 
     egateEligibilityAgeRanges ++
@@ -64,7 +67,12 @@ object PassengerInfo {
       }
 
   def manifestToPaxTypes(manifest: ManifestLike): Map[PaxType, Int] = {
-    manifest.uniquePassengers.map(p => B5JPlusWithTransitTypeAllocator(p))
+    val scheduleForEgateAgeEligibility = manifest match {
+      case vm: VoyageManifest => vm.scheduleArrivalDateTime
+      case _                  => Some(manifest.scheduled)
+    }
+
+    manifest.uniquePassengers.map(p => B5JPlusWithTransitTypeAllocator(p, scheduleForEgateAgeEligibility))
       .groupBy(identity).view.mapValues(_.size).toMap
   }
 
