@@ -8,8 +8,7 @@ import uk.gov.homeoffice.drt.ports.Terminals._
 import uk.gov.homeoffice.drt.ports._
 import uk.gov.homeoffice.drt.ports.config.AirportConfigDefaults.{
   defaultProcessingTimes,
-  defaultQueueRatiosWithoutEgates,
-  defaultSlas
+  defaultQueueRatiosWithoutEgates
 }
 import uk.gov.homeoffice.drt.time.LocalDate
 
@@ -21,14 +20,11 @@ object Bfs extends AirportConfigLike {
     portCode = PortCode("BFS"),
     portName = "Belfast International",
     queuesByTerminal = SortedMap(LocalDate(2014, 1, 1) -> SortedMap(
-      T1 -> Seq(QueueDesk)
+      T1 -> Seq(EeaDesk, NonEeaDesk)
     )),
-    divertedQueues = Map(
-      NonEeaDesk -> QueueDesk,
-      EeaDesk -> QueueDesk
-    ),
     slaByQueue = Map(
-      QueueDesk -> 25
+      EeaDesk -> 25,
+      NonEeaDesk -> 45
     ),
     defaultWalkTimeMillis = Map(T1 -> 600000L),
     terminalPaxSplits = Map(T1 -> SplitRatios(
@@ -41,10 +37,15 @@ object Bfs extends AirportConfigLike {
     terminalProcessingTimes = Map(T1 -> defaultProcessingTimes),
     minMaxDesksByTerminalQueue24Hrs = Map(
       T1 -> Map(
-        QueueDesk ->
+        EeaDesk ->
           (
             List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-            List(6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6)
+            List(4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4)
+          ),
+        NonEeaDesk ->
+          (
+            List(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            List(4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4)
           )
       )
     ),
@@ -53,6 +54,6 @@ object Bfs extends AirportConfigLike {
     terminalPaxTypeQueueAllocation = Map(T1 -> defaultQueueRatiosWithoutEgates),
     feedSources = Seq(ApiFeedSource, LiveBaseFeedSource, AclFeedSource),
     flexedQueues = Set(EeaDesk, NonEeaDesk),
-    desksByTerminal = Map(T1 -> 6)
+    desksByTerminal = Map(T1 -> 8)
   )
 }
