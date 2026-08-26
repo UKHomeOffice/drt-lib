@@ -148,7 +148,7 @@ object Bhx extends AirportConfigLike {
       T2 -> (
         defaultQueueRatios +
           (EeaMachineReadable -> List(EGate -> egateUtilisation, EeaDesk -> nonEgateUtilisation))
-        )
+      )
     ),
     feedSources = Seq(ApiFeedSource, LiveBaseFeedSource, LiveFeedSource, ForecastFeedSource, AclFeedSource),
     flexedQueues = Set(EeaDesk, NonEeaDesk),
