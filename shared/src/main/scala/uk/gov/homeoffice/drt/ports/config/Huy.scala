@@ -16,12 +16,22 @@ object Huy extends AirportConfigLike {
   val config: AirportConfig = AirportConfig(
     portCode = PortCode("HUY"),
     portName = "Humberside",
-    queuesByTerminal = SortedMap(LocalDate(2014, 1, 1) -> SortedMap(
-      T1 -> Seq(EeaDesk, NonEeaDesk)
-    )),
+    queuesByTerminal = SortedMap(
+      LocalDate(2014, 1, 1) -> SortedMap(
+        T1 -> Seq(EeaDesk, NonEeaDesk)
+      ),
+      LocalDate(2026, 9, 4) -> SortedMap(
+        T1 -> Seq(QueueDesk)
+      )
+    ),
+    divertedQueues = Map(
+      EeaDesk -> QueueDesk,
+      NonEeaDesk -> QueueDesk
+    ),
     slaByQueue = Map(
       EeaDesk -> 25,
-      NonEeaDesk -> 45
+      NonEeaDesk -> 45,
+      QueueDesk -> 25
     ),
     defaultWalkTimeMillis = Map(T1 -> 5.minutes.toMillis),
     terminalPaxSplits = Map(T1 -> defaultPaxSplitsWithoutEgates),
@@ -36,6 +46,11 @@ object Huy extends AirportConfigLike {
         (
           List(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
           List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+        ),
+      QueueDesk ->
+        (
+          List(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+          List(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
         )
     )),
     eGateBankSizes = Map(),
@@ -43,6 +58,6 @@ object Huy extends AirportConfigLike {
     terminalPaxTypeQueueAllocation = Map(T1 -> defaultQueueRatiosWithoutEgates),
     feedSources = Seq(ApiFeedSource, LiveFeedSource),
     flexedQueues = Set(EeaDesk, NonEeaDesk),
-    desksByTerminal = Map(T1 -> 3)
+    desksByTerminal = Map(T1 -> 2)
   )
 }
