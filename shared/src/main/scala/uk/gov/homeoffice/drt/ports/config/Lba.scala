@@ -15,12 +15,22 @@ object Lba extends AirportConfigLike {
   val config: AirportConfig = AirportConfig(
     portCode = PortCode("LBA"),
     portName = "Leeds Bradford",
-    queuesByTerminal = SortedMap(LocalDate(2014, 1, 1) -> SortedMap(
-      T1 -> Seq(EeaDesk, NonEeaDesk)
-    )),
+    queuesByTerminal = SortedMap(
+      LocalDate(2014, 1, 1) -> SortedMap(
+        T1 -> Seq(EeaDesk, NonEeaDesk)
+      ),
+      LocalDate(2026, 9, 4) -> SortedMap(
+        T1 -> Seq(QueueDesk)
+      )
+    ),
+    divertedQueues = Map(
+      NonEeaDesk -> QueueDesk,
+      EeaDesk -> QueueDesk
+    ),
     slaByQueue = Map(
       EeaDesk -> 25,
-      NonEeaDesk -> 45
+      NonEeaDesk -> 45,
+      QueueDesk -> 25
     ),
     defaultWalkTimeMillis = Map(T1 -> 600000L),
     terminalPaxSplits = Map(T1 -> defaultPaxSplitsWithoutEgates),
@@ -35,6 +45,11 @@ object Lba extends AirportConfigLike {
         (
           List(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
           List(4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4)
+        ),
+      QueueDesk ->
+        (
+          List(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+          List(8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8)
         )
     )),
     eGateBankSizes = Map(),
