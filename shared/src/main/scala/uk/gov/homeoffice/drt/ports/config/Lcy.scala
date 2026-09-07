@@ -16,14 +16,14 @@ object Lcy extends AirportConfigLike {
 
   import AirportConfigDefaults._
 
-  private object ProcTimes {
-    val gbr = 21.0
-    val eea = 25.0
-    val b5jssk = 45.0
-    val nvn = 88.0
-    val vn = 85.0
-    val egates = 48d
-  }
+  private val processingTimesInSeconds = ProcessingTimesInSeconds(
+    gbr = 21.0,
+    eea = 25.0,
+    b5jssk = 45.0,
+    nvn = 88.0,
+    vn = 85.0,
+    egates = 48d
+  )
 
   val config: AirportConfig = AirportConfig(
     portCode = PortCode("LCY"),
@@ -45,20 +45,7 @@ object Lcy extends AirportConfigLike {
       SplitRatio(visaNationalToDesk, 0.0),
       SplitRatio(nonVisaNationalToDesk, 0.01)
     )),
-    terminalProcessingTimes = Map(T1 -> Map(
-      b5jsskToDesk -> ProcTimes.b5jssk / 60,
-      b5jsskChildToDesk -> ProcTimes.b5jssk / 60,
-      eeaMachineReadableToDesk -> ProcTimes.eea / 60,
-      eeaNonMachineReadableToDesk -> ProcTimes.eea / 60,
-      eeaChildToDesk -> ProcTimes.eea / 60,
-      gbrNationalToDesk -> ProcTimes.gbr / 60,
-      gbrNationalChildToDesk -> ProcTimes.gbr / 60,
-      b5jsskToEGate -> ProcTimes.egates / 60,
-      eeaMachineReadableToEGate -> ProcTimes.egates / 60,
-      gbrNationalToEgate -> ProcTimes.egates / 60,
-      visaNationalToDesk -> ProcTimes.vn / 60,
-      nonVisaNationalToDesk -> ProcTimes.nvn / 60
-    )),
+    terminalProcessingTimes = Map(T1 -> standardProcessingTimes(processingTimesInSeconds)),
     minMaxDesksByTerminalQueue24Hrs = Map(
       T1 -> Map(
         EGate ->

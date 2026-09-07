@@ -14,23 +14,14 @@ object Edi extends AirportConfigLike {
 
   import AirportConfigDefaults._
 
-  private object ProcTimesA1 {
-    val gbr = 24.0
-    val eea = 32.0
-    val b5jssk = 44.0
-    val nvn = 67.0
-    val vn = 74.0
-    val egates = 47d
-  }
-
-  private object ProcTimesA2 {
-    val gbr = 24.0
-    val eea = 32.0
-    val b5jssk = 44.0
-    val nvn = 67.0
-    val vn = 74.0
-    val egates = 47d
-  }
+  private val processingTimesInSeconds = ProcessingTimesInSeconds(
+    gbr = 24.0,
+    eea = 32.0,
+    b5jssk = 44.0,
+    nvn = 67.0,
+    vn = 74.0,
+    egates = 47d
+  )
 
   val config: AirportConfig = AirportConfig(
     portCode = PortCode("EDI"),
@@ -43,34 +34,8 @@ object Edi extends AirportConfigLike {
     defaultWalkTimeMillis = Map(A1 -> 180000L, A2 -> 120000L),
     terminalPaxSplits = List(A1, A2).map(t => (t, defaultPaxSplits)).toMap,
     terminalProcessingTimes = Map(
-      A1 -> Map(
-        b5jsskToDesk -> ProcTimesA1.b5jssk / 60,
-        b5jsskChildToDesk -> ProcTimesA1.b5jssk / 60,
-        eeaMachineReadableToDesk -> ProcTimesA1.eea / 60,
-        eeaNonMachineReadableToDesk -> ProcTimesA1.eea / 60,
-        eeaChildToDesk -> ProcTimesA1.eea / 60,
-        gbrNationalToDesk -> ProcTimesA1.gbr / 60,
-        gbrNationalChildToDesk -> ProcTimesA1.gbr / 60,
-        b5jsskToEGate -> ProcTimesA1.egates / 60,
-        eeaMachineReadableToEGate -> ProcTimesA1.egates / 60,
-        gbrNationalToEgate -> ProcTimesA1.egates / 60,
-        visaNationalToDesk -> ProcTimesA1.vn / 60,
-        nonVisaNationalToDesk -> ProcTimesA1.nvn / 60
-      ),
-      A2 -> Map(
-        b5jsskToDesk -> ProcTimesA2.b5jssk / 60,
-        b5jsskChildToDesk -> ProcTimesA2.b5jssk / 60,
-        eeaMachineReadableToDesk -> ProcTimesA2.eea / 60,
-        eeaNonMachineReadableToDesk -> ProcTimesA2.eea / 60,
-        eeaChildToDesk -> ProcTimesA2.eea / 60,
-        gbrNationalToDesk -> ProcTimesA2.gbr / 60,
-        gbrNationalChildToDesk -> ProcTimesA2.gbr / 60,
-        b5jsskToEGate -> ProcTimesA2.egates / 60,
-        eeaMachineReadableToEGate -> ProcTimesA2.egates / 60,
-        gbrNationalToEgate -> ProcTimesA2.egates / 60,
-        visaNationalToDesk -> ProcTimesA2.vn / 60,
-        nonVisaNationalToDesk -> ProcTimesA2.nvn / 60
-      )
+      A1 -> standardProcessingTimes(processingTimesInSeconds),
+      A2 -> standardProcessingTimes(processingTimesInSeconds)
     ),
     minMaxDesksByTerminalQueue24Hrs = Map(
       A1 -> Map(

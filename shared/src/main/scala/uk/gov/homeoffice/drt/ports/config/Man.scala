@@ -15,32 +15,32 @@ object Man extends AirportConfigLike {
 
   import AirportConfigDefaults._
 
-  private object ProcTimesT1 {
-    val gbr = 27.0
-    val eea = 39.0
-    val b5jssk = 50.0
-    val nvn = 77.0
-    val vn = 83.0
-    val egates = 44d
-  }
+  private val t1ProcessingTimesInSeconds = ProcessingTimesInSeconds(
+    gbr = 27.0,
+    eea = 39.0,
+    b5jssk = 50.0,
+    nvn = 77.0,
+    vn = 83.0,
+    egates = 44d
+  )
 
-  private object ProcTimesT2 {
-    val gbr = 28.0
-    val eea = 41.0
-    val b5jssk = 58.0
-    val nvn = 89.0
-    val vn = 86.0
-    val egates = 51d
-  }
+  private val t2ProcessingTimesInSeconds = ProcessingTimesInSeconds(
+    gbr = 28.0,
+    eea = 41.0,
+    b5jssk = 58.0,
+    nvn = 89.0,
+    vn = 86.0,
+    egates = 51d
+  )
 
-  private object ProcTimesT3 {
-    val gbr = 29.0
-    val eea = 38.0
-    val b5jssk = 56.0
-    val nvn = 87.0
-    val vn = 82.0
-    val egates = 44d
-  }
+  private val t3ProcessingTimesInSeconds = ProcessingTimesInSeconds(
+    gbr = 29.0,
+    eea = 38.0,
+    b5jssk = 56.0,
+    nvn = 87.0,
+    vn = 82.0,
+    egates = 44d
+  )
 
   val config: AirportConfig = AirportConfig(
     portCode = PortCode("MAN"),
@@ -66,48 +66,9 @@ object Man extends AirportConfigLike {
       )
     ).toMap,
     terminalProcessingTimes = Map(
-      T1 -> Map(
-        b5jsskToDesk -> ProcTimesT1.b5jssk / 60,
-        b5jsskChildToDesk -> ProcTimesT1.b5jssk / 60,
-        eeaMachineReadableToDesk -> ProcTimesT1.eea / 60,
-        eeaNonMachineReadableToDesk -> ProcTimesT1.eea / 60,
-        eeaChildToDesk -> ProcTimesT1.eea / 60,
-        gbrNationalToDesk -> ProcTimesT1.gbr / 60,
-        gbrNationalChildToDesk -> ProcTimesT1.gbr / 60,
-        b5jsskToEGate -> ProcTimesT1.egates / 60,
-        eeaMachineReadableToEGate -> ProcTimesT1.egates / 60,
-        gbrNationalToEgate -> ProcTimesT1.egates / 60,
-        visaNationalToDesk -> ProcTimesT1.vn / 60,
-        nonVisaNationalToDesk -> ProcTimesT1.nvn / 60
-      ),
-      T2 -> Map(
-        b5jsskToDesk -> ProcTimesT2.b5jssk / 60,
-        b5jsskChildToDesk -> ProcTimesT2.b5jssk / 60,
-        eeaMachineReadableToDesk -> ProcTimesT2.eea / 60,
-        eeaNonMachineReadableToDesk -> ProcTimesT2.eea / 60,
-        eeaChildToDesk -> ProcTimesT2.eea / 60,
-        gbrNationalToDesk -> ProcTimesT2.gbr / 60,
-        gbrNationalChildToDesk -> ProcTimesT2.gbr / 60,
-        b5jsskToEGate -> ProcTimesT2.egates / 60,
-        eeaMachineReadableToEGate -> ProcTimesT2.egates / 60,
-        gbrNationalToEgate -> ProcTimesT2.egates / 60,
-        visaNationalToDesk -> ProcTimesT2.vn / 60,
-        nonVisaNationalToDesk -> ProcTimesT2.nvn / 60
-      ),
-      T3 -> Map(
-        b5jsskToDesk -> ProcTimesT3.b5jssk / 60,
-        b5jsskChildToDesk -> ProcTimesT3.b5jssk / 60,
-        eeaMachineReadableToDesk -> ProcTimesT3.eea / 60,
-        eeaNonMachineReadableToDesk -> ProcTimesT3.eea / 60,
-        eeaChildToDesk -> ProcTimesT3.eea / 60,
-        gbrNationalToDesk -> ProcTimesT3.gbr / 60,
-        gbrNationalChildToDesk -> ProcTimesT3.gbr / 60,
-        b5jsskToEGate -> ProcTimesT3.egates / 60,
-        eeaMachineReadableToEGate -> ProcTimesT3.egates / 60,
-        gbrNationalToEgate -> ProcTimesT3.egates / 60,
-        visaNationalToDesk -> ProcTimesT3.vn / 60,
-        nonVisaNationalToDesk -> ProcTimesT3.nvn / 60
-      )
+      T1 -> standardProcessingTimes(t1ProcessingTimesInSeconds),
+      T2 -> standardProcessingTimes(t2ProcessingTimesInSeconds),
+      T3 -> standardProcessingTimes(t3ProcessingTimesInSeconds)
     ),
     minMaxDesksByTerminalQueue24Hrs = Map(
       T1 -> Map(

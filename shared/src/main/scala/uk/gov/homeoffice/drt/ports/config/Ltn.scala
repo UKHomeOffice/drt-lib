@@ -14,14 +14,14 @@ object Ltn extends AirportConfigLike {
 
   import AirportConfigDefaults._
 
-  private object ProcTimes {
-    val gbr = 30.0
-    val eea = 38.0
-    val b5jssk = 54.0
-    val nvn = 63.0
-    val vn = 70.0
-    val egates = 47d
-  }
+  private val processingTimesInSeconds = ProcessingTimesInSeconds(
+    gbr = 30.0,
+    eea = 38.0,
+    b5jssk = 54.0,
+    nvn = 63.0,
+    vn = 70.0,
+    egates = 47d
+  )
 
   val config: AirportConfig = AirportConfig(
     portCode = PortCode("LTN"),
@@ -32,20 +32,7 @@ object Ltn extends AirportConfigLike {
     slaByQueue = defaultSlas,
     defaultWalkTimeMillis = Map(T1 -> 300000L),
     terminalPaxSplits = Map(T1 -> defaultPaxSplits),
-    terminalProcessingTimes = Map(T1 -> Map(
-      b5jsskToDesk -> ProcTimes.b5jssk / 60,
-      b5jsskChildToDesk -> ProcTimes.b5jssk / 60,
-      eeaMachineReadableToDesk -> ProcTimes.eea / 60,
-      eeaNonMachineReadableToDesk -> ProcTimes.eea / 60,
-      eeaChildToDesk -> ProcTimes.eea / 60,
-      gbrNationalToDesk -> ProcTimes.gbr / 60,
-      gbrNationalChildToDesk -> ProcTimes.gbr / 60,
-      b5jsskToEGate -> ProcTimes.egates / 60,
-      eeaMachineReadableToEGate -> ProcTimes.egates / 60,
-      gbrNationalToEgate -> ProcTimes.egates / 60,
-      visaNationalToDesk -> ProcTimes.vn / 60,
-      nonVisaNationalToDesk -> ProcTimes.nvn / 60
-    )),
+    terminalProcessingTimes = Map(T1 -> standardProcessingTimes(processingTimesInSeconds)),
     minMaxDesksByTerminalQueue24Hrs = Map(
       T1 -> Map(
         Queues.EGate -> (List.fill(24)(1), List.fill(24)(2)),

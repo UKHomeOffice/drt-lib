@@ -15,23 +15,23 @@ object Lgw extends AirportConfigLike {
 
   import AirportConfigDefaults._
 
-  private object ProcTimesNorth {
-    val gbr = 28.0
-    val eea = 37.0
-    val b5jssk = 48.0
-    val nvn = 86.0
-    val vn = 90.0
-    val egates = 47d
-  }
+  private val northProcessingTimesInSeconds = ProcessingTimesInSeconds(
+    gbr = 28.0,
+    eea = 37.0,
+    b5jssk = 48.0,
+    nvn = 86.0,
+    vn = 90.0,
+    egates = 47d
+  )
 
-  private object ProcTimesSouth {
-    val gbr = 29.0
-    val eea = 39.0
-    val b5jssk = 51.0
-    val nvn = 88.0
-    val vn = 95.0
-    val egates = 47d
-  }
+  private val southProcessingTimesInSeconds = ProcessingTimesInSeconds(
+    gbr = 29.0,
+    eea = 39.0,
+    b5jssk = 51.0,
+    nvn = 88.0,
+    vn = 95.0,
+    egates = 47d
+  )
 
   private val egateUptake = 0.89
 
@@ -68,34 +68,8 @@ object Lgw extends AirportConfigLike {
       )
     ).toMap,
     terminalProcessingTimes = Map(
-      N -> Map(
-        b5jsskToDesk -> ProcTimesNorth.b5jssk / 60,
-        b5jsskChildToDesk -> ProcTimesNorth.b5jssk / 60,
-        eeaMachineReadableToDesk -> ProcTimesNorth.eea / 60,
-        eeaNonMachineReadableToDesk -> ProcTimesNorth.eea / 60,
-        eeaChildToDesk -> ProcTimesNorth.eea / 60,
-        gbrNationalToDesk -> ProcTimesNorth.gbr / 60,
-        gbrNationalChildToDesk -> ProcTimesNorth.gbr / 60,
-        b5jsskToEGate -> ProcTimesNorth.egates / 60,
-        eeaMachineReadableToEGate -> ProcTimesNorth.egates / 60,
-        gbrNationalToEgate -> ProcTimesNorth.egates / 60,
-        visaNationalToDesk -> ProcTimesNorth.vn / 60,
-        nonVisaNationalToDesk -> ProcTimesNorth.nvn / 60
-      ),
-      S -> Map(
-        b5jsskToDesk -> ProcTimesSouth.b5jssk / 60,
-        b5jsskChildToDesk -> ProcTimesSouth.b5jssk / 60,
-        eeaMachineReadableToDesk -> ProcTimesSouth.eea / 60,
-        eeaNonMachineReadableToDesk -> ProcTimesSouth.eea / 60,
-        eeaChildToDesk -> ProcTimesSouth.eea / 60,
-        gbrNationalToDesk -> ProcTimesSouth.gbr / 60,
-        gbrNationalChildToDesk -> ProcTimesSouth.gbr / 60,
-        b5jsskToEGate -> ProcTimesSouth.egates / 60,
-        eeaMachineReadableToEGate -> ProcTimesSouth.egates / 60,
-        gbrNationalToEgate -> ProcTimesSouth.egates / 60,
-        visaNationalToDesk -> ProcTimesSouth.vn / 60,
-        nonVisaNationalToDesk -> ProcTimesSouth.nvn / 60
-      )
+      N -> standardProcessingTimes(northProcessingTimesInSeconds),
+      S -> standardProcessingTimes(southProcessingTimesInSeconds)
     ),
     minMaxDesksByTerminalQueue24Hrs = Map(
       N -> Map(

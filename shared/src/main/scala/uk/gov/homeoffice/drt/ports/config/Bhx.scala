@@ -15,14 +15,14 @@ object Bhx extends AirportConfigLike {
 
   import AirportConfigDefaults._
 
-  private object ProcTimes {
-    val gbr = 24.0
-    val eea = 36.0
-    val b5jssk = 52.0
-    val nvn = 91.0
-    val vn = 85.0
-    val egates = 48d
-  }
+  private val processingTimesInSeconds = ProcessingTimesInSeconds(
+    gbr = 24.0,
+    eea = 36.0,
+    b5jssk = 52.0,
+    nvn = 91.0,
+    vn = 85.0,
+    egates = 48d
+  )
 
   private val egateUtilisation = 0.7968
   private val nonEgateUtilisation: Double = 1.0 - egateUtilisation
@@ -67,34 +67,8 @@ object Bhx extends AirportConfigLike {
       )
     ),
     terminalProcessingTimes = Map(
-      T1 -> Map(
-        b5jsskToDesk -> ProcTimes.b5jssk / 60,
-        b5jsskChildToDesk -> ProcTimes.b5jssk / 60,
-        eeaMachineReadableToDesk -> ProcTimes.eea / 60,
-        eeaNonMachineReadableToDesk -> ProcTimes.eea / 60,
-        eeaChildToDesk -> ProcTimes.eea / 60,
-        gbrNationalToDesk -> ProcTimes.gbr / 60,
-        gbrNationalChildToDesk -> ProcTimes.gbr / 60,
-        b5jsskToEGate -> ProcTimes.egates / 60,
-        eeaMachineReadableToEGate -> ProcTimes.egates / 60,
-        gbrNationalToEgate -> ProcTimes.egates / 60,
-        visaNationalToDesk -> ProcTimes.vn / 60,
-        nonVisaNationalToDesk -> ProcTimes.nvn / 60
-      ),
-      T2 -> Map(
-        b5jsskToDesk -> ProcTimes.b5jssk / 60,
-        b5jsskChildToDesk -> ProcTimes.b5jssk / 60,
-        eeaMachineReadableToDesk -> ProcTimes.eea / 60,
-        eeaNonMachineReadableToDesk -> ProcTimes.eea / 60,
-        eeaChildToDesk -> ProcTimes.eea / 60,
-        gbrNationalToDesk -> ProcTimes.gbr / 60,
-        gbrNationalChildToDesk -> ProcTimes.gbr / 60,
-        b5jsskToEGate -> ProcTimes.egates / 60,
-        eeaMachineReadableToEGate -> ProcTimes.egates / 60,
-        gbrNationalToEgate -> ProcTimes.egates / 60,
-        visaNationalToDesk -> ProcTimes.vn / 60,
-        nonVisaNationalToDesk -> ProcTimes.nvn / 60
-      )
+      T1 -> standardProcessingTimes(processingTimesInSeconds),
+      T2 -> standardProcessingTimes(processingTimesInSeconds)
     ),
     minMaxDesksByTerminalQueue24Hrs = Map(
       T1 -> Map(

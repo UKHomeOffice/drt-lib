@@ -49,28 +49,39 @@ object AirportConfigDefaults {
     B5JPlusNational -> List(EeaDesk -> 1.0)
   )
 
-  private object ProcTimes {
-    val gbr = 23.0
-    val eea = 26.0
-    val b5jssk = 46.0
-    val nvn = 91.0
-    val vn = 101.0
-    val egates = 36d
-  }
+  final case class ProcessingTimesInSeconds(
+    gbr: Double,
+    eea: Double,
+    b5jssk: Double,
+    nvn: Double,
+    vn: Double,
+    egates: Double
+  )
 
-  val defaultProcessingTimes: Map[PaxTypeAndQueue, Double] = Map(
-    b5jsskToDesk -> ProcTimes.b5jssk / 60,
-    b5jsskChildToDesk -> ProcTimes.b5jssk / 60,
-    eeaChildToDesk -> ProcTimes.eea / 60,
-    eeaMachineReadableToDesk -> ProcTimes.eea / 60,
-    eeaNonMachineReadableToDesk -> ProcTimes.eea / 60,
-    gbrNationalToDesk -> ProcTimes.gbr / 60,
-    gbrNationalChildToDesk -> ProcTimes.gbr / 60,
-    b5jsskToEGate -> ProcTimes.egates / 60,
-    eeaMachineReadableToEGate -> ProcTimes.egates / 60,
-    gbrNationalToEgate -> ProcTimes.egates / 60,
-    visaNationalToDesk -> ProcTimes.vn / 60,
-    nonVisaNationalToDesk -> ProcTimes.nvn / 60
+  def standardProcessingTimes(times: ProcessingTimesInSeconds): Map[PaxTypeAndQueue, Double] = Map(
+    b5jsskToDesk -> times.b5jssk / 60,
+    b5jsskChildToDesk -> times.b5jssk / 60,
+    eeaChildToDesk -> times.eea / 60,
+    eeaMachineReadableToDesk -> times.eea / 60,
+    eeaNonMachineReadableToDesk -> times.eea / 60,
+    gbrNationalToDesk -> times.gbr / 60,
+    gbrNationalChildToDesk -> times.gbr / 60,
+    b5jsskToEGate -> times.egates / 60,
+    eeaMachineReadableToEGate -> times.egates / 60,
+    gbrNationalToEgate -> times.egates / 60,
+    visaNationalToDesk -> times.vn / 60,
+    nonVisaNationalToDesk -> times.nvn / 60
+  )
+
+  val defaultProcessingTimes: Map[PaxTypeAndQueue, Double] = standardProcessingTimes(
+    ProcessingTimesInSeconds(
+      gbr = 23.0,
+      eea = 26.0,
+      b5jssk = 46.0,
+      nvn = 91.0,
+      vn = 101.0,
+      egates = 36d
+    )
   )
 
   val fallbackProcessingTime: Double = defaultProcessingTimes.values.sum / defaultProcessingTimes.size
