@@ -16,10 +16,10 @@ object Ltn extends AirportConfigLike {
 
   private object ProcTimes {
     val gbr = 30.0
-    val eea = 40.0
-    val b5jssk = 55.0
-    val nvn = 64.0
-    val vn = 74.0
+    val eea = 38.0
+    val b5jssk = 54.0
+    val nvn = 63.0
+    val vn = 70.0
     val egates = 47d
   }
 

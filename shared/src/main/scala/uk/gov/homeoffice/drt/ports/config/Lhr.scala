@@ -26,38 +26,38 @@ object Lhr extends AirportConfigLike {
   )
 
   private object ProcTimesT2 {
-    val gbr = 36.0
-    val eea = 50.0
-    val b5jssk = 60.0
-    val nvn = 90.0
-    val vn = 91.0
+    val gbr = 35.0
+    val eea = 48.0
+    val b5jssk = 61.0
+    val nvn = 87.0
+    val vn = 88.0
     val egates = 44d
   }
 
   private object ProcTimesT3 {
-    val gbr = 34.0
-    val eea = 45.0
-    val b5jssk = 54.0
-    val nvn = 85.0
-    val vn = 93.0
+    val gbr = 32.0
+    val eea = 42.0
+    val b5jssk = 53.0
+    val nvn = 79.0
+    val vn = 85.0
     val egates = 44d
   }
 
   private object ProcTimesT4 {
-    val gbr = 37.0
-    val eea = 49.0
-    val b5jssk = 61.0
-    val nvn = 80.0
-    val vn = 89.0
+    val gbr = 35.0
+    val eea = 46.0
+    val b5jssk = 58.0
+    val nvn = 75.0
+    val vn = 86.0
     val egates = 44d
   }
 
   private object ProcTimesT5 {
-    val gbr = 34.0
-    val eea = 44.0
-    val b5jssk = 55.0
-    val nvn = 88.0
-    val vn = 104.0
+    val gbr = 32.0
+    val eea = 42.0
+    val b5jssk = 56.0
+    val nvn = 84.0
+    val vn = 100.0
     val egates = 47d
   }
 
