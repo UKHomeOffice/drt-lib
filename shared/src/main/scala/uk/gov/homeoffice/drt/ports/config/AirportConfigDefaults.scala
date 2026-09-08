@@ -58,19 +58,23 @@ object AirportConfigDefaults {
       egates: Double
   )
 
+  private implicit class SecondsToMinutes(private val seconds: Double) extends AnyVal {
+    def toMinutes: Double = seconds / 60
+  }
+
   def standardProcessingTimes(times: ProcessingTimesInSeconds): Map[PaxTypeAndQueue, Double] = Map(
-    b5jsskToDesk -> times.b5jssk / 60,
-    b5jsskChildToDesk -> times.b5jssk / 60,
-    eeaChildToDesk -> times.eea / 60,
-    eeaMachineReadableToDesk -> times.eea / 60,
-    eeaNonMachineReadableToDesk -> times.eea / 60,
-    gbrNationalToDesk -> times.gbr / 60,
-    gbrNationalChildToDesk -> times.gbr / 60,
-    b5jsskToEGate -> times.egates / 60,
-    eeaMachineReadableToEGate -> times.egates / 60,
-    gbrNationalToEgate -> times.egates / 60,
-    visaNationalToDesk -> times.vn / 60,
-    nonVisaNationalToDesk -> times.nvn / 60
+    b5jsskToDesk -> times.b5jssk.toMinutes,
+    b5jsskChildToDesk -> times.b5jssk.toMinutes,
+    eeaChildToDesk -> times.eea.toMinutes,
+    eeaMachineReadableToDesk -> times.eea.toMinutes,
+    eeaNonMachineReadableToDesk -> times.eea.toMinutes,
+    gbrNationalToDesk -> times.gbr.toMinutes,
+    gbrNationalChildToDesk -> times.gbr.toMinutes,
+    b5jsskToEGate -> times.egates.toMinutes,
+    eeaMachineReadableToEGate -> times.egates.toMinutes,
+    gbrNationalToEgate -> times.egates.toMinutes,
+    visaNationalToDesk -> times.vn.toMinutes,
+    nonVisaNationalToDesk -> times.nvn.toMinutes
   )
 
   val defaultProcessingTimes: Map[PaxTypeAndQueue, Double] = standardProcessingTimes(
@@ -80,7 +84,7 @@ object AirportConfigDefaults {
       b5jssk = 44.0,
       nvn = 91.0,
       vn = 89.0,
-      egates = 36d
+      egates = 36.0
     )
   )
 

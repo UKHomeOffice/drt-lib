@@ -21,7 +21,7 @@ object Lgw extends AirportConfigLike {
     b5jssk = 48.0,
     nvn = 86.0,
     vn = 90.0,
-    egates = 47d
+    egates = 47.0
   )
 
   private val southProcessingTimesInSeconds = ProcessingTimesInSeconds(
@@ -30,7 +30,7 @@ object Lgw extends AirportConfigLike {
     b5jssk = 51.0,
     nvn = 88.0,
     vn = 95.0,
-    egates = 47d
+    egates = 47.0
   )
 
   private val egateUptake = 0.89

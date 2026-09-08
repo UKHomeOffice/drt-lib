@@ -20,7 +20,7 @@ object Ltn extends AirportConfigLike {
     b5jssk = 54.0,
     nvn = 63.0,
     vn = 70.0,
-    egates = 47d
+    egates = 47.0
   )
 
   val config: AirportConfig = AirportConfig(

@@ -20,7 +20,7 @@ object Edi extends AirportConfigLike {
     b5jssk = 44.0,
     nvn = 67.0,
     vn = 74.0,
-    egates = 47d
+    egates = 47.0
   )
 
   val config: AirportConfig = AirportConfig(

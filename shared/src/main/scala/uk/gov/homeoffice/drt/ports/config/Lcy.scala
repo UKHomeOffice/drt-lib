@@ -22,7 +22,7 @@ object Lcy extends AirportConfigLike {
     b5jssk = 46.0,
     nvn = 91.0,
     vn = 101.0,
-    egates = 36d
+    egates = 36.0
   )
 
   val config: AirportConfig = AirportConfig(

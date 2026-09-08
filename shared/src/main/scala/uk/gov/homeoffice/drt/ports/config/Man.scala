@@ -21,7 +21,7 @@ object Man extends AirportConfigLike {
     b5jssk = 50.0,
     nvn = 77.0,
     vn = 83.0,
-    egates = 44d
+    egates = 44.0
   )
 
   private val t2ProcessingTimesInSeconds = ProcessingTimesInSeconds(
@@ -30,7 +30,7 @@ object Man extends AirportConfigLike {
     b5jssk = 58.0,
     nvn = 89.0,
     vn = 86.0,
-    egates = 51d
+    egates = 51.0
   )
 
   private val t3ProcessingTimesInSeconds = ProcessingTimesInSeconds(
@@ -39,7 +39,7 @@ object Man extends AirportConfigLike {
     b5jssk = 56.0,
     nvn = 87.0,
     vn = 82.0,
-    egates = 44d
+    egates = 44.0
   )
 
   val config: AirportConfig = AirportConfig(

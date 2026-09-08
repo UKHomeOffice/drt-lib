@@ -21,7 +21,7 @@ object Bhx extends AirportConfigLike {
     b5jssk = 52.0,
     nvn = 91.0,
     vn = 85.0,
-    egates = 48d
+    egates = 48.0
   )
 
   private val egateUtilisation = 0.7968

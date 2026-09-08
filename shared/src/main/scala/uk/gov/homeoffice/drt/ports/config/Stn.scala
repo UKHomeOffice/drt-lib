@@ -21,7 +21,7 @@ object Stn extends AirportConfigLike {
     b5jssk = 54.0,
     nvn = 83.0,
     vn = 80.0,
-    egates = 45d
+    egates = 45.0
   )
 
   val config: AirportConfig = AirportConfig(
