@@ -17,12 +17,12 @@ object Lcy extends AirportConfigLike {
   import AirportConfigDefaults._
 
   private val processingTimesInSeconds = ProcessingTimesInSeconds(
-    gbr = 21.0,
-    eea = 25.0,
-    b5jssk = 45.0,
-    nvn = 88.0,
-    vn = 85.0,
-    egates = 48d
+    gbr = 23.0,
+    eea = 26.0,
+    b5jssk = 46.0,
+    nvn = 91.0,
+    vn = 101.0,
+    egates = 36d
   )
 
   val config: AirportConfig = AirportConfig(

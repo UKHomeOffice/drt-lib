@@ -50,12 +50,12 @@ object AirportConfigDefaults {
   )
 
   final case class ProcessingTimesInSeconds(
-    gbr: Double,
-    eea: Double,
-    b5jssk: Double,
-    nvn: Double,
-    vn: Double,
-    egates: Double
+      gbr: Double,
+      eea: Double,
+      b5jssk: Double,
+      nvn: Double,
+      vn: Double,
+      egates: Double
   )
 
   def standardProcessingTimes(times: ProcessingTimesInSeconds): Map[PaxTypeAndQueue, Double] = Map(
@@ -75,11 +75,11 @@ object AirportConfigDefaults {
 
   val defaultProcessingTimes: Map[PaxTypeAndQueue, Double] = standardProcessingTimes(
     ProcessingTimesInSeconds(
-      gbr = 23.0,
+      gbr = 22.0,
       eea = 26.0,
-      b5jssk = 46.0,
+      b5jssk = 44.0,
       nvn = 91.0,
-      vn = 101.0,
+      vn = 89.0,
       egates = 36d
     )
   )
