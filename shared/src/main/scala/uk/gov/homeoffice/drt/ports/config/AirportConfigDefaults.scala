@@ -2,7 +2,7 @@ package uk.gov.homeoffice.drt.ports.config
 
 import uk.gov.homeoffice.drt.ports.PaxTypes._
 import uk.gov.homeoffice.drt.ports.PaxTypesAndQueues._
-import uk.gov.homeoffice.drt.ports.Queues.{ EGate, EeaDesk, NonEeaDesk, Queue }
+import uk.gov.homeoffice.drt.ports.Queues.{ EGate, EeaDesk, NonEeaDesk, Queue, QueueDesk }
 import uk.gov.homeoffice.drt.ports.SplitRatiosNs.{ SplitRatio, SplitRatios, SplitSources }
 import uk.gov.homeoffice.drt.ports.{ PaxTypes, _ }
 
@@ -89,4 +89,36 @@ object AirportConfigDefaults {
   )
 
   val fallbackProcessingTime: Double = defaultProcessingTimes.values.sum / defaultProcessingTimes.size
+
+  def withCombinedDeskProcessingTimes(
+      processingTimes: Map[PaxTypeAndQueue, Double]
+  ): Map[PaxTypeAndQueue, Double] = {
+    val manualDeskTimesByPassengerType = processingTimes.toSeq
+      .collect {
+        case (PaxTypeAndQueue(paxType, EeaDesk | NonEeaDesk), time) =>
+          paxType -> time
+      }
+      .groupBy(_._1)
+
+    val combinedDeskTimes = manualDeskTimesByPassengerType.map {
+      case (paxType, entries) =>
+        val combinedKey = PaxTypeAndQueue(paxType, QueueDesk)
+        val processingTime = processingTimes.getOrElse(
+          combinedKey, {
+            val distinctTimes = entries.map(_._2).distinct
+
+            require(
+              distinctTimes.size == 1,
+              s"Ambiguous manual-desk processing times for $paxType; configure QueueDesk explicitly"
+            )
+
+            distinctTimes.head
+          }
+        )
+
+        combinedKey -> processingTime
+    }
+
+    processingTimes ++ combinedDeskTimes
+  }
 }
