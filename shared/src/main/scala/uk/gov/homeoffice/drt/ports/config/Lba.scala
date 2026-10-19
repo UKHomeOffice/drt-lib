@@ -34,7 +34,9 @@ object Lba extends AirportConfigLike {
     ),
     defaultWalkTimeMillis = Map(T1 -> 600000L),
     terminalPaxSplits = Map(T1 -> defaultPaxSplitsWithoutEgates),
-    terminalProcessingTimes = Map(T1 -> defaultProcessingTimes),
+    terminalProcessingTimes = Map(
+      T1 -> withCombinedDeskProcessingTimes(defaultProcessingTimes)
+    ),
     minMaxDesksByTerminalQueue24Hrs = Map(T1 -> Map(
       EeaDesk ->
         (

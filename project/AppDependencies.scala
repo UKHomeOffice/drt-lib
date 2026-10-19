@@ -34,15 +34,15 @@ object AppDependencies {
     "org.apache.pekko"   %% "pekko-http"              % pekkoHttpVersion,
     "org.apache.pekko"   %% "pekko-http-spray-json"   % pekkoHttpVersion,
     "org.apache.pekko"   %% "pekko-slf4j"             % pekkoVersion,
-    "joda-time"           % "joda-time"               % "2.14.3",
-    "org.apache.spark"   %% "spark-mllib"             % "4.1.1",
+    "joda-time"           % "joda-time"               % "2.14.4",
+    "org.apache.spark"   %% "spark-mllib"             % "4.1.3",
     "com.typesafe.slick" %% "slick"                   % slickVersion
   )
 
   val jvmTest: Seq[ModuleID] = Seq(
     "org.apache.pekko" %% "pekko-testkit"             % pekkoVersion % Test,
     "org.apache.pekko" %% "pekko-persistence-testkit" % pekkoVersion % Test,
-    "com.h2database"    % "h2"                        % "2.4.240"    % Test
+    "com.h2database"    % "h2"                        % "2.5.252"    % Test
   )
 
   val jvm: Seq[ModuleID] = jvmCompile ++ jvmTest

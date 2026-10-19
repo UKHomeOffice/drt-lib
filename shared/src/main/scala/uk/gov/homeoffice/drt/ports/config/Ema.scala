@@ -52,7 +52,7 @@ object Ema extends AirportConfigLike {
         QueueDesk ->
           (
             List(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-            List(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
+            List(4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4)
           )
       )
     ),
@@ -75,7 +75,7 @@ object Ema extends AirportConfigLike {
           )))
     ),
     flexedQueues = Set(),
-    desksByTerminal = Map(T1 -> 5),
+    desksByTerminal = Map(T1 -> 4),
     feedSources = Seq(ApiFeedSource, LiveBaseFeedSource, LiveFeedSource, AclFeedSource)
   )
 }
