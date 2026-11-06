@@ -26,7 +26,9 @@ case class PassengerInfoJson(
     PassengerIdentifier: Option[String]
 ) {
   def isInTransit(portCode: PortCode): Boolean = InTransitFlag.isInTransit ||
-    DisembarkationPortCode.exists(_ != portCode)
+    DisembarkationPortCode.exists(disembarkationPort =>
+      disembarkationPort.iata.trim.nonEmpty && disembarkationPort != portCode
+    )
 
   def docTypeWithNationalityAssumption: Option[DocumentType] = NationalityCountryCode match {
     case Some(Nationality(code)) if code == CountryCodes.UK => Option(Passport)
