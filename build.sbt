@@ -25,6 +25,7 @@ lazy val crossSettings =
 
 lazy val jvmSettings = Seq(
   libraryDependencies ++= AppDependencies.jvm,
+  dependencyOverrides ++= AppDependencies.dependencyOverrides,
   ThisBuild / dependencyCheckAnalyzers := dependencyCheckAnalyzers.value.copy(
     ossIndex = AnalyzerSettings.OssIndex(
       enabled = Some(false),
