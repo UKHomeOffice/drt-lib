@@ -40,7 +40,7 @@ object ApiManifestProvider {
               and departure_port_code=${uniqueArrivalKey.departurePort.iata}
               and voyage_number=${uniqueArrivalKey.voyageNumber.numeric}
               and scheduled_date = TIMESTAMP '#$scheduled'
-            """.as[(String, String, String, Int, String, String, String, String, String)]
+            """.as[(String, String, String, Int, Option[String], String, String, String, String)]
           .map {
             _.map {
               case (dt, dcc, eea, age, disPc, it, disPcc, natCc, pId) =>
@@ -49,7 +49,7 @@ object ApiManifestProvider {
                   DocumentIssuingCountryCode = Nationality(dcc),
                   EEAFlag = EeaFlag(eea),
                   Age = Option(PaxAge(age)),
-                  DisembarkationPortCode = Option(PortCode(disPc)),
+                  DisembarkationPortCode = disPc.filter(_.trim.nonEmpty).map(PortCode(_)),
                   InTransitFlag = InTransit(it),
                   DisembarkationPortCountryCode = Option(Nationality(disPcc)),
                   NationalityCountryCode = Option(Nationality(natCc)),
