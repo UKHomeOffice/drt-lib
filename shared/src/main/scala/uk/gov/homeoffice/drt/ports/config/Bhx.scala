@@ -124,7 +124,7 @@ object Bhx extends AirportConfigLike {
           (EeaMachineReadable -> List(EGate -> egateUtilisation, EeaDesk -> nonEgateUtilisation))
       )
     ),
-    feedSources = Seq(ApiFeedSource, LiveBaseFeedSource, LiveFeedSource, ForecastFeedSource, AclFeedSource),
+    feedSources = Seq(ApiFeedSource, LiveBaseFeedSource, LiveFeedSource, AclFeedSource),
     flexedQueues = Set(EeaDesk, NonEeaDesk),
     desksByTerminal = Map[Terminal, Int](T1 -> 9, T2 -> 7)
   )
